@@ -1,0 +1,140 @@
+import { Project } from './types';
+
+// Using consistent seeds for picsum to simulate real project assets
+// In a real app, these would be local assets or CDN URLs
+
+export const PROJECTS: Project[] = [
+  {
+    id: '1',
+    slug: 'brooklyn',
+    name: 'ЖК Бруклин',
+    shortDescription: 'Нью-Йоркская эстетика в каждой детали.',
+    fullDescription: 'ЖК «Бруклин» — это воплощение смелой архитектуры и динамичного ритма жизни. Кирпичные фасады, панорамные окна и закрытый двор без машин создают атмосферу приватности в центре событий. Идеальный выбор для тех, кто ценит стиль лофт и современные технологии.',
+    location: 'ул. Савушкина, Центр',
+    tags: ['Бизнес-класс', 'Сдача 2025', 'Панорамные окна'],
+    heroImage: 'https://picsum.photos/seed/brooklyn-hero/1920/1080',
+    colorTheme: '#b91c1c', // Red brick tone
+    gallery: [
+      'https://picsum.photos/seed/brooklyn-1/800/600',
+      'https://picsum.photos/seed/brooklyn-2/800/600',
+      'https://picsum.photos/seed/brooklyn-3/800/600',
+    ],
+    features: [
+      { title: 'Архитектура', description: 'Баварская кладка и стиль лофт', icon: 'Building' },
+      { title: 'Безопасность', description: 'Закрытая территория и видеонаблюдение 24/7', icon: 'Shield' },
+      { title: 'Локация', description: '5 минут до набережной', icon: 'MapPin' },
+    ],
+    infrastructure: [
+      { id: 'i1', type: 'school', name: 'Гимназия №3', x: 20, y: 30 },
+      { id: 'i2', type: 'kindergarten', name: 'Детсад "Бемби"', x: 75, y: 25 },
+      { id: 'i3', type: 'gym', name: 'World Class', x: 15, y: 60 },
+      { id: 'i4', type: 'shop', name: 'Азбука Вкуса', x: 60, y: 70 },
+      { id: 'i5', type: 'pharmacy', name: 'Аптека 36.6', x: 40, y: 20 },
+    ],
+    plans: [
+      { id: 'b-1', rooms: 1, area: 42.5, price: 'от 5.2 млн ₽', image: 'https://picsum.photos/seed/plan1/600/400' },
+      { id: 'b-2', rooms: 2, area: 68.0, price: 'от 7.8 млн ₽', image: 'https://picsum.photos/seed/plan2/600/400' },
+      { id: 'b-3', rooms: 3, area: 95.0, price: 'от 11.5 млн ₽', image: 'https://picsum.photos/seed/plan3/600/400' },
+    ],
+    promos: [
+      { id: 'p1', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства.', image: 'https://picsum.photos/seed/money/800/400' },
+      { id: 'p2', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры.', discount: '-1.5 млн ₽', image: 'https://picsum.photos/seed/car/800/400' },
+    ]
+  },
+  {
+    id: '2',
+    slug: 'babayka',
+    name: 'ЖК Бабайка',
+    shortDescription: 'Семейный уют и тепло родного дома.',
+    fullDescription: 'Жилой комплекс «Бабайка» создан для комфортной семейной жизни. Здесь тихо, безопасно и зелено. Просторные детские площадки, собственные скверы и эргономичные планировки для больших и маленьких семей. Здесь каждый найдет свое место силы.',
+    location: 'мкр. Бабаевского',
+    tags: ['Комфорт', 'Экология', 'Для семей'],
+    heroImage: 'https://picsum.photos/seed/babayka-hero/1920/1080',
+    colorTheme: '#16a34a', // Green nature tone
+    gallery: [
+      'https://picsum.photos/seed/babayka-1/800/600',
+      'https://picsum.photos/seed/babayka-2/800/600',
+    ],
+    features: [
+      { title: 'Экология', description: 'Рядом парк и река', icon: 'Tree' },
+      { title: 'Детям', description: 'Игровые площадки нового поколения', icon: 'Smile' },
+      { title: 'Комфорт', description: 'Колясочные в каждом подъезде', icon: 'Home' },
+    ],
+    infrastructure: [
+      { id: 'i6', type: 'school', name: 'Школа №28', x: 80, y: 40 },
+      { id: 'i7', type: 'kindergarten', name: 'Садик "Ромашка"', x: 30, y: 35 },
+      { id: 'i8', type: 'shop', name: 'Магнит', x: 25, y: 75 },
+      { id: 'i9', type: 'dentist', name: 'Улыбка', x: 65, y: 20 },
+    ],
+    plans: [
+      { id: 'ba-1', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: 'https://picsum.photos/seed/plan4/600/400' },
+      { id: 'ba-2', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: 'https://picsum.photos/seed/plan5/600/400' },
+    ],
+    promos: [
+      { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: 'https://picsum.photos/seed/family/800/400' },
+    ]
+  },
+  {
+    id: '3',
+    slug: 'manhattan',
+    name: 'ЖК Манхэттен',
+    shortDescription: 'Престиж и статус в центре города.',
+    fullDescription: '«Манхэттен» — это дом для амбициозных людей. Строгие линии фасада, лобби с консьерж-сервисом и панорамный вид на город. Живите в ритме мегаполиса, наслаждаясь тишиной собственной квартиры с улучшенной шумоизоляцией.',
+    location: 'Деловой центр',
+    tags: ['Премиум', 'Видовые квартиры', 'Центр'],
+    heroImage: 'https://picsum.photos/seed/manhattan-hero/1920/1080',
+    colorTheme: '#2563eb', // Blue business tone
+    gallery: [
+      'https://picsum.photos/seed/manhattan-1/800/600',
+      'https://picsum.photos/seed/manhattan-2/800/600',
+    ],
+    features: [
+      { title: 'Сервис', description: 'Консьерж-сервис 24/7', icon: 'User' },
+      { title: 'Вид', description: 'Панорама на весь город', icon: 'Eye' },
+      { title: 'Технологии', description: 'Система "Умный дом"', icon: 'Smartphone' },
+    ],
+    infrastructure: [
+      { id: 'i10', type: 'gym', name: 'Фитнес Премиум', x: 45, y: 15 },
+      { id: 'i11', type: 'shop', name: 'ТЦ "Сити"', x: 10, y: 40 },
+      { id: 'i12', type: 'dentist', name: 'Дентал Арт', x: 85, y: 65 },
+      { id: 'i13', type: 'pharmacy', name: 'Ригла', x: 60, y: 80 },
+    ],
+    plans: [
+      { id: 'm-0', rooms: 0, area: 30.0, price: 'от 6.5 млн ₽', image: 'https://picsum.photos/seed/plan6/600/400' },
+      { id: 'm-2', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: 'https://picsum.photos/seed/plan7/600/400' },
+    ],
+    promos: [
+      { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: 'https://picsum.photos/seed/tech/800/400' },
+    ]
+  },
+  {
+    id: '4',
+    slug: 'charisma',
+    name: 'ЖК Харизма',
+    shortDescription: 'Яркая архитектура для яркой жизни.',
+    fullDescription: 'ЖК «Харизма» выделяется на фоне городской застройки. Необычные цветовые решения фасадов, дизайнерское благоустройство двора и продуманные сценарии жизни. Это дом, который вдохновляет творить и любить.',
+    location: 'Новый район',
+    tags: ['Дизайн', 'Молодежный', 'Спорт'],
+    heroImage: 'https://picsum.photos/seed/charisma-hero/1920/1080',
+    colorTheme: '#9333ea', // Purple creative tone
+    gallery: [
+      'https://picsum.photos/seed/charisma-1/800/600',
+      'https://picsum.photos/seed/charisma-2/800/600',
+    ],
+    features: [
+      { title: 'Спорт', description: 'Воркаут зоны и беговые дорожки', icon: 'Activity' },
+      { title: 'Дизайн', description: 'Авторские входные группы', icon: 'PenTool' },
+    ],
+    infrastructure: [
+      { id: 'i14', type: 'gym', name: 'CrossFit Box', x: 35, y: 35 },
+      { id: 'i15', type: 'shop', name: 'Супермаркет 24', x: 70, y: 60 },
+      { id: 'i16', type: 'school', name: 'Лицей искусств', x: 15, y: 80 },
+    ],
+    plans: [
+      { id: 'c-1', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: 'https://picsum.photos/seed/plan8/600/400' },
+    ],
+    promos: [
+      { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: 'https://picsum.photos/seed/paint/800/400' },
+    ]
+  },
+];
