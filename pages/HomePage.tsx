@@ -1,77 +1,196 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
-import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, ArrowDown, Percent, MessageSquare } from 'lucide-react';
+
+const PROMO_INTERVAL = 6000;
+
+const specialOffers = [
+  {
+    title: 'Ипотека 0.1%',
+    description: 'На первый год для семей с детьми',
+    discount: '-5%',
+    image: 'https://picsum.photos/seed/promo-mortgage/600/400',
+  },
+  {
+    title: 'Рассрочка 0%',
+    description: 'Без переплат до конца строительства',
+    discount: '-10%',
+    image: 'https://picsum.photos/seed/promo-installment/600/400',
+  },
+  {
+    title: 'Паркинг в подарок',
+    description: 'При покупке 3-комнатной квартиры',
+    discount: 'Подарок',
+    image: 'https://picsum.photos/seed/promo-parking/600/400',
+  },
+  {
+    title: 'Отделка в подарок',
+    description: 'При бронировании до конца месяца',
+    discount: '-300 т.₽',
+    image: 'https://picsum.photos/seed/promo-finish/600/400',
+  },
+];
+
+const PromoWidget: React.FC = () => {
+  const [current, setCurrent] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setProgress(0);
+    const startTime = Date.now();
+
+    const progressTimer = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min((elapsed / PROMO_INTERVAL) * 100, 100);
+      setProgress(pct);
+    }, 50);
+
+    const slideTimer = setTimeout(() => {
+      setCurrent((prev) => (prev + 1) % specialOffers.length);
+    }, PROMO_INTERVAL);
+
+    return () => {
+      clearInterval(progressTimer);
+      clearTimeout(slideTimer);
+    };
+  }, [current]);
+
+  const offer = specialOffers[current];
+
+  return (
+    <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-sand/50">
+      {/* Image area */}
+      <div className="relative h-[260px] overflow-hidden bg-beige">
+        {/* % badge */}
+        <div className="absolute top-4 left-4 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-xl flex items-center justify-center shadow-sm">
+          <Percent className="w-5 h-5 text-accent" />
+        </div>
+
+        {/* Discount badge */}
+        <div className="absolute top-4 right-4 z-10 bg-primary text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+          {offer.discount}
+        </div>
+
+        {/* Promo image */}
+        <img
+          key={current}
+          src={offer.image}
+          alt={offer.title}
+          className="w-full h-full object-cover animate-fade-in"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        <h3 className="text-2xl font-bold text-primary mb-2">{offer.title}</h3>
+        <p className="text-secondary">{offer.description}</p>
+
+        {/* Progress bar */}
+        <div className="mt-6 h-1 bg-sand rounded-full overflow-hidden">
+          <div
+            className="h-full bg-accent/70 rounded-full"
+            style={{ width: `${progress}%`, transition: 'none' }}
+          />
+        </div>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center gap-2 mt-4">
+          {specialOffers.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrent(idx)}
+              className={`h-2 rounded-full transition-all ${
+                idx === current ? 'bg-accent w-6' : 'bg-sand w-2'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const HomePage: React.FC = () => {
   const { projects } = useData();
 
-  const heroPromos = useMemo(() => {
-    const allPromos = projects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
-    return allPromos.slice(0, 3);
-  }, [projects]);
-
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[#fdfbf9]">
+      <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0">
           <img
-            src="https://picsum.photos/seed/light-arch/1920/1080"
-            className="w-full h-full object-cover opacity-20 grayscale-[20%]"
+            src="https://picsum.photos/seed/modern-building/1920/1080"
+            className="w-full h-full object-cover"
             alt="Background"
           />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
-
-        <div className="relative z-10 px-4 md:px-8 max-w-[1600px] mx-auto w-full flex flex-col justify-center pb-32">
-          <Reveal delay={100}>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight mb-6 text-primary leading-[1.1]">
-              Искусство<br/>
-              <span className="italic font-serif text-accent">жить красиво</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={300}>
-            <p className="text-lg md:text-xl text-secondary font-light max-w-xl mb-8">
-              Создаем пространства, вдохновленные эстетикой, комфортом и теплом.
-              Дома, в которые хочется возвращаться.
-            </p>
-          </Reveal>
-          <Reveal delay={500}>
-            <Link
-              to="/projects"
-              className="inline-block bg-primary text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-accent hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-            >
-              Выбрать проект
-            </Link>
-          </Reveal>
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-white/60" />
         </div>
 
-        {/* Hero Offers */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md border-t border-sand">
-          <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {heroPromos.map((promo, idx) => (
+        {/* Content grid */}
+        <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 md:px-8 py-12">
+          <div className="grid lg:grid-cols-[1fr_auto] gap-8 items-center">
+            {/* Left side - Text */}
+            <div className="max-w-2xl">
+              <Reveal delay={100}>
+                <div className="inline-block border border-primary/20 rounded-full px-6 py-2 mb-8">
+                  <span className="text-sm uppercase tracking-widest text-primary/70 font-medium">
+                    Застройщик Группа Компаний Хорошо
+                  </span>
+                </div>
+              </Reveal>
+
+              <Reveal delay={200}>
+                <h1 className="mb-6">
+                  <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-primary">
+                    Строим
+                  </span>
+                  <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-accent">
+                    счастье
+                  </span>
+                </h1>
+              </Reveal>
+
+              <Reveal delay={400}>
+                <p className="text-lg md:text-xl text-secondary font-light max-w-md mb-10 leading-relaxed">
+                  Эстетика, комфорт и безопасность в&nbsp;каждом квадратном метре.
+                </p>
+              </Reveal>
+
+              <Reveal delay={600}>
                 <Link
-                  key={idx}
-                  to={`/projects/${promo.project.slug}`}
-                  className="flex items-center gap-4 group cursor-pointer animate-slide-up p-2 rounded-lg hover:bg-white/50 transition-colors"
-                  style={{ animationDelay: `${600 + idx * 100}ms` }}
+                  to="/projects"
+                  className="inline-flex items-center gap-3 bg-primary text-white pl-8 pr-6 py-4 rounded-full font-medium text-lg hover:bg-accent hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
                 >
-                  <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                    <img src={promo.image} alt="offer" className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-accent uppercase tracking-wider mb-1">Спецпредложение</div>
-                    <div className="font-bold text-primary leading-tight group-hover:text-accent transition-colors">{promo.title}</div>
-                    <div className="text-xs text-secondary mt-1">{promo.description.slice(0, 40)}...</div>
-                  </div>
+                  Выбрать квартиру
+                  <span className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                    <ArrowDown className="w-5 h-5" />
+                  </span>
                 </Link>
-              ))}
+              </Reveal>
+            </div>
+
+            {/* Right side - Promo Widget */}
+            <div className="hidden lg:block">
+              <Reveal direction="left" delay={400}>
+                <PromoWidget />
+              </Reveal>
             </div>
           </div>
         </div>
+
+        {/* Chat button */}
+        <button className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-accent transition-colors">
+          <MessageSquare className="w-6 h-6" />
+        </button>
+      </section>
+
+      {/* Mobile Promo Widget */}
+      <section className="lg:hidden py-8 px-4 bg-beige/50 flex justify-center">
+        <PromoWidget />
       </section>
 
       {/* Projects Grid */}
