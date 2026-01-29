@@ -1,16 +1,9 @@
 import React from 'react';
+import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 
-const team = [
-  { name: 'Александр Иванов', role: 'Генеральный директор', image: 'https://picsum.photos/seed/person1/400/400' },
-  { name: 'Мария Петрова', role: 'Коммерческий директор', image: 'https://picsum.photos/seed/person2/400/400' },
-  { name: 'Дмитрий Сидоров', role: 'Главный архитектор', image: 'https://picsum.photos/seed/person3/400/400' },
-  { name: 'Елена Козлова', role: 'Директор по маркетингу', image: 'https://picsum.photos/seed/person4/400/400' },
-  { name: 'Сергей Николаев', role: 'Технический директор', image: 'https://picsum.photos/seed/person5/400/400' },
-  { name: 'Анна Федорова', role: 'HR-директор', image: 'https://picsum.photos/seed/person6/400/400' },
-];
-
 export const TeamPage: React.FC = () => {
+  const { team } = useData();
   return (
     <>
       {/* Hero */}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48" fill="none">
+  <!-- Chevron icon -->
+  <path d="M4 4 L20 24 L4 44" stroke="#cca378" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M16 4 L32 24 L16 44" stroke="#4a4036" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- ХОРОШО text -->
+  <text x="44" y="28" font-family="Manrope, Arial, sans-serif" font-size="26" font-weight="800" fill="#4a4036" letter-spacing="2">ХОРОШО</text>
+  <!-- ГРУППА КОМПАНИЙ text -->
+  <text x="44" y="44" font-family="Manrope, Arial, sans-serif" font-size="10" font-weight="500" fill="#4a4036" letter-spacing="3" opacity="0.6">ГРУППА КОМПАНИЙ</text>
+</svg>

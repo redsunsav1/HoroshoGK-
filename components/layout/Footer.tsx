@@ -9,11 +9,8 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-white rounded-tr-xl rounded-bl-xl" />
-              <span className="font-bold text-xl tracking-tight uppercase text-white">
-                Хорошо!<span className="text-gray-400 font-light ml-1">ГК</span>
-              </span>
+            <Link to="/" className="inline-block mb-6">
+              <img src="/logo-white.svg" alt="ГК Хорошо" className="h-10 w-auto" />
             </Link>
             <p className="text-white/60 font-light mb-6 max-w-sm">
               Создаем пространства, вдохновленные эстетикой, комфортом и теплом.

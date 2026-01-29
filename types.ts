@@ -46,3 +46,46 @@ export interface Project {
   infrastructure: InfrastructureItem[];
   colorTheme: string; // Hex for accent
 }
+
+// News
+export interface NewsItem {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  image: string;
+  category: string;
+}
+
+// FAQ
+export interface FaqQuestion {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface FaqCategory {
+  id: string;
+  name: string;
+  questions: FaqQuestion[];
+}
+
+// Team
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+}
+
+// Vacancy
+export interface Vacancy {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  salary: string;
+}

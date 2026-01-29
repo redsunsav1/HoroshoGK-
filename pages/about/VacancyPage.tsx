@@ -1,39 +1,10 @@
 import React from 'react';
+import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { MapPin, Clock, Banknote, ArrowRight } from 'lucide-react';
 
-const vacancies = [
-  {
-    title: 'Менеджер по продажам',
-    department: 'Отдел продаж',
-    location: 'Астрахань',
-    type: 'Полная занятость',
-    salary: 'от 80 000 ₽',
-  },
-  {
-    title: 'Архитектор',
-    department: 'Проектный отдел',
-    location: 'Астрахань',
-    type: 'Полная занятость',
-    salary: 'от 120 000 ₽',
-  },
-  {
-    title: 'Маркетолог',
-    department: 'Отдел маркетинга',
-    location: 'Астрахань / Удаленно',
-    type: 'Полная занятость',
-    salary: 'от 70 000 ₽',
-  },
-  {
-    title: 'Инженер-сметчик',
-    department: 'Производственный отдел',
-    location: 'Астрахань',
-    type: 'Полная занятость',
-    salary: 'от 90 000 ₽',
-  },
-];
-
 export const VacancyPage: React.FC = () => {
+  const { vacancies } = useData();
   return (
     <>
       {/* Hero */}

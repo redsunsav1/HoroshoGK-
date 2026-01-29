@@ -77,10 +77,6 @@ const seoData: Record<string, { title: string; description: string }> = {
     title: 'Инвесторам',
     description: 'Информация для инвесторов ГК «Хорошо». Финансовые показатели, отчётность, партнёрство.',
   },
-  '/personal': {
-    title: 'Личный кабинет',
-    description: 'Личный кабинет клиента ГК «Хорошо». Управление сделками, документы, ход строительства.',
-  },
 };
 
 interface LayoutProps {

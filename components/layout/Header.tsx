@@ -65,11 +65,8 @@ export const Header: React.FC = () => {
       <div className="max-w-[1600px] mx-auto px-4 md:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-tr-xl rounded-bl-xl" />
-            <span className="font-bold text-xl tracking-tight uppercase text-primary">
-              Хорошо!<span className="text-secondary font-light ml-1">ГК</span>
-            </span>
+          <Link to="/" className="flex items-center shrink-0">
+            <img src="/logo-dark.svg" alt="ГК Хорошо" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -126,12 +123,6 @@ export const Header: React.FC = () => {
               <Phone className="w-4 h-4 mr-2 text-accent" />
               8 800 000-00-00
             </a>
-            <Link
-              to="/personal"
-              className="hidden sm:block text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors"
-            >
-              Личный кабинет
-            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-primary"
@@ -175,13 +166,6 @@ export const Header: React.FC = () => {
                 )}
               </div>
             ))}
-            <Link
-              to="/personal"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-3 font-medium text-primary"
-            >
-              Личный кабинет
-            </Link>
           </nav>
         </div>
       )}
