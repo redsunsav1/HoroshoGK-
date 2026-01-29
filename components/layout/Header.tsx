@@ -95,7 +95,8 @@ export const Header: React.FC = () => {
 
                 {/* Dropdown */}
                 {item.children && openDropdown === item.href && (
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-sand py-2 min-w-[200px] animate-fade-in-up">
+                  <div className="absolute top-full left-0 pt-2 min-w-[200px]">
+                  <div className="bg-white rounded-xl shadow-xl border border-sand py-2 animate-fade-in-up">
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
@@ -109,6 +110,7 @@ export const Header: React.FC = () => {
                         {child.label}
                       </Link>
                     ))}
+                  </div>
                   </div>
                 )}
               </div>
