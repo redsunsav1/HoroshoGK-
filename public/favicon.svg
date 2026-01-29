@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <path d="M8 6 L24 24 L8 42" stroke="#cca378" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M20 6 L36 24 L20 42" stroke="#4a4036" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Main black shape: diagonal stroke + base, with chevron cutout -->
+  <path fill-rule="evenodd" d="
+    M56,2 L74,2 L22,78 L8,78 L8,96 L78,96 L78,78 L38,78 Z
+    M36,46 L56,26 L56,66 Z
+  " fill="#1a1a1a"/>
+  <!-- Gold chevron accent -->
+  <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
 </svg>
