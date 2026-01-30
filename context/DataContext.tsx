@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { Project, NewsItem, FaqCategory, TeamMember, Vacancy } from '../types';
 import {
   PROJECTS as INITIAL_PROJECTS,
@@ -7,6 +7,14 @@ import {
   TEAM as INITIAL_TEAM,
   VACANCIES as INITIAL_VACANCIES,
 } from '../constants';
+
+interface AllData {
+  projects: Project[];
+  news: NewsItem[];
+  faqCategories: FaqCategory[];
+  team: TeamMember[];
+  vacancies: Vacancy[];
+}
 
 interface DataContextType {
   // Projects
@@ -38,6 +46,33 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const API_BASE = '/api';
+
+async function fetchServerData(): Promise<AllData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/data`);
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch {
+    // API not available — offline mode
+  }
+  return null;
+}
+
+async function saveServerData(data: AllData): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/data`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    // API not available — changes only in localStorage
+  }
+}
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   const saved = localStorage.getItem(key);
   return saved ? JSON.parse(saved) : fallback;
@@ -49,13 +84,46 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(() => loadFromStorage('horosho_faq', INITIAL_FAQ));
   const [team, setTeam] = useState<TeamMember[]>(() => loadFromStorage('horosho_team', INITIAL_TEAM));
   const [vacancies, setVacancies] = useState<Vacancy[]>(() => loadFromStorage('horosho_vacancies', INITIAL_VACANCIES));
+  const [loaded, setLoaded] = useState(false);
 
-  // Save to localStorage on change
-  useEffect(() => { localStorage.setItem('horosho_projects', JSON.stringify(projects)); }, [projects]);
-  useEffect(() => { localStorage.setItem('horosho_news', JSON.stringify(news)); }, [news]);
-  useEffect(() => { localStorage.setItem('horosho_faq', JSON.stringify(faqCategories)); }, [faqCategories]);
-  useEffect(() => { localStorage.setItem('horosho_team', JSON.stringify(team)); }, [team]);
-  useEffect(() => { localStorage.setItem('horosho_vacancies', JSON.stringify(vacancies)); }, [vacancies]);
+  // Load from server on mount
+  useEffect(() => {
+    fetchServerData().then((data) => {
+      if (data) {
+        if (data.projects?.length) setProjects(data.projects);
+        if (data.news?.length) setNews(data.news);
+        if (data.faqCategories?.length) setFaqCategories(data.faqCategories);
+        if (data.team?.length) setTeam(data.team);
+        if (data.vacancies?.length) setVacancies(data.vacancies);
+      }
+      setLoaded(true);
+    });
+  }, []);
+
+  // Debounced save to server + localStorage
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const saveAll = useCallback((p: Project[], n: NewsItem[], f: FaqCategory[], t: TeamMember[], v: Vacancy[]) => {
+    // Always save to localStorage immediately
+    localStorage.setItem('horosho_projects', JSON.stringify(p));
+    localStorage.setItem('horosho_news', JSON.stringify(n));
+    localStorage.setItem('horosho_faq', JSON.stringify(f));
+    localStorage.setItem('horosho_team', JSON.stringify(t));
+    localStorage.setItem('horosho_vacancies', JSON.stringify(v));
+
+    // Debounce server save (500ms)
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveServerData({ projects: p, news: n, faqCategories: f, team: t, vacancies: v });
+    }, 500);
+  }, []);
+
+  // Save on every change (after initial load)
+  useEffect(() => {
+    if (loaded) {
+      saveAll(projects, news, faqCategories, team, vacancies);
+    }
+  }, [projects, news, faqCategories, team, vacancies, loaded, saveAll]);
 
   // Projects CRUD
   const updateProject = (p: Project) => setProjects(prev => prev.map(x => x.id === p.id ? p : x));
@@ -88,11 +156,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFaqCategories(INITIAL_FAQ);
       setTeam(INITIAL_TEAM);
       setVacancies(INITIAL_VACANCIES);
-      localStorage.removeItem('horosho_projects');
-      localStorage.removeItem('horosho_news');
-      localStorage.removeItem('horosho_faq');
-      localStorage.removeItem('horosho_team');
-      localStorage.removeItem('horosho_vacancies');
     }
   };
 
