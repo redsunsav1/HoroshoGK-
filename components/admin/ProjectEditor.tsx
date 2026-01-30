@@ -22,7 +22,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     fullDescription: '',
     location: '',
     tags: [],
-    heroImage: 'https://picsum.photos/seed/new/1920/1080',
+    heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#000000',
     gallery: [],
     features: [],
@@ -48,7 +48,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
       rooms: 1,
       area: 40,
       price: '5.0 млн ₽',
-      image: 'https://picsum.photos/seed/plan/600/400'
+      image: '/images/placeholder-plan.svg'
     };
     setProject({ ...project, plans: [...project.plans, newPlan] });
   };
@@ -58,7 +58,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
       id: Date.now().toString(),
       title: 'Новая акция',
       description: 'Описание акции',
-      image: 'https://picsum.photos/seed/promo/800/400'
+      image: '/images/placeholder-card.svg'
     };
     setProject({ ...project, promos: [...project.promos, newPromo] });
   };

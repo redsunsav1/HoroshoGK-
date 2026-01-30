@@ -155,7 +155,7 @@ const NewsEditor: React.FC<{ initialItem?: NewsItem }> = ({ initialItem }) => {
     excerpt: '',
     content: '',
     date: new Date().toISOString().split('T')[0],
-    image: 'https://picsum.photos/seed/new-news/800/500',
+    image: '/images/placeholder-card.svg',
     category: 'Новости компании',
   });
 
@@ -341,7 +341,7 @@ const TeamSection: React.FC = () => {
   const [form, setForm] = useState<TeamMember>({ id: '', name: '', role: '', image: '' });
 
   const startNew = () => {
-    setForm({ id: Date.now().toString(), name: '', role: '', image: 'https://picsum.photos/seed/new-person/400/400' });
+    setForm({ id: Date.now().toString(), name: '', role: '', image: '/images/placeholder-avatar.svg' });
     setEditing('new');
   };
 

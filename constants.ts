@@ -1,8 +1,5 @@
 import { Project, NewsItem, FaqCategory, TeamMember, Vacancy } from './types';
 
-// Using consistent seeds for picsum to simulate real project assets
-// In a real app, these would be local assets or CDN URLs
-
 export const PROJECTS: Project[] = [
   {
     id: '1',
@@ -12,12 +9,12 @@ export const PROJECTS: Project[] = [
     fullDescription: 'ЖК «Бруклин» — это воплощение смелой архитектуры и динамичного ритма жизни. Кирпичные фасады, панорамные окна и закрытый двор без машин создают атмосферу приватности в центре событий. Идеальный выбор для тех, кто ценит стиль лофт и современные технологии.',
     location: 'ул. Савушкина, Центр',
     tags: ['Бизнес-класс', 'Сдача 2025', 'Панорамные окна'],
-    heroImage: 'https://picsum.photos/seed/brooklyn-hero/1920/1080',
+    heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#b91c1c',
     gallery: [
-      'https://picsum.photos/seed/brooklyn-1/800/600',
-      'https://picsum.photos/seed/brooklyn-2/800/600',
-      'https://picsum.photos/seed/brooklyn-3/800/600',
+      '/images/placeholder-card.svg',
+      '/images/placeholder-card.svg',
+      '/images/placeholder-card.svg',
     ],
     features: [
       { title: 'Архитектура', description: 'Баварская кладка и стиль лофт', icon: 'Building' },
@@ -32,13 +29,13 @@ export const PROJECTS: Project[] = [
       { id: 'i5', type: 'pharmacy', name: 'Аптека 36.6', x: 40, y: 20 },
     ],
     plans: [
-      { id: 'b-1', rooms: 1, area: 42.5, price: 'от 5.2 млн ₽', image: 'https://picsum.photos/seed/plan1/600/400' },
-      { id: 'b-2', rooms: 2, area: 68.0, price: 'от 7.8 млн ₽', image: 'https://picsum.photos/seed/plan2/600/400' },
-      { id: 'b-3', rooms: 3, area: 95.0, price: 'от 11.5 млн ₽', image: 'https://picsum.photos/seed/plan3/600/400' },
+      { id: 'b-1', rooms: 1, area: 42.5, price: 'от 5.2 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'b-2', rooms: 2, area: 68.0, price: 'от 7.8 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'b-3', rooms: 3, area: 95.0, price: 'от 11.5 млн ₽', image: '/images/placeholder-plan.svg' },
     ],
     promos: [
-      { id: 'p1', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства.', image: 'https://picsum.photos/seed/money/800/400' },
-      { id: 'p2', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры.', discount: '-1.5 млн ₽', image: 'https://picsum.photos/seed/car/800/400' },
+      { id: 'p1', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства.', image: '/images/placeholder-card.svg' },
+      { id: 'p2', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры.', discount: '-1.5 млн ₽', image: '/images/placeholder-card.svg' },
     ]
   },
   {
@@ -49,11 +46,11 @@ export const PROJECTS: Project[] = [
     fullDescription: 'Жилой комплекс «Бабайка» создан для комфортной семейной жизни. Здесь тихо, безопасно и зелено. Просторные детские площадки, собственные скверы и эргономичные планировки для больших и маленьких семей. Здесь каждый найдет свое место силы.',
     location: 'мкр. Бабаевского',
     tags: ['Комфорт', 'Экология', 'Для семей'],
-    heroImage: 'https://picsum.photos/seed/babayka-hero/1920/1080',
+    heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#16a34a',
     gallery: [
-      'https://picsum.photos/seed/babayka-1/800/600',
-      'https://picsum.photos/seed/babayka-2/800/600',
+      '/images/placeholder-card.svg',
+      '/images/placeholder-card.svg',
     ],
     features: [
       { title: 'Экология', description: 'Рядом парк и река', icon: 'Tree' },
@@ -67,11 +64,11 @@ export const PROJECTS: Project[] = [
       { id: 'i9', type: 'dentist', name: 'Улыбка', x: 65, y: 20 },
     ],
     plans: [
-      { id: 'ba-1', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: 'https://picsum.photos/seed/plan4/600/400' },
-      { id: 'ba-2', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: 'https://picsum.photos/seed/plan5/600/400' },
+      { id: 'ba-1', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'ba-2', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: '/images/placeholder-plan.svg' },
     ],
     promos: [
-      { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: 'https://picsum.photos/seed/family/800/400' },
+      { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: '/images/placeholder-card.svg' },
     ]
   },
   {
@@ -82,11 +79,11 @@ export const PROJECTS: Project[] = [
     fullDescription: '«Манхэттен» — это дом для амбициозных людей. Строгие линии фасада, лобби с консьерж-сервисом и панорамный вид на город. Живите в ритме мегаполиса, наслаждаясь тишиной собственной квартиры с улучшенной шумоизоляцией.',
     location: 'Деловой центр',
     tags: ['Премиум', 'Видовые квартиры', 'Центр'],
-    heroImage: 'https://picsum.photos/seed/manhattan-hero/1920/1080',
+    heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#2563eb',
     gallery: [
-      'https://picsum.photos/seed/manhattan-1/800/600',
-      'https://picsum.photos/seed/manhattan-2/800/600',
+      '/images/placeholder-card.svg',
+      '/images/placeholder-card.svg',
     ],
     features: [
       { title: 'Сервис', description: 'Консьерж-сервис 24/7', icon: 'User' },
@@ -100,11 +97,11 @@ export const PROJECTS: Project[] = [
       { id: 'i13', type: 'pharmacy', name: 'Ригла', x: 60, y: 80 },
     ],
     plans: [
-      { id: 'm-0', rooms: 0, area: 30.0, price: 'от 6.5 млн ₽', image: 'https://picsum.photos/seed/plan6/600/400' },
-      { id: 'm-2', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: 'https://picsum.photos/seed/plan7/600/400' },
+      { id: 'm-0', rooms: 0, area: 30.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'm-2', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg' },
     ],
     promos: [
-      { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: 'https://picsum.photos/seed/tech/800/400' },
+      { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: '/images/placeholder-card.svg' },
     ]
   },
   {
@@ -115,11 +112,11 @@ export const PROJECTS: Project[] = [
     fullDescription: 'ЖК «Харизма» выделяется на фоне городской застройки. Необычные цветовые решения фасадов, дизайнерское благоустройство двора и продуманные сценарии жизни. Это дом, который вдохновляет творить и любить.',
     location: 'Новый район',
     tags: ['Дизайн', 'Молодежный', 'Спорт'],
-    heroImage: 'https://picsum.photos/seed/charisma-hero/1920/1080',
+    heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#9333ea',
     gallery: [
-      'https://picsum.photos/seed/charisma-1/800/600',
-      'https://picsum.photos/seed/charisma-2/800/600',
+      '/images/placeholder-card.svg',
+      '/images/placeholder-card.svg',
     ],
     features: [
       { title: 'Спорт', description: 'Воркаут зоны и беговые дорожки', icon: 'Activity' },
@@ -131,10 +128,10 @@ export const PROJECTS: Project[] = [
       { id: 'i16', type: 'school', name: 'Лицей искусств', x: 15, y: 80 },
     ],
     plans: [
-      { id: 'c-1', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: 'https://picsum.photos/seed/plan8/600/400' },
+      { id: 'c-1', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg' },
     ],
     promos: [
-      { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: 'https://picsum.photos/seed/paint/800/400' },
+      { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: '/images/placeholder-card.svg' },
     ]
   },
 ];
@@ -147,7 +144,7 @@ export const NEWS: NewsItem[] = [
     excerpt: 'Рады объявить о начале продаж в нашем новом жилом комплексе...',
     content: '<p>Рады объявить о начале продаж в нашем новом жилом комплексе «Гармония»!</p><p>ЖК «Гармония» — это современный жилой комплекс комфорт-класса, расположенный в экологически чистом районе города. Проект включает в себя 5 жилых корпусов с квартирами от студий до просторных 3-комнатных квартир.</p><h3>Преимущества проекта:</h3><ul><li>Закрытая охраняемая территория</li><li>Подземный паркинг</li><li>Детские и спортивные площадки</li><li>Собственная зеленая зона</li></ul><p>При покупке квартиры на старте продаж действует специальная скидка 10%.</p>',
     date: '2024-01-15',
-    image: 'https://picsum.photos/seed/news1/800/500',
+    image: '/images/placeholder-card.svg',
     category: 'Новости компании',
   },
   {
@@ -157,7 +154,7 @@ export const NEWS: NewsItem[] = [
     excerpt: 'Сбербанк и ВТБ снизили ставки по ипотеке для наших клиентов...',
     content: '<p>Сбербанк и ВТБ снизили ставки по ипотеке для наших клиентов. Теперь ставка начинается от 5.9% годовых.</p><p>Новые условия действуют при покупке квартиры в любом из наших жилых комплексов. Для оформления ипотеки достаточно паспорта и справки о доходах.</p>',
     date: '2024-01-10',
-    image: 'https://picsum.photos/seed/news2/800/500',
+    image: '/images/placeholder-card.svg',
     category: 'Ипотека',
   },
   {
@@ -167,7 +164,7 @@ export const NEWS: NewsItem[] = [
     excerpt: 'Мы рады сообщить, что строительство ЖК «Бруклин» завершено на 2 месяца раньше срока...',
     content: '<p>Мы рады сообщить, что строительство ЖК «Бруклин» завершено на 2 месяца раньше срока!</p><p>Все жители уже могут получить ключи от своих квартир. Благоустройство территории завершено полностью.</p>',
     date: '2024-01-05',
-    image: 'https://picsum.photos/seed/news3/800/500',
+    image: '/images/placeholder-card.svg',
     category: 'Строительство',
   },
   {
@@ -177,7 +174,7 @@ export const NEWS: NewsItem[] = [
     excerpt: 'До конца февраля действуют специальные условия на покупку квартир...',
     content: '<p>До конца февраля действуют специальные условия на покупку квартир во всех наших жилых комплексах.</p><p>Скидки до 500 000 ₽ при полной оплате или ипотеке. Подробности у менеджеров отдела продаж.</p>',
     date: '2024-01-01',
-    image: 'https://picsum.photos/seed/news4/800/500',
+    image: '/images/placeholder-card.svg',
     category: 'Акции',
   },
 ];
@@ -222,12 +219,12 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
 ];
 
 export const TEAM: TeamMember[] = [
-  { id: 't1', name: 'Александр Иванов', role: 'Генеральный директор', image: 'https://picsum.photos/seed/person1/400/400' },
-  { id: 't2', name: 'Мария Петрова', role: 'Коммерческий директор', image: 'https://picsum.photos/seed/person2/400/400' },
-  { id: 't3', name: 'Дмитрий Сидоров', role: 'Главный архитектор', image: 'https://picsum.photos/seed/person3/400/400' },
-  { id: 't4', name: 'Елена Козлова', role: 'Директор по маркетингу', image: 'https://picsum.photos/seed/person4/400/400' },
-  { id: 't5', name: 'Сергей Николаев', role: 'Технический директор', image: 'https://picsum.photos/seed/person5/400/400' },
-  { id: 't6', name: 'Анна Федорова', role: 'HR-директор', image: 'https://picsum.photos/seed/person6/400/400' },
+  { id: 't1', name: 'Александр Иванов', role: 'Генеральный директор', image: '/images/placeholder-avatar.svg' },
+  { id: 't2', name: 'Мария Петрова', role: 'Коммерческий директор', image: '/images/placeholder-avatar.svg' },
+  { id: 't3', name: 'Дмитрий Сидоров', role: 'Главный архитектор', image: '/images/placeholder-avatar.svg' },
+  { id: 't4', name: 'Елена Козлова', role: 'Директор по маркетингу', image: '/images/placeholder-avatar.svg' },
+  { id: 't5', name: 'Сергей Николаев', role: 'Технический директор', image: '/images/placeholder-avatar.svg' },
+  { id: 't6', name: 'Анна Федорова', role: 'HR-директор', image: '/images/placeholder-avatar.svg' },
 ];
 
 export const VACANCIES: Vacancy[] = [

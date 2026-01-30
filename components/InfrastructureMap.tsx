@@ -33,7 +33,7 @@ export const InfrastructureMap: React.FC<InfrastructureMapProps> = ({ project })
         className="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-multiply"
       >
         <img 
-           src="https://picsum.photos/seed/mapbackground/1600/900" 
+           src="/images/placeholder-hero.svg" 
            alt="Map" 
            className="w-full h-full object-cover grayscale opacity-50 contrast-125 hover:scale-105 transition-transform duration-[20s]"
         />

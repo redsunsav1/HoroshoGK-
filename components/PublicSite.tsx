@@ -47,7 +47,7 @@ export const PublicSite: React.FC = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[#fdfbf9]">
-             <img src="https://picsum.photos/seed/light-arch/1920/1080" className="w-full h-full object-cover opacity-20 grayscale-[20%]" alt="Background" />
+             <img src="/images/placeholder-hero.svg" className="w-full h-full object-cover opacity-20 grayscale-[20%]" alt="Background" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
         
@@ -166,7 +166,7 @@ export const PublicSite: React.FC = () => {
           <Reveal direction="left" delay={200}>
             <div className="relative p-4">
               <div className="absolute inset-0 bg-sand rounded-full blur-3xl opacity-60 transform rotate-12" />
-              <img src="https://picsum.photos/seed/interior/800/800" className="relative rounded-2xl shadow-xl grayscale-[20%]" alt="About us" />
+              <img src="/images/placeholder-card.svg" className="relative rounded-2xl shadow-xl grayscale-[20%]" alt="About us" />
             </div>
           </Reveal>
         </div>

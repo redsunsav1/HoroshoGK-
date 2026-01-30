@@ -89,7 +89,7 @@ export const InvestorsPage: React.FC = () => {
             </Reveal>
             <Reveal direction="left">
               <img
-                src="https://picsum.photos/seed/investors/600/400"
+                src="/images/placeholder-card.svg"
                 alt="Инвесторам"
                 className="rounded-2xl shadow-xl"
               />

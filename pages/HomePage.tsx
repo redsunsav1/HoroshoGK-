@@ -11,25 +11,25 @@ const specialOffers = [
     title: 'Ипотека 0.1%',
     description: 'На первый год для семей с детьми',
     discount: '-5%',
-    image: 'https://picsum.photos/seed/promo-mortgage/600/400',
+    image: '/images/placeholder-card.svg',
   },
   {
     title: 'Рассрочка 0%',
     description: 'Без переплат до конца строительства',
     discount: '-10%',
-    image: 'https://picsum.photos/seed/promo-installment/600/400',
+    image: '/images/placeholder-card.svg',
   },
   {
     title: 'Паркинг в подарок',
     description: 'При покупке 3-комнатной квартиры',
     discount: 'Подарок',
-    image: 'https://picsum.photos/seed/promo-parking/600/400',
+    image: '/images/placeholder-card.svg',
   },
   {
     title: 'Отделка в подарок',
     description: 'При бронировании до конца месяца',
     discount: '-300 т.₽',
-    image: 'https://picsum.photos/seed/promo-finish/600/400',
+    image: '/images/placeholder-card.svg',
   },
 ];
 
@@ -122,7 +122,7 @@ export const HomePage: React.FC = () => {
         {/* Background */}
         <div className="absolute inset-0">
           <img
-            src="https://picsum.photos/seed/modern-building/1920/1080"
+            src="/images/placeholder-hero.svg"
             className="w-full h-full object-cover"
             alt="Background"
           />
@@ -289,7 +289,7 @@ export const HomePage: React.FC = () => {
             <div className="relative p-4">
               <div className="absolute inset-0 bg-sand rounded-full blur-3xl opacity-60 transform rotate-12" />
               <img
-                src="https://picsum.photos/seed/interior/800/800"
+                src="/images/placeholder-card.svg"
                 className="relative rounded-2xl shadow-xl grayscale-[20%]"
                 alt="About us"
               />

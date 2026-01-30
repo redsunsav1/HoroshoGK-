@@ -4,10 +4,10 @@ import { Reveal } from '../../components/ui/Reveal';
 import { Calculator, Building, Percent, Calendar, ArrowLeft } from 'lucide-react';
 
 const banks = [
-  { name: 'Сбербанк', rate: 5.9, logo: 'https://picsum.photos/seed/bank1/100/40' },
-  { name: 'ВТБ', rate: 6.1, logo: 'https://picsum.photos/seed/bank2/100/40' },
-  { name: 'Альфа-Банк', rate: 6.5, logo: 'https://picsum.photos/seed/bank3/100/40' },
-  { name: 'Газпромбанк', rate: 6.2, logo: 'https://picsum.photos/seed/bank4/100/40' },
+  { name: 'Сбербанк', rate: 5.9, logo: '/images/placeholder-card.svg' },
+  { name: 'ВТБ', rate: 6.1, logo: '/images/placeholder-card.svg' },
+  { name: 'Альфа-Банк', rate: 6.5, logo: '/images/placeholder-card.svg' },
+  { name: 'Газпромбанк', rate: 6.2, logo: '/images/placeholder-card.svg' },
 ];
 
 export const IpotekaPage: React.FC = () => {

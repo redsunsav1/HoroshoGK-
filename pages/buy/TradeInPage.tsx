@@ -38,7 +38,7 @@ export const TradeInPage: React.FC = () => {
           </Reveal>
           <Reveal direction="left">
             <img
-              src="https://picsum.photos/seed/tradein/600/400"
+              src="/images/placeholder-card.svg"
               alt="Trade-in"
               className="rounded-2xl shadow-xl"
             />
