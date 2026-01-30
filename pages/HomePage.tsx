@@ -311,7 +311,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Ипотека', desc: 'Выгодные ставки от партнеров', href: '/buy/ipoteka' },
+              { title: 'Ипотечный калькулятор', desc: 'Рассчитайте платёж по программе', href: '/buy/ipoteka' },
               { title: 'Рассрочка', desc: 'Без переплат до конца строительства', href: '/buy/rassrochka' },
               { title: 'Trade-in', desc: 'Обменяйте старую квартиру', href: '/buy/trade-in' },
               { title: 'Маткапитал', desc: 'Используйте государственную поддержку', href: '/buy/materinskiy-kapital' },

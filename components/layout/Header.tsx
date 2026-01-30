@@ -28,7 +28,7 @@ const navigation: NavItem[] = [
     href: '/buy',
     children: [
       { label: 'Все способы', href: '/buy' },
-      { label: 'Ипотека', href: '/buy/ipoteka' },
+      { label: 'Ипотечный калькулятор', href: '/buy/ipoteka' },
       { label: 'Рассрочка', href: '/buy/rassrochka' },
       { label: 'Trade-in', href: '/buy/trade-in' },
       { label: 'Маткапитал', href: '/buy/materinskiy-kapital' },
