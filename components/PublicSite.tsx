@@ -19,9 +19,15 @@ export const PublicSite: React.FC = () => {
     <div className="min-h-screen font-sans bg-white text-primary relative">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 px-6 py-5 md:px-12 md:py-6 flex justify-between items-center bg-white/90 backdrop-blur-md transition-all border-b border-sand">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-tr-xl rounded-bl-xl" />
-          <span className="font-bold text-xl tracking-tight uppercase text-primary">Хорошо!<span className="text-secondary font-light ml-1">ГК</span></span>
+        <div className="flex items-center gap-2.5">
+          <svg className="h-9 w-9" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#1a1a1a"/>
+            <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
+          </svg>
+          <div className="leading-none">
+            <div className="text-lg font-extrabold tracking-[0.15em] text-primary">ХОРОШО</div>
+            <div className="text-[8px] font-medium tracking-[0.25em] text-primary/60 mt-0.5">ГРУППА КОМПАНИЙ</div>
+          </div>
         </div>
         
         <nav className="hidden md:flex gap-8 text-sm font-medium tracking-wide text-primary">
