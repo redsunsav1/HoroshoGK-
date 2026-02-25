@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { InfrastructureMap } from '../../components/InfrastructureMap';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield } from 'lucide-react';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, Download } from 'lucide-react';
 import { ApartmentPlan } from '../../types';
 
 // ============================================================
@@ -305,6 +305,15 @@ const ApartmentCard: React.FC<{
           <span>Этаж: <strong className="text-primary">{plan.floor}</strong></span>
           {plan.number && <span>Кв. №<strong className="text-primary">{plan.number}</strong></span>}
         </div>
+        <a
+          href={plan.image}
+          download={`planировка-${plan.rooms}комн-${plan.area}м2-этаж${plan.floor}.svg`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full py-3 mb-2 border border-sand text-primary rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-beige transition-all duration-300 flex items-center justify-center gap-2"
+        >
+          <Download className="w-4 h-4" /> Скачать планировку
+        </a>
         {status === 'available' ? (
           <button
             onClick={() => onBook(plan)}
