@@ -1,4 +1,4 @@
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy } from './types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings } from './types';
 
 export const PROJECTS: Project[] = [
   {
@@ -28,10 +28,21 @@ export const PROJECTS: Project[] = [
       { id: 'i4', type: 'shop', name: 'Азбука Вкуса', x: 60, y: 70 },
       { id: 'i5', type: 'pharmacy', name: 'Аптека 36.6', x: 40, y: 20 },
     ],
+    totalFloors: 16,
     plans: [
-      { id: 'b-1', rooms: 1, area: 42.5, price: 'от 5.2 млн ₽', image: '/images/placeholder-plan.svg' },
-      { id: 'b-2', rooms: 2, area: 68.0, price: 'от 7.8 млн ₽', image: '/images/placeholder-plan.svg' },
-      { id: 'b-3', rooms: 3, area: 95.0, price: 'от 11.5 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'b-1-3', rooms: 1, area: 42.5, price: 'от 5.2 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '12', status: 'available' },
+      { id: 'b-1-5', rooms: 1, area: 42.5, price: 'от 5.4 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '20', status: 'available' },
+      { id: 'b-1-8', rooms: 1, area: 43.0, price: 'от 5.6 млн ₽', image: '/images/placeholder-plan.svg', floor: 8, number: '32', status: 'sold' },
+      { id: 'b-1-12', rooms: 1, area: 42.5, price: 'от 5.9 млн ₽', image: '/images/placeholder-plan.svg', floor: 12, number: '48', status: 'available' },
+      { id: 'b-2-2', rooms: 2, area: 68.0, price: 'от 7.8 млн ₽', image: '/images/placeholder-plan.svg', floor: 2, number: '5', status: 'sold' },
+      { id: 'b-2-4', rooms: 2, area: 68.0, price: 'от 8.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 4, number: '13', status: 'available' },
+      { id: 'b-2-7', rooms: 2, area: 70.0, price: 'от 8.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 7, number: '27', status: 'reserved' },
+      { id: 'b-2-10', rooms: 2, area: 68.0, price: 'от 8.8 млн ₽', image: '/images/placeholder-plan.svg', floor: 10, number: '40', status: 'available' },
+      { id: 'b-2-14', rooms: 2, area: 72.0, price: 'от 9.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 14, number: '56', status: 'available' },
+      { id: 'b-3-3', rooms: 3, area: 95.0, price: 'от 11.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '10', status: 'available' },
+      { id: 'b-3-6', rooms: 3, area: 95.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 6, number: '22', status: 'sold' },
+      { id: 'b-3-9', rooms: 3, area: 98.0, price: 'от 12.8 млн ₽', image: '/images/placeholder-plan.svg', floor: 9, number: '35', status: 'available' },
+      { id: 'b-3-15', rooms: 3, area: 100.0, price: 'от 14.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 15, number: '60', status: 'available' },
     ],
     promos: [
       { id: 'p1', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства.', image: '/images/placeholder-card.svg' },
@@ -63,9 +74,15 @@ export const PROJECTS: Project[] = [
       { id: 'i8', type: 'shop', name: 'Магнит', x: 25, y: 75 },
       { id: 'i9', type: 'dentist', name: 'Улыбка', x: 65, y: 20 },
     ],
+    totalFloors: 9,
     plans: [
-      { id: 'ba-1', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: '/images/placeholder-plan.svg' },
-      { id: 'ba-2', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'ba-1-2', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: '/images/placeholder-plan.svg', floor: 2, number: '5', status: 'available' },
+      { id: 'ba-1-4', rooms: 1, area: 38.0, price: 'от 4.1 млн ₽', image: '/images/placeholder-plan.svg', floor: 4, number: '13', status: 'sold' },
+      { id: 'ba-1-6', rooms: 1, area: 39.0, price: 'от 4.3 млн ₽', image: '/images/placeholder-plan.svg', floor: 6, number: '21', status: 'available' },
+      { id: 'ba-1-9', rooms: 1, area: 38.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 9, number: '33', status: 'available' },
+      { id: 'ba-2-3', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '9', status: 'available' },
+      { id: 'ba-2-5', rooms: 2, area: 56.0, price: 'от 5.8 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '17', status: 'reserved' },
+      { id: 'ba-2-7', rooms: 2, area: 55.0, price: 'от 6.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 7, number: '25', status: 'available' },
     ],
     promos: [
       { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: '/images/placeholder-card.svg' },
@@ -96,9 +113,16 @@ export const PROJECTS: Project[] = [
       { id: 'i12', type: 'dentist', name: 'Дентал Арт', x: 85, y: 65 },
       { id: 'i13', type: 'pharmacy', name: 'Ригла', x: 60, y: 80 },
     ],
+    totalFloors: 22,
     plans: [
-      { id: 'm-0', rooms: 0, area: 30.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg' },
-      { id: 'm-2', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'm-1-5', rooms: 1, area: 40.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '18', status: 'available' },
+      { id: 'm-1-10', rooms: 1, area: 40.0, price: 'от 7.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 10, number: '38', status: 'sold' },
+      { id: 'm-1-18', rooms: 1, area: 42.0, price: 'от 8.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 18, number: '70', status: 'available' },
+      { id: 'm-2-3', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '10', status: 'available' },
+      { id: 'm-2-8', rooms: 2, area: 75.0, price: 'от 12.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 8, number: '30', status: 'reserved' },
+      { id: 'm-2-15', rooms: 2, area: 78.0, price: 'от 13.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 15, number: '58', status: 'available' },
+      { id: 'm-3-6', rooms: 3, area: 105.0, price: 'от 16.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 6, number: '22', status: 'available' },
+      { id: 'm-3-20', rooms: 3, area: 110.0, price: 'от 19.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 20, number: '78', status: 'available' },
     ],
     promos: [
       { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: '/images/placeholder-card.svg' },
@@ -127,8 +151,15 @@ export const PROJECTS: Project[] = [
       { id: 'i15', type: 'shop', name: 'Супермаркет 24', x: 70, y: 60 },
       { id: 'i16', type: 'school', name: 'Лицей искусств', x: 15, y: 80 },
     ],
+    totalFloors: 12,
     plans: [
-      { id: 'c-1', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg' },
+      { id: 'c-1-2', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 2, number: '6', status: 'available' },
+      { id: 'c-1-5', rooms: 1, area: 40.0, price: 'от 4.7 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '18', status: 'sold' },
+      { id: 'c-1-8', rooms: 1, area: 41.0, price: 'от 5.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 8, number: '30', status: 'available' },
+      { id: 'c-2-3', rooms: 2, area: 62.0, price: 'от 6.2 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '10', status: 'available' },
+      { id: 'c-2-7', rooms: 2, area: 62.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 7, number: '26', status: 'available' },
+      { id: 'c-3-4', rooms: 3, area: 88.0, price: 'от 8.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 4, number: '14', status: 'reserved' },
+      { id: 'c-3-11', rooms: 3, area: 90.0, price: 'от 9.2 млн ₽', image: '/images/placeholder-plan.svg', floor: 11, number: '42', status: 'available' },
     ],
     promos: [
       { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: '/images/placeholder-card.svg' },
@@ -232,4 +263,25 @@ export const VACANCIES: Vacancy[] = [
   { id: 'v2', title: 'Архитектор', department: 'Проектный отдел', location: 'Астрахань', type: 'Полная занятость', salary: 'от 120 000 ₽' },
   { id: 'v3', title: 'Маркетолог', department: 'Отдел маркетинга', location: 'Астрахань / Удаленно', type: 'Полная занятость', salary: 'от 70 000 ₽' },
   { id: 'v4', title: 'Инженер-сметчик', department: 'Производственный отдел', location: 'Астрахань', type: 'Полная занятость', salary: 'от 90 000 ₽' },
+];
+
+export const PAGE_SETTINGS: PageSettings[] = [
+  { path: '/', title: 'Главная', description: 'ГК «Хорошо» — застройщик в Астрахани. Квартиры в новостройках от 3.9 млн ₽. Ипотека от 0.1%, рассрочка 0%, Trade-in.', h1: 'Искусство жить красиво' },
+  { path: '/projects', title: 'Проекты', description: 'Жилые комплексы от ГК «Хорошо» в Астрахани. ЖК Бруклин, ЖК Бабайка, ЖК Манхэттен и другие проекты.', h1: 'Наши проекты' },
+  { path: '/about', title: 'О компании', description: 'ГК «Хорошо» — 15+ лет на рынке, 5000+ ключей выдано. Надёжный застройщик в Астрахани.', h1: 'О компании' },
+  { path: '/about/team', title: 'Команда', description: 'Команда профессионалов ГК «Хорошо». Более 150 специалистов.', h1: 'Наша команда' },
+  { path: '/about/vacancy', title: 'Вакансии', description: 'Вакансии в ГК «Хорошо». Присоединяйтесь к команде лидеров строительного рынка.', h1: 'Вакансии' },
+  { path: '/about/achievements', title: 'Достижения', description: 'Награды и реализованные проекты ГК «Хорошо».', h1: 'Достижения' },
+  { path: '/buy', title: 'Способы покупки', description: 'Купить квартиру от ГК «Хорошо»: ипотека, рассрочка, Trade-in, маткапитал.', h1: 'Способы покупки' },
+  { path: '/buy/ipoteka', title: 'Ипотечный калькулятор', description: 'Ипотечный калькулятор ГК «Хорошо». Рассчитайте платёж по программе.', h1: 'Ипотечный калькулятор' },
+  { path: '/buy/rassrochka', title: 'Рассрочка', description: 'Рассрочка от застройщика — 0% переплаты, первый взнос от 10%.', h1: 'Рассрочка' },
+  { path: '/buy/trade-in', title: 'Trade-in', description: 'Обмен старой квартиры на новую в ГК «Хорошо».', h1: 'Trade-in' },
+  { path: '/buy/materinskiy-kapital', title: 'Материнский капитал', description: 'Покупка квартиры с материнским капиталом.', h1: 'Материнский капитал' },
+  { path: '/buy/social-support', title: 'Социальная поддержка', description: 'Льготные условия для молодых семей, медработников и педагогов.', h1: 'Социальная поддержка' },
+  { path: '/buy/akcii', title: 'Акции', description: 'Актуальные акции и скидки на квартиры от ГК «Хорошо».', h1: 'Акции' },
+  { path: '/buy/svo', title: 'Скидка участникам СВО', description: 'Скидки до 500 000 ₽ для участников СВО.', h1: 'Скидка участникам СВО' },
+  { path: '/news', title: 'Новости', description: 'Новости ГК «Хорошо»: ход строительства, акции, события.', h1: 'Новости' },
+  { path: '/contacts', title: 'Контакты', description: 'Контакты и офисы продаж ГК «Хорошо» в Астрахани.', h1: 'Контакты' },
+  { path: '/faq', title: 'Частые вопросы', description: 'Ответы на вопросы о покупке квартиры, ипотеке, строительстве.', h1: 'Частые вопросы' },
+  { path: '/investors', title: 'Инвесторам', description: 'Информация для инвесторов ГК «Хорошо».', h1: 'Инвесторам' },
 ];

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion } from '../../types';
+import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings } from '../../types';
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
 import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
-  Calendar, Image,
+  Calendar, Image, FileText,
 } from 'lucide-react';
 
 // ============================================================
 // Sidebar Component
 // ============================================================
-type Section = 'projects' | 'news' | 'faq' | 'team' | 'vacancies';
+type Section = 'projects' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages';
 
 const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'projects', label: 'Проекты', icon: <LayoutGrid className="w-5 h-5" /> },
@@ -20,6 +20,7 @@ const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-5 h-5" /> },
   { id: 'team', label: 'Команда', icon: <Users className="w-5 h-5" /> },
   { id: 'vacancies', label: 'Вакансии', icon: <Briefcase className="w-5 h-5" /> },
+  { id: 'pages', label: 'SEO страниц', icon: <FileText className="w-5 h-5" /> },
 ];
 
 const Sidebar: React.FC<{ active: Section; onSelect: (s: Section) => void; resetData: () => void }> = ({ active, onSelect, resetData }) => {
@@ -480,6 +481,78 @@ const VacancySection: React.FC = () => {
 };
 
 // ============================================================
+// Page Settings Section
+// ============================================================
+const PageSettingsSection: React.FC = () => {
+  const { pageSettings, updatePageSettings } = useData();
+  const [settings, setSettings] = useState<PageSettings[]>(pageSettings);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (path: string, field: keyof PageSettings, value: string) => {
+    setSettings(prev => prev.map(s => s.path === path ? { ...s, [field]: value } : s));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updatePageSettings(settings);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">SEO настройки страниц</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+      <div className="space-y-4">
+        {settings.map(page => (
+          <div key={page.path} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-6 py-3 bg-gray-50 border-b flex items-center gap-3">
+              <span className="text-xs font-mono bg-gray-200 px-2 py-1 rounded text-gray-600">{page.path}</span>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Title (заголовок вкладки)</label>
+                  <input
+                    value={page.title}
+                    onChange={e => updateField(page.path, 'title', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">H1 (заголовок на странице)</label>
+                  <input
+                    value={page.h1}
+                    onChange={e => updateField(page.path, 'h1', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Description (описание для поисковиков)</label>
+                <textarea
+                  value={page.description}
+                  onChange={e => updateField(page.path, 'description', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg text-sm h-16"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
 // Admin Dashboard (section switcher)
 // ============================================================
 const AdminDashboard: React.FC = () => {
@@ -495,6 +568,7 @@ const AdminDashboard: React.FC = () => {
         {section === 'faq' && <FaqSection />}
         {section === 'team' && <TeamSection />}
         {section === 'vacancies' && <VacancySection />}
+        {section === 'pages' && <PageSettingsSection />}
       </main>
     </div>
   );

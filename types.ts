@@ -8,12 +8,17 @@ export interface InfrastructureItem {
   y: number; // percentage 0-100
 }
 
+export type ApartmentStatus = 'available' | 'reserved' | 'sold';
+
 export interface ApartmentPlan {
   id: string;
-  rooms: number; // 0 for studio
+  rooms: number;
   area: number;
   price: string;
   image: string;
+  floor?: number;
+  number?: string;
+  status?: ApartmentStatus;
 }
 
 export interface ProjectFeature {
@@ -44,7 +49,8 @@ export interface Project {
   plans: ApartmentPlan[];
   promos: PromoOffer[];
   infrastructure: InfrastructureItem[];
-  colorTheme: string; // Hex for accent
+  colorTheme: string;
+  totalFloors?: number;
 }
 
 // News
@@ -88,4 +94,12 @@ export interface Vacancy {
   location: string;
   type: string;
   salary: string;
+}
+
+// Page SEO settings (editable in admin)
+export interface PageSettings {
+  path: string;
+  title: string;
+  description: string;
+  h1: string;
 }

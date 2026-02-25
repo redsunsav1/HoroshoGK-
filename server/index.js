@@ -82,6 +82,84 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   res.json({ url: '/uploads/' + req.file.filename });
 });
 
+// --- Booking API ---
+
+const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
+
+function readBookings() {
+  if (fs.existsSync(BOOKINGS_FILE)) {
+    return JSON.parse(fs.readFileSync(BOOKINGS_FILE, 'utf-8'));
+  }
+  return [];
+}
+
+function writeBookings(bookings) {
+  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
+}
+
+app.post('/api/booking', (req, res) => {
+  try {
+    const { name, phone, projectName, apartmentId, rooms, area, floor, number, price } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'Name and phone are required' });
+    }
+
+    const booking = {
+      id: Date.now().toString(),
+      name,
+      phone,
+      projectName: projectName || '',
+      apartmentId: apartmentId || '',
+      rooms: rooms || 0,
+      area: area || 0,
+      floor: floor || 0,
+      number: number || '',
+      price: price || '',
+      date: new Date().toISOString(),
+    };
+
+    // Save booking to file
+    const bookings = readBookings();
+    bookings.push(booking);
+    writeBookings(bookings);
+
+    // Send email notification (using sendmail if available)
+    const subject = `Новая заявка: ${projectName} - ${rooms}-комн. кв. ${number}`;
+    const body = [
+      `Имя: ${name}`,
+      `Телефон: ${phone}`,
+      `Проект: ${projectName}`,
+      `Квартира: ${rooms}-комн., ${area} м², этаж ${floor}, кв. №${number}`,
+      `Цена: ${price}`,
+      `Дата: ${new Date().toLocaleString('ru-RU')}`,
+    ].join('\n');
+
+    // Try to send email via sendmail (non-blocking)
+    const { exec } = require('child_process');
+    const emailTo = process.env.BOOKING_EMAIL || '';
+    if (emailTo) {
+      const mailCmd = `echo "${body}" | mail -s "${subject}" ${emailTo}`;
+      exec(mailCmd, (err) => {
+        if (err) console.log('Email send failed (sendmail not configured):', err.message);
+        else console.log('Booking email sent to', emailTo);
+      });
+    } else {
+      console.log('New booking received (no BOOKING_EMAIL set):', booking);
+    }
+
+    res.json({ ok: true, bookingId: booking.id });
+  } catch (err) {
+    console.error('Booking error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all bookings (for admin)
+app.get('/api/bookings', (req, res) => {
+  res.json(readBookings());
+});
+
 // --- Health check ---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
