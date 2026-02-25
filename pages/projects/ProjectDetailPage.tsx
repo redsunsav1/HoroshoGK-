@@ -447,6 +447,55 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Timeline Section — only for projects with timeline */}
+      {project.timeline && project.timeline.length > 0 && (
+        <section className="py-20 px-4 md:px-8 bg-white">
+          <div className="max-w-[1600px] mx-auto">
+            <Reveal>
+              <h2 className="text-3xl md:text-5xl font-medium mb-4 text-primary">История проекта</h2>
+              <p className="text-secondary mb-12 font-light max-w-2xl">
+                Ключевые этапы реализации проекта от старта продаж до ввода в эксплуатацию.
+              </p>
+            </Reveal>
+            <div className="relative">
+              {/* Vertical line */}
+              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-sand md:-translate-x-0.5" />
+
+              {project.timeline.map((item, idx) => {
+                const isLeft = idx % 2 === 0;
+                const dateObj = new Date(item.date);
+                const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+                const formattedDate = `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+                return (
+                  <Reveal key={item.id} delay={idx * 100} direction={isLeft ? 'right' : 'left'}>
+                    <div className={`relative flex items-start mb-8 md:mb-12 ${
+                      isLeft ? 'md:flex-row' : 'md:flex-row-reverse'
+                    }`}>
+                      {/* Content */}
+                      <div className={`ml-12 md:ml-0 md:w-1/2 ${isLeft ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
+                        <div className={`bg-beige rounded-2xl p-6 shadow-sm border border-sand inline-block ${
+                          isLeft ? 'md:ml-auto' : ''
+                        }`}>
+                          <div className="text-accent font-bold text-sm mb-2">{formattedDate}</div>
+                          <h3 className="text-xl font-bold text-primary mb-2">{item.title}</h3>
+                          {item.description && (
+                            <p className="text-secondary text-sm font-light">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Dot */}
+                      <div className="absolute left-4 md:left-1/2 w-4 h-4 bg-accent rounded-full border-4 border-white shadow-md -translate-x-1/2 mt-2" />
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Infrastructure Map Section */}
       <section className="py-20 px-4 md:px-8 bg-beige/30">
         <div className="max-w-[1600px] mx-auto">

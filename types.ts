@@ -51,6 +51,14 @@ export interface Project {
   infrastructure: InfrastructureItem[];
   colorTheme: string;
   totalFloors?: number;
+  timeline?: ProjectTimelineItem[];
+}
+
+export interface ProjectTimelineItem {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
 }
 
 // News
