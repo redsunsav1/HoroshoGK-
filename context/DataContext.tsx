@@ -12,6 +12,10 @@ import {
   SITE_SETTINGS as INITIAL_SITE_SETTINGS,
 } from '../constants';
 
+// Bump this version to force localStorage reset on all clients
+const DATA_VERSION = '2';
+const VERSION_KEY = 'horosho_data_version';
+
 interface AllData {
   projects: Project[];
   news: NewsItem[];
@@ -94,13 +98,28 @@ async function saveServerData(data: AllData): Promise<void> {
   }
 }
 
+function checkAndResetVersion(): boolean {
+  const savedVersion = localStorage.getItem(VERSION_KEY);
+  if (savedVersion !== DATA_VERSION) {
+    // Clear all horosho_ keys
+    const keysToRemove = Object.keys(localStorage).filter(k => k.startsWith('horosho_'));
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem(VERSION_KEY, DATA_VERSION);
+    return true; // was reset
+  }
+  return false;
+}
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   const saved = localStorage.getItem(key);
   return saved ? JSON.parse(saved) : fallback;
 }
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<Project[]>(() => loadFromStorage('horosho_projects', INITIAL_PROJECTS));
+  // Check version and reset if needed (runs once before state initialization)
+  const [wasReset] = useState(() => checkAndResetVersion());
+
+  const [projects, setProjects] = useState<Project[]>(() => wasReset ? INITIAL_PROJECTS : loadFromStorage('horosho_projects', INITIAL_PROJECTS));
   const [news, setNews] = useState<NewsItem[]>(() => loadFromStorage('horosho_news', INITIAL_NEWS));
   const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(() => loadFromStorage('horosho_faq', INITIAL_FAQ));
   const [team, setTeam] = useState<TeamMember[]>(() => loadFromStorage('horosho_team', INITIAL_TEAM));
