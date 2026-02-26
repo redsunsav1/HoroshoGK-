@@ -13,7 +13,7 @@ import {
 } from '../constants';
 
 // Bump this version to force localStorage reset on all clients
-const DATA_VERSION = '2';
+const DATA_VERSION = '3';
 const VERSION_KEY = 'horosho_data_version';
 
 interface AllData {
@@ -130,8 +130,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => loadFromStorage('horosho_site_settings', INITIAL_SITE_SETTINGS));
   const [loaded, setLoaded] = useState(false);
 
-  // Load from server on mount
+  // Load from server on mount (skip if version was just reset to use fresh constants)
   useEffect(() => {
+    if (wasReset) {
+      setLoaded(true);
+      return;
+    }
     fetchServerData().then((data) => {
       if (data) {
         if (data.projects?.length) setProjects(data.projects);
