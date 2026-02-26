@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, ChevronDown } from 'lucide-react';
+import { useData } from '../../context/DataContext';
 
 interface NavItem {
   label: string;
@@ -54,6 +55,7 @@ export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const { siteSettings } = useData();
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
@@ -66,13 +68,17 @@ export const Header: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center shrink-0 gap-2.5">
-            <svg className="h-10 w-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#1a1a1a"/>
-              <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
-            </svg>
+            {siteSettings.logoUrl ? (
+              <img src={siteSettings.logoUrl} alt={siteSettings.companyName} className="h-10 w-auto object-contain" />
+            ) : (
+              <svg className="h-10 w-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#1a1a1a"/>
+                <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
+              </svg>
+            )}
             <div className="leading-none">
-              <div className="text-xl font-extrabold tracking-[0.15em] text-primary">ХОРОШО</div>
-              <div className="text-[9px] font-medium tracking-[0.25em] text-primary/60 mt-0.5">ГРУППА КОМПАНИЙ</div>
+              <div className="text-xl font-extrabold tracking-[0.15em] text-primary">{siteSettings.companyName}</div>
+              <div className="text-[9px] font-medium tracking-[0.25em] text-primary/60 mt-0.5">{siteSettings.companySubtitle}</div>
             </div>
           </Link>
 
@@ -124,11 +130,11 @@ export const Header: React.FC = () => {
           {/* Right side */}
           <div className="flex items-center gap-4">
             <a
-              href="tel:+78000000000"
+              href={`tel:${siteSettings.phone.replace(/[^\d+]/g, '')}`}
               className="hidden md:flex items-center font-bold text-primary hover:text-accent transition-colors"
             >
               <Phone className="w-4 h-4 mr-2 text-accent" />
-              8 800 000-00-00
+              {siteSettings.phone}
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

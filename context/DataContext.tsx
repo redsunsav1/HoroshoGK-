@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter } from '../types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter, SiteSettings } from '../types';
 import {
   PROJECTS as INITIAL_PROJECTS,
   NEWS as INITIAL_NEWS,
@@ -9,6 +9,7 @@ import {
   PAGE_SETTINGS as INITIAL_PAGE_SETTINGS,
   HOME_PAGE_CONTENT as INITIAL_HOME_CONTENT,
   PROJECT_FILTERS as INITIAL_PROJECT_FILTERS,
+  SITE_SETTINGS as INITIAL_SITE_SETTINGS,
 } from '../constants';
 
 interface AllData {
@@ -20,6 +21,7 @@ interface AllData {
   pageSettings: PageSettings[];
   homePageContent: HomePageContent;
   projectFilters: ProjectFilter[];
+  siteSettings: SiteSettings;
 }
 
 interface DataContextType {
@@ -56,6 +58,9 @@ interface DataContextType {
   // Project filters
   projectFilters: ProjectFilter[];
   updateProjectFilters: (filters: ProjectFilter[]) => void;
+  // Site settings
+  siteSettings: SiteSettings;
+  updateSiteSettings: (settings: SiteSettings) => void;
   // Reset
   resetData: () => void;
 }
@@ -103,6 +108,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pageSettings, setPageSettings] = useState<PageSettings[]>(() => loadFromStorage('horosho_page_settings', INITIAL_PAGE_SETTINGS));
   const [homePageContent, setHomePageContent] = useState<HomePageContent>(() => loadFromStorage('horosho_home_content', INITIAL_HOME_CONTENT));
   const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>(() => loadFromStorage('horosho_project_filters', INITIAL_PROJECT_FILTERS));
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => loadFromStorage('horosho_site_settings', INITIAL_SITE_SETTINGS));
   const [loaded, setLoaded] = useState(false);
 
   // Load from server on mount
@@ -117,6 +123,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data.pageSettings?.length) setPageSettings(data.pageSettings);
         if (data.homePageContent) setHomePageContent(data.homePageContent);
         if (data.projectFilters?.length) setProjectFilters(data.projectFilters);
+        if (data.siteSettings) setSiteSettings(data.siteSettings);
       }
       setLoaded(true);
     });
@@ -125,7 +132,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Debounced save to server + localStorage
   const saveTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const saveAll = useCallback((p: Project[], n: NewsItem[], f: FaqCategory[], t: TeamMember[], v: Vacancy[], ps: PageSettings[], hc: HomePageContent, pf: ProjectFilter[]) => {
+  const saveAll = useCallback((p: Project[], n: NewsItem[], f: FaqCategory[], t: TeamMember[], v: Vacancy[], ps: PageSettings[], hc: HomePageContent, pf: ProjectFilter[], ss: SiteSettings) => {
     localStorage.setItem('horosho_projects', JSON.stringify(p));
     localStorage.setItem('horosho_news', JSON.stringify(n));
     localStorage.setItem('horosho_faq', JSON.stringify(f));
@@ -134,18 +141,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('horosho_page_settings', JSON.stringify(ps));
     localStorage.setItem('horosho_home_content', JSON.stringify(hc));
     localStorage.setItem('horosho_project_filters', JSON.stringify(pf));
+    localStorage.setItem('horosho_site_settings', JSON.stringify(ss));
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      saveServerData({ projects: p, news: n, faqCategories: f, team: t, vacancies: v, pageSettings: ps, homePageContent: hc, projectFilters: pf });
+      saveServerData({ projects: p, news: n, faqCategories: f, team: t, vacancies: v, pageSettings: ps, homePageContent: hc, projectFilters: pf, siteSettings: ss });
     }, 500);
   }, []);
 
   useEffect(() => {
     if (loaded) {
-      saveAll(projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters);
+      saveAll(projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters, siteSettings);
     }
-  }, [projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters, loaded, saveAll]);
+  }, [projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters, siteSettings, loaded, saveAll]);
 
   // Projects CRUD
   const updateProject = (p: Project) => setProjects(prev => prev.map(x => x.id === p.id ? p : x));
@@ -180,6 +188,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Project filters
   const updateProjectFilters = (filters: ProjectFilter[]) => setProjectFilters(filters);
 
+  // Site settings
+  const updateSiteSettings = (settings: SiteSettings) => setSiteSettings(settings);
+
   // Reset all
   const resetData = () => {
     if (confirm('Вы уверены? Все ваши изменения будут удалены и вернутся исходные данные.')) {
@@ -191,6 +202,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPageSettings(INITIAL_PAGE_SETTINGS);
       setHomePageContent(INITIAL_HOME_CONTENT);
       setProjectFilters(INITIAL_PROJECT_FILTERS);
+      setSiteSettings(INITIAL_SITE_SETTINGS);
     }
   };
 
@@ -204,6 +216,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       pageSettings, updatePageSettings, getPageSettings,
       homePageContent, updateHomePageContent,
       projectFilters, updateProjectFilters,
+      siteSettings, updateSiteSettings,
       resetData,
     }}>
       {children}

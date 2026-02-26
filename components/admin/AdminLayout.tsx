@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter } from '../../types';
+import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter, SiteSettings } from '../../types';
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
 import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
-  Calendar, Image, FileText, Home, Filter,
+  Calendar, Image, FileText, Home, Filter, Settings,
 } from 'lucide-react';
 
 // ============================================================
 // Sidebar Component
 // ============================================================
-type Section = 'homepage' | 'projects' | 'filters' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages';
+type Section = 'homepage' | 'projects' | 'filters' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages' | 'settings';
 
 const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'homepage', label: 'Главная', icon: <Home className="w-5 h-5" /> },
@@ -23,6 +23,7 @@ const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'team', label: 'Команда', icon: <Users className="w-5 h-5" /> },
   { id: 'vacancies', label: 'Вакансии', icon: <Briefcase className="w-5 h-5" /> },
   { id: 'pages', label: 'SEO страниц', icon: <FileText className="w-5 h-5" /> },
+  { id: 'settings', label: 'Настройки сайта', icon: <Settings className="w-5 h-5" /> },
 ];
 
 const Sidebar: React.FC<{ active: Section; onSelect: (s: Section) => void; resetData: () => void }> = ({ active, onSelect, resetData }) => {
@@ -321,6 +322,128 @@ const FiltersSection: React.FC = () => {
           </div>
         ))}
         {filters.length === 0 && <p className="text-gray-400 py-8 text-center">Нет фильтров</p>}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// Site Settings Section
+// ============================================================
+const SiteSettingsSection: React.FC = () => {
+  const { siteSettings, updateSiteSettings } = useData();
+  const [settings, setSettings] = useState<SiteSettings>(siteSettings);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (field: keyof SiteSettings, value: string) => {
+    setSettings(prev => ({ ...prev, [field]: value }));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updateSiteSettings(settings);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Настройки сайта</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {/* Logo & Company Name */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Логотип и название компании</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">URL логотипа (оставьте пустым для стандартного SVG)</label>
+            <div className="flex gap-4">
+              <input
+                value={settings.logoUrl}
+                onChange={e => updateField('logoUrl', e.target.value)}
+                className="flex-1 p-3 border border-gray-300 rounded-lg"
+                placeholder="https://example.com/logo.png"
+              />
+              {settings.logoUrl && (
+                <img src={settings.logoUrl} className="h-14 w-auto object-contain rounded bg-gray-100 border" />
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Если URL указан, в шапке и подвале будет отображаться изображение вместо стандартного логотипа.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Название компании</label>
+              <input
+                value={settings.companyName}
+                onChange={e => updateField('companyName', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="ХОРОШО"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Подпись</label>
+              <input
+                value={settings.companySubtitle}
+                onChange={e => updateField('companySubtitle', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="ГРУППА КОМПАНИЙ"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contacts */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Контактные данные</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Телефон</label>
+              <input
+                value={settings.phone}
+                onChange={e => updateField('phone', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="8 800 000-00-00"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+              <input
+                value={settings.email}
+                onChange={e => updateField('email', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="info@horoshogk.ru"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Адрес</label>
+            <input
+              value={settings.address}
+              onChange={e => updateField('address', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="г. Астрахань, ул. Теплая, д. 10, офис 305"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 text-sm">
+        <strong>Примечание:</strong> Изменения будут применены к шапке и подвалу сайта.
+        Если указан URL логотипа, он заменит стандартный SVG-логотип.
       </div>
     </div>
   );
@@ -838,6 +961,7 @@ const AdminDashboard: React.FC = () => {
         {section === 'team' && <TeamSection />}
         {section === 'vacancies' && <VacancySection />}
         {section === 'pages' && <PageSettingsSection />}
+        {section === 'settings' && <SiteSettingsSection />}
       </main>
     </div>
   );

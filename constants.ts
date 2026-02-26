@@ -1,4 +1,4 @@
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter } from './types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter, SiteSettings } from './types';
 
 export const PROJECTS: Project[] = [
   {
@@ -310,3 +310,12 @@ export const PROJECT_FILTERS: ProjectFilter[] = [
   { id: 'f5', name: 'С отделкой', slug: 'finished' },
   { id: 'f6', name: 'Сдан', slug: 'ready' },
 ];
+
+export const SITE_SETTINGS: SiteSettings = {
+  logoUrl: '',
+  companyName: 'ХОРОШО',
+  companySubtitle: 'ГРУППА КОМПАНИЙ',
+  phone: '8 800 000-00-00',
+  email: 'info@horoshogk.ru',
+  address: 'г. Астрахань, ул. Теплая, д. 10, офис 305',
+};

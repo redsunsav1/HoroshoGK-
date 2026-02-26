@@ -133,6 +133,16 @@ export interface HomePageContent {
   promos: HomePagePromo[];
 }
 
+// Site settings (logo, contacts, etc.)
+export interface SiteSettings {
+  logoUrl: string;           // URL изображения логотипа
+  companyName: string;       // Название компании
+  companySubtitle: string;   // Подпись под названием
+  phone: string;             // Телефон
+  email: string;             // Email
+  address: string;           // Адрес
+}
+
 // Project filters (editable in admin)
 export interface ProjectFilter {
   id: string;
