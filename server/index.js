@@ -3,8 +3,31 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 
 const app = express();
+
+// Email configuration from environment variables
+const emailConfig = {
+  host: process.env.SMTP_HOST || 'smtp.yandex.ru',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+  },
+};
+
+const BOOKING_EMAIL = process.env.BOOKING_EMAIL || '';
+
+// Create mail transporter
+let mailTransporter = null;
+if (emailConfig.auth.user && emailConfig.auth.pass) {
+  mailTransporter = nodemailer.createTransport(emailConfig);
+  console.log('Email notifications enabled, sending to:', BOOKING_EMAIL);
+} else {
+  console.log('Email notifications disabled (SMTP_USER/SMTP_PASS not set)');
+}
 const PORT = 3001;
 
 const DATA_DIR = path.join(__dirname, 'data');
@@ -97,7 +120,7 @@ function writeBookings(bookings) {
   fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
 }
 
-app.post('/api/booking', (req, res) => {
+app.post('/api/booking', async (req, res) => {
   try {
     const { name, phone, projectName, apartmentId, rooms, area, floor, number, price } = req.body;
 
@@ -124,28 +147,37 @@ app.post('/api/booking', (req, res) => {
     bookings.push(booking);
     writeBookings(bookings);
 
-    // Send email notification (using sendmail if available)
-    const subject = `Новая заявка: ${projectName} - ${rooms}-комн. кв. ${number}`;
-    const body = [
-      `Имя: ${name}`,
-      `Телефон: ${phone}`,
-      `Проект: ${projectName}`,
-      `Квартира: ${rooms}-комн., ${area} м², этаж ${floor}, кв. №${number}`,
-      `Цена: ${price}`,
-      `Дата: ${new Date().toLocaleString('ru-RU')}`,
-    ].join('\n');
+    // Send email notification via SMTP
+    if (mailTransporter && BOOKING_EMAIL) {
+      const subject = `🏠 Новая заявка: ${projectName} - ${rooms}-комн. кв. ${number || ''}`;
+      const htmlBody = `
+        <h2>Новая заявка на бронирование</h2>
+        <table style="border-collapse: collapse; font-size: 16px;">
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>ФИО:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${name}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Телефон:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="tel:${phone}">${phone}</a></td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Проект:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${projectName}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Квартира:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${rooms}-комн., ${area} м²</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Этаж:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${floor}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Номер квартиры:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${number || '—'}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Цена:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${price}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Дата заявки:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}</td></tr>
+        </table>
+        <p style="color: #666; margin-top: 20px;">Заявка сохранена в системе. ID: ${booking.id}</p>
+      `;
 
-    // Try to send email via sendmail (non-blocking)
-    const { exec } = require('child_process');
-    const emailTo = process.env.BOOKING_EMAIL || '';
-    if (emailTo) {
-      const mailCmd = `echo "${body}" | mail -s "${subject}" ${emailTo}`;
-      exec(mailCmd, (err) => {
-        if (err) console.log('Email send failed (sendmail not configured):', err.message);
-        else console.log('Booking email sent to', emailTo);
-      });
+      try {
+        await mailTransporter.sendMail({
+          from: emailConfig.auth.user,
+          to: BOOKING_EMAIL,
+          subject,
+          html: htmlBody,
+        });
+        console.log('Booking email sent to', BOOKING_EMAIL);
+      } catch (emailErr) {
+        console.error('Failed to send booking email:', emailErr.message);
+      }
     } else {
-      console.log('New booking received (no BOOKING_EMAIL set):', booking);
+      console.log('New booking received (email not configured):', booking);
     }
 
     res.json({ ok: true, bookingId: booking.id });
