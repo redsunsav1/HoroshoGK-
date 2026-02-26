@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings } from '../types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter } from '../types';
 import {
   PROJECTS as INITIAL_PROJECTS,
   NEWS as INITIAL_NEWS,
@@ -7,6 +7,8 @@ import {
   TEAM as INITIAL_TEAM,
   VACANCIES as INITIAL_VACANCIES,
   PAGE_SETTINGS as INITIAL_PAGE_SETTINGS,
+  HOME_PAGE_CONTENT as INITIAL_HOME_CONTENT,
+  PROJECT_FILTERS as INITIAL_PROJECT_FILTERS,
 } from '../constants';
 
 interface AllData {
@@ -16,6 +18,8 @@ interface AllData {
   team: TeamMember[];
   vacancies: Vacancy[];
   pageSettings: PageSettings[];
+  homePageContent: HomePageContent;
+  projectFilters: ProjectFilter[];
 }
 
 interface DataContextType {
@@ -46,6 +50,12 @@ interface DataContextType {
   pageSettings: PageSettings[];
   updatePageSettings: (settings: PageSettings[]) => void;
   getPageSettings: (path: string) => PageSettings | undefined;
+  // Home page content
+  homePageContent: HomePageContent;
+  updateHomePageContent: (content: HomePageContent) => void;
+  // Project filters
+  projectFilters: ProjectFilter[];
+  updateProjectFilters: (filters: ProjectFilter[]) => void;
   // Reset
   resetData: () => void;
 }
@@ -91,6 +101,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [team, setTeam] = useState<TeamMember[]>(() => loadFromStorage('horosho_team', INITIAL_TEAM));
   const [vacancies, setVacancies] = useState<Vacancy[]>(() => loadFromStorage('horosho_vacancies', INITIAL_VACANCIES));
   const [pageSettings, setPageSettings] = useState<PageSettings[]>(() => loadFromStorage('horosho_page_settings', INITIAL_PAGE_SETTINGS));
+  const [homePageContent, setHomePageContent] = useState<HomePageContent>(() => loadFromStorage('horosho_home_content', INITIAL_HOME_CONTENT));
+  const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>(() => loadFromStorage('horosho_project_filters', INITIAL_PROJECT_FILTERS));
   const [loaded, setLoaded] = useState(false);
 
   // Load from server on mount
@@ -103,6 +115,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data.team?.length) setTeam(data.team);
         if (data.vacancies?.length) setVacancies(data.vacancies);
         if (data.pageSettings?.length) setPageSettings(data.pageSettings);
+        if (data.homePageContent) setHomePageContent(data.homePageContent);
+        if (data.projectFilters?.length) setProjectFilters(data.projectFilters);
       }
       setLoaded(true);
     });
@@ -111,25 +125,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Debounced save to server + localStorage
   const saveTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const saveAll = useCallback((p: Project[], n: NewsItem[], f: FaqCategory[], t: TeamMember[], v: Vacancy[], ps: PageSettings[]) => {
+  const saveAll = useCallback((p: Project[], n: NewsItem[], f: FaqCategory[], t: TeamMember[], v: Vacancy[], ps: PageSettings[], hc: HomePageContent, pf: ProjectFilter[]) => {
     localStorage.setItem('horosho_projects', JSON.stringify(p));
     localStorage.setItem('horosho_news', JSON.stringify(n));
     localStorage.setItem('horosho_faq', JSON.stringify(f));
     localStorage.setItem('horosho_team', JSON.stringify(t));
     localStorage.setItem('horosho_vacancies', JSON.stringify(v));
     localStorage.setItem('horosho_page_settings', JSON.stringify(ps));
+    localStorage.setItem('horosho_home_content', JSON.stringify(hc));
+    localStorage.setItem('horosho_project_filters', JSON.stringify(pf));
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      saveServerData({ projects: p, news: n, faqCategories: f, team: t, vacancies: v, pageSettings: ps });
+      saveServerData({ projects: p, news: n, faqCategories: f, team: t, vacancies: v, pageSettings: ps, homePageContent: hc, projectFilters: pf });
     }, 500);
   }, []);
 
   useEffect(() => {
     if (loaded) {
-      saveAll(projects, news, faqCategories, team, vacancies, pageSettings);
+      saveAll(projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters);
     }
-  }, [projects, news, faqCategories, team, vacancies, pageSettings, loaded, saveAll]);
+  }, [projects, news, faqCategories, team, vacancies, pageSettings, homePageContent, projectFilters, loaded, saveAll]);
 
   // Projects CRUD
   const updateProject = (p: Project) => setProjects(prev => prev.map(x => x.id === p.id ? p : x));
@@ -158,6 +174,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updatePageSettings = (settings: PageSettings[]) => setPageSettings(settings);
   const getPageSettings = (path: string) => pageSettings.find(s => s.path === path);
 
+  // Home page content
+  const updateHomePageContent = (content: HomePageContent) => setHomePageContent(content);
+
+  // Project filters
+  const updateProjectFilters = (filters: ProjectFilter[]) => setProjectFilters(filters);
+
   // Reset all
   const resetData = () => {
     if (confirm('Вы уверены? Все ваши изменения будут удалены и вернутся исходные данные.')) {
@@ -167,6 +189,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setTeam(INITIAL_TEAM);
       setVacancies(INITIAL_VACANCIES);
       setPageSettings(INITIAL_PAGE_SETTINGS);
+      setHomePageContent(INITIAL_HOME_CONTENT);
+      setProjectFilters(INITIAL_PROJECT_FILTERS);
     }
   };
 
@@ -178,6 +202,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       team, updateTeamMember, addTeamMember, deleteTeamMember,
       vacancies, updateVacancy, addVacancy, deleteVacancy,
       pageSettings, updatePageSettings, getPageSettings,
+      homePageContent, updateHomePageContent,
+      projectFilters, updateProjectFilters,
       resetData,
     }}>
       {children}

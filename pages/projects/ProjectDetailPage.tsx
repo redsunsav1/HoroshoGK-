@@ -636,25 +636,27 @@ export const ProjectDetailPage: React.FC = () => {
         </section>
       )}
 
-      {/* CTA Footer */}
-      <section className="py-20 px-4 md:px-8 bg-white">
-        <div className="max-w-[1600px] mx-auto text-center">
-          <Reveal>
-            <h2 className="text-3xl md:text-4xl font-medium mb-6 text-primary">
-              Заинтересовал {project.name}?
-            </h2>
-            <p className="text-secondary mb-8 max-w-xl mx-auto font-light text-lg">
-              Оставьте заявку, и мы свяжемся с вами в течение 15 минут для проведения персональной презентации.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <Phone className="w-5 h-5 text-accent" />
-              <a href="tel:+78512000000" className="text-xl font-bold text-primary hover:text-accent transition-colors">
-                +7 (8512) 00-00-00
-              </a>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* CTA Footer — only show if project has apartments for sale */}
+      {project.plans.length > 0 && (
+        <section className="py-20 px-4 md:px-8 bg-white">
+          <div className="max-w-[1600px] mx-auto text-center">
+            <Reveal>
+              <h2 className="text-3xl md:text-4xl font-medium mb-6 text-primary">
+                Заинтересовал {project.name}?
+              </h2>
+              <p className="text-secondary mb-8 max-w-xl mx-auto font-light text-lg">
+                Оставьте заявку, и мы свяжемся с вами в течение 15 минут для проведения персональной презентации.
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <Phone className="w-5 h-5 text-accent" />
+                <a href="tel:+78512000000" className="text-xl font-bold text-primary hover:text-accent transition-colors">
+                  +7 (8512) 00-00-00
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* Back to projects */}
       <section className="py-8 px-4 md:px-8 bg-beige border-t border-sand">

@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings } from '../../types';
+import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter } from '../../types';
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
 import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
-  Calendar, Image, FileText,
+  Calendar, Image, FileText, Home, Filter,
 } from 'lucide-react';
 
 // ============================================================
 // Sidebar Component
 // ============================================================
-type Section = 'projects' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages';
+type Section = 'homepage' | 'projects' | 'filters' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages';
 
 const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
+  { id: 'homepage', label: 'Главная', icon: <Home className="w-5 h-5" /> },
   { id: 'projects', label: 'Проекты', icon: <LayoutGrid className="w-5 h-5" /> },
+  { id: 'filters', label: 'Фильтры ЖК', icon: <Filter className="w-5 h-5" /> },
   { id: 'news', label: 'Новости', icon: <Newspaper className="w-5 h-5" /> },
   { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-5 h-5" /> },
   { id: 'team', label: 'Команда', icon: <Users className="w-5 h-5" /> },
@@ -56,6 +58,271 @@ const Sidebar: React.FC<{ active: Section; onSelect: (s: Section) => void; reset
         </button>
       </div>
     </aside>
+  );
+};
+
+// ============================================================
+// Home Page Section
+// ============================================================
+const HomePageSection: React.FC = () => {
+  const { homePageContent, updateHomePageContent } = useData();
+  const [content, setContent] = useState<HomePageContent>(homePageContent);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (field: keyof HomePageContent, value: string) => {
+    setContent(prev => ({ ...prev, [field]: value }));
+    setSaved(false);
+  };
+
+  const addPromo = () => {
+    const newPromo: HomePagePromo = {
+      id: Date.now().toString(),
+      title: 'Новая акция',
+      description: 'Описание акции',
+      discount: '-10%',
+      image: '/images/placeholder-card.svg',
+    };
+    setContent(prev => ({ ...prev, promos: [...prev.promos, newPromo] }));
+    setSaved(false);
+  };
+
+  const updatePromo = (id: string, field: keyof HomePagePromo, value: string) => {
+    setContent(prev => ({
+      ...prev,
+      promos: prev.promos.map(p => p.id === id ? { ...p, [field]: value } : p)
+    }));
+    setSaved(false);
+  };
+
+  const removePromo = (id: string) => {
+    setContent(prev => ({ ...prev, promos: prev.promos.filter(p => p.id !== id) }));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updateHomePageContent(content);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Главная страница</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {/* Hero Section Settings */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Hero-секция (главный баннер)</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Заголовок (строка 1)</label>
+              <input
+                value={content.heroTitle1}
+                onChange={e => updateField('heroTitle1', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="Строим"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Заголовок (строка 2, цветная)</label>
+              <input
+                value={content.heroTitle2}
+                onChange={e => updateField('heroTitle2', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="счастье"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Подзаголовок</label>
+            <input
+              value={content.heroSubtitle}
+              onChange={e => updateField('heroSubtitle', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Текст кнопки</label>
+            <input
+              value={content.heroButtonText}
+              onChange={e => updateField('heroButtonText', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Фоновое изображение (URL)</label>
+            <div className="flex gap-4">
+              <input
+                value={content.heroImage}
+                onChange={e => updateField('heroImage', e.target.value)}
+                className="flex-1 p-3 border border-gray-300 rounded-lg"
+              />
+              <img src={content.heroImage} className="w-20 h-14 object-cover rounded bg-gray-100" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Promo Slider Settings */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <h2 className="font-bold text-primary">Слайдер акций (виджет справа)</h2>
+          <button onClick={addPromo} className="text-sm text-accent hover:underline flex items-center gap-1">
+            <Plus className="w-3 h-3" /> Добавить акцию
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          {content.promos.map((promo, idx) => (
+            <div key={promo.id} className="border rounded-xl p-4 bg-gray-50">
+              <div className="flex gap-4">
+                <div className="w-24 h-20 rounded-lg overflow-hidden bg-white border shrink-0">
+                  <img src={promo.image} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      value={promo.title}
+                      onChange={e => updatePromo(promo.id, 'title', e.target.value)}
+                      placeholder="Заголовок"
+                      className="flex-1 p-2 border rounded-lg font-bold"
+                    />
+                    <input
+                      value={promo.discount}
+                      onChange={e => updatePromo(promo.id, 'discount', e.target.value)}
+                      placeholder="Скидка"
+                      className="w-24 p-2 border rounded-lg text-center"
+                    />
+                  </div>
+                  <input
+                    value={promo.description}
+                    onChange={e => updatePromo(promo.id, 'description', e.target.value)}
+                    placeholder="Описание"
+                    className="w-full p-2 border rounded-lg text-sm"
+                  />
+                  <input
+                    value={promo.image}
+                    onChange={e => updatePromo(promo.id, 'image', e.target.value)}
+                    placeholder="URL изображения"
+                    className="w-full p-2 border rounded-lg text-sm text-gray-500"
+                  />
+                </div>
+                <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {content.promos.length === 0 && (
+            <p className="text-gray-400 text-center py-8">Нет акций. Нажмите «Добавить акцию».</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// Project Filters Section
+// ============================================================
+const FiltersSection: React.FC = () => {
+  const { projectFilters, updateProjectFilters, projects } = useData();
+  const [filters, setFilters] = useState<ProjectFilter[]>(projectFilters);
+  const [saved, setSaved] = useState(true);
+
+  const addFilter = () => {
+    const newFilter: ProjectFilter = {
+      id: Date.now().toString(),
+      name: 'Новый фильтр',
+      slug: 'new-filter',
+    };
+    setFilters([...filters, newFilter]);
+    setSaved(false);
+  };
+
+  const updateFilter = (id: string, field: keyof ProjectFilter, value: string) => {
+    setFilters(filters.map(f => f.id === id ? { ...f, [field]: value } : f));
+    setSaved(false);
+  };
+
+  const removeFilter = (id: string) => {
+    setFilters(filters.filter(f => f.id !== id));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updateProjectFilters(filters);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Фильтры проектов</h1>
+        <div className="flex gap-3">
+          <button onClick={addFilter} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-200">
+            <Plus className="w-4 h-4" /> Добавить фильтр
+          </button>
+          <button
+            onClick={handleSave}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+              saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+            }`}
+          >
+            <Save className="w-4 h-4" /> Сохранить
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm mb-6">
+        <strong>Как работают фильтры:</strong> Создайте фильтры здесь, затем в редакторе каждого ЖК (вкладка «Основное» → поле «Теги»)
+        укажите названия фильтров через запятую. ЖК будет отображаться при выборе соответствующего фильтра.
+      </div>
+
+      <div className="space-y-4">
+        {filters.map(filter => (
+          <div key={filter.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex gap-4 items-center">
+            <div className="flex-1 grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Название (отображается)</label>
+                <input
+                  value={filter.name}
+                  onChange={e => updateFilter(filter.id, 'name', e.target.value)}
+                  className="w-full p-2 border rounded-lg font-medium"
+                  placeholder="Комфорт"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Slug (для URL)</label>
+                <input
+                  value={filter.slug}
+                  onChange={e => updateFilter(filter.id, 'slug', e.target.value)}
+                  className="w-full p-2 border rounded-lg font-mono text-sm"
+                  placeholder="comfort"
+                />
+              </div>
+            </div>
+            <div className="text-sm text-gray-400 w-24 text-center">
+              {projects.filter(p => p.tags.some(t => t.toLowerCase().includes(filter.name.toLowerCase()))).length} ЖК
+            </div>
+            <button onClick={() => removeFilter(filter.id)} className="p-2 text-red-400 hover:text-red-600">
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </div>
+        ))}
+        {filters.length === 0 && <p className="text-gray-400 py-8 text-center">Нет фильтров</p>}
+      </div>
+    </div>
   );
 };
 
@@ -557,13 +824,15 @@ const PageSettingsSection: React.FC = () => {
 // ============================================================
 const AdminDashboard: React.FC = () => {
   const { resetData } = useData();
-  const [section, setSection] = useState<Section>('projects');
+  const [section, setSection] = useState<Section>('homepage');
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
       <Sidebar active={section} onSelect={setSection} resetData={resetData} />
       <main className="ml-64 flex-1 p-8">
+        {section === 'homepage' && <HomePageSection />}
         {section === 'projects' && <ProjectsSection />}
+        {section === 'filters' && <FiltersSection />}
         {section === 'news' && <NewsSection />}
         {section === 'faq' && <FaqSection />}
         {section === 'team' && <TeamSection />}

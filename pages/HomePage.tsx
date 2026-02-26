@@ -3,41 +3,16 @@ import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
 import { ArrowUpRight, ArrowRight, ArrowDown, Percent, MessageSquare } from 'lucide-react';
+import { HomePagePromo } from '../types';
 
 const PROMO_INTERVAL = 6000;
 
-const specialOffers = [
-  {
-    title: 'Ипотека 0.1%',
-    description: 'На первый год для семей с детьми',
-    discount: '-5%',
-    image: '/images/placeholder-card.svg',
-  },
-  {
-    title: 'Рассрочка 0%',
-    description: 'Без переплат до конца строительства',
-    discount: '-10%',
-    image: '/images/placeholder-card.svg',
-  },
-  {
-    title: 'Паркинг в подарок',
-    description: 'При покупке 3-комнатной квартиры',
-    discount: 'Подарок',
-    image: '/images/placeholder-card.svg',
-  },
-  {
-    title: 'Отделка в подарок',
-    description: 'При бронировании до конца месяца',
-    discount: '-300 т.₽',
-    image: '/images/placeholder-card.svg',
-  },
-];
-
-const PromoWidget: React.FC = () => {
+const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (promos.length === 0) return;
     setProgress(0);
     const startTime = Date.now();
 
@@ -48,16 +23,17 @@ const PromoWidget: React.FC = () => {
     }, 50);
 
     const slideTimer = setTimeout(() => {
-      setCurrent((prev) => (prev + 1) % specialOffers.length);
+      setCurrent((prev) => (prev + 1) % promos.length);
     }, PROMO_INTERVAL);
 
     return () => {
       clearInterval(progressTimer);
       clearTimeout(slideTimer);
     };
-  }, [current]);
+  }, [current, promos.length]);
 
-  const offer = specialOffers[current];
+  if (promos.length === 0) return null;
+  const offer = promos[current];
 
   return (
     <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-sand/50">
@@ -97,7 +73,7 @@ const PromoWidget: React.FC = () => {
 
         {/* Dots indicator */}
         <div className="flex justify-center gap-2 mt-4">
-          {specialOffers.map((_, idx) => (
+          {promos.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrent(idx)}
@@ -113,7 +89,7 @@ const PromoWidget: React.FC = () => {
 };
 
 export const HomePage: React.FC = () => {
-  const { projects } = useData();
+  const { projects, homePageContent } = useData();
 
   return (
     <>
@@ -122,7 +98,7 @@ export const HomePage: React.FC = () => {
         {/* Background */}
         <div className="absolute inset-0">
           <img
-            src="/images/placeholder-hero.svg"
+            src={homePageContent.heroImage}
             className="w-full h-full object-cover"
             alt="Background"
           />
@@ -146,17 +122,17 @@ export const HomePage: React.FC = () => {
               <Reveal delay={200}>
                 <h1 className="mb-6">
                   <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-primary">
-                    Строим
+                    {homePageContent.heroTitle1}
                   </span>
                   <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-accent">
-                    счастье
+                    {homePageContent.heroTitle2}
                   </span>
                 </h1>
               </Reveal>
 
               <Reveal delay={400}>
                 <p className="text-lg md:text-xl text-secondary font-light max-w-md mb-10 leading-relaxed">
-                  Эстетика, комфорт и безопасность в&nbsp;каждом квадратном метре.
+                  {homePageContent.heroSubtitle}
                 </p>
               </Reveal>
 
@@ -165,7 +141,7 @@ export const HomePage: React.FC = () => {
                   to="/projects"
                   className="inline-flex items-center gap-3 bg-primary text-white pl-8 pr-6 py-4 rounded-full font-medium text-lg hover:bg-accent hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
                 >
-                  Выбрать квартиру
+                  {homePageContent.heroButtonText}
                   <span className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
                     <ArrowDown className="w-5 h-5" />
                   </span>
@@ -176,7 +152,7 @@ export const HomePage: React.FC = () => {
             {/* Right side - Promo Widget */}
             <div className="hidden lg:block">
               <Reveal direction="left" delay={400}>
-                <PromoWidget />
+                <PromoWidget promos={homePageContent.promos} />
               </Reveal>
             </div>
           </div>
@@ -190,7 +166,7 @@ export const HomePage: React.FC = () => {
 
       {/* Mobile Promo Widget */}
       <section className="lg:hidden py-8 px-4 bg-beige/50 flex justify-center">
-        <PromoWidget />
+        <PromoWidget promos={homePageContent.promos} />
       </section>
 
       {/* Projects Grid */}

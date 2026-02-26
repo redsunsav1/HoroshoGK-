@@ -52,6 +52,9 @@ export interface Project {
   colorTheme: string;
   totalFloors?: number;
   timeline?: ProjectTimelineItem[];
+  // Card display fields
+  cardPrice?: string;      // e.g. "от 3.9 млн ₽"
+  cardPromo?: string;      // e.g. "Материнский капитал"
 }
 
 export interface ProjectTimelineItem {
@@ -110,4 +113,29 @@ export interface PageSettings {
   title: string;
   description: string;
   h1: string;
+}
+
+// Home page content (editable in admin)
+export interface HomePagePromo {
+  id: string;
+  title: string;
+  description: string;
+  discount: string;
+  image: string;
+}
+
+export interface HomePageContent {
+  heroTitle1: string;
+  heroTitle2: string;
+  heroSubtitle: string;
+  heroImage: string;
+  heroButtonText: string;
+  promos: HomePagePromo[];
+}
+
+// Project filters (editable in admin)
+export interface ProjectFilter {
+  id: string;
+  name: string;
+  slug: string;
 }

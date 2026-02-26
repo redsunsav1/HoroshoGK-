@@ -1,4 +1,4 @@
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings } from './types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter } from './types';
 
 export const PROJECTS: Project[] = [
   {
@@ -8,7 +8,7 @@ export const PROJECTS: Project[] = [
     shortDescription: 'Нью-Йоркская эстетика в каждой детали.',
     fullDescription: 'ЖК «Бруклин» — это воплощение смелой архитектуры и динамичного ритма жизни. Кирпичные фасады, панорамные окна и закрытый двор без машин создают атмосферу приватности в центре событий. Идеальный выбор для тех, кто ценит стиль лофт и современные технологии.',
     location: 'ул. Савушкина, Центр',
-    tags: ['Бизнес-класс', 'Сдача 2025', 'Панорамные окна'],
+    tags: ['Бизнес-класс', 'Сдача 2026 / 1 квартал', 'Панорамные окна'],
     heroImage: '/images/placeholder-hero.svg',
     colorTheme: '#b91c1c',
     gallery: [
@@ -30,10 +30,7 @@ export const PROJECTS: Project[] = [
     ],
     totalFloors: 16,
     plans: [],
-    promos: [
-      { id: 'p1', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства.', image: '/images/placeholder-card.svg' },
-      { id: 'p2', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры.', discount: '-1.5 млн ₽', image: '/images/placeholder-card.svg' },
-    ],
+    promos: [],
     timeline: [
       { id: 'tl1', date: '2020-03-01', title: '1 дом — старт проекта', description: 'Начало строительства первого дома' },
       { id: 'tl2', date: '2021-06-01', title: '1 дом — проданы все квартиры', description: '' },
@@ -44,7 +41,9 @@ export const PROJECTS: Project[] = [
       { id: 'tl7', date: '2022-06-01', title: '3 дом — старт строительства', description: '' },
       { id: 'tl8', date: '2023-09-01', title: '3 дом — все квартиры проданы', description: '' },
       { id: 'tl9', date: '2024-06-01', title: '3 дом — ввод в эксплуатацию', description: 'Финал всего проекта ЖК «Бруклин»' },
-    ]
+    ],
+    cardPrice: 'Все продано',
+    cardPromo: '',
   },
   {
     id: '2',
@@ -83,7 +82,9 @@ export const PROJECTS: Project[] = [
     ],
     promos: [
       { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: '/images/placeholder-card.svg' },
-    ]
+    ],
+    cardPrice: 'от 3.9 млн ₽',
+    cardPromo: 'Материнский капитал',
   },
   {
     id: '3',
@@ -123,7 +124,9 @@ export const PROJECTS: Project[] = [
     ],
     promos: [
       { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: '/images/placeholder-card.svg' },
-    ]
+    ],
+    cardPrice: 'от 6.5 млн ₽',
+    cardPromo: 'Ипотека 1.9%',
   },
   {
     id: '4',
@@ -160,7 +163,9 @@ export const PROJECTS: Project[] = [
     ],
     promos: [
       { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: '/images/placeholder-card.svg' },
-    ]
+    ],
+    cardPrice: 'от 4.5 млн ₽',
+    cardPromo: 'Отделка в подарок',
   },
 ];
 
@@ -281,4 +286,27 @@ export const PAGE_SETTINGS: PageSettings[] = [
   { path: '/contacts', title: 'Контакты', description: 'Контакты и офисы продаж ГК «Хорошо» в Астрахани.', h1: 'Контакты' },
   { path: '/faq', title: 'Частые вопросы', description: 'Ответы на вопросы о покупке квартиры, ипотеке, строительстве.', h1: 'Частые вопросы' },
   { path: '/investors', title: 'Инвесторам', description: 'Информация для инвесторов ГК «Хорошо».', h1: 'Инвесторам' },
+];
+
+export const HOME_PAGE_CONTENT: HomePageContent = {
+  heroTitle1: 'Строим',
+  heroTitle2: 'счастье',
+  heroSubtitle: 'Эстетика, комфорт и безопасность в каждом квадратном метре.',
+  heroImage: '/images/placeholder-hero.svg',
+  heroButtonText: 'Выбрать квартиру',
+  promos: [
+    { id: 'hp1', title: 'Ипотека 0.1%', description: 'На первый год для семей с детьми', discount: '-5%', image: '/images/placeholder-card.svg' },
+    { id: 'hp2', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства', discount: '-10%', image: '/images/placeholder-card.svg' },
+    { id: 'hp3', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры', discount: 'Подарок', image: '/images/placeholder-card.svg' },
+    { id: 'hp4', title: 'Отделка в подарок', description: 'При бронировании до конца месяца', discount: '-300 т.₽', image: '/images/placeholder-card.svg' },
+  ],
+};
+
+export const PROJECT_FILTERS: ProjectFilter[] = [
+  { id: 'f1', name: 'Комфорт', slug: 'comfort' },
+  { id: 'f2', name: 'Бизнес-класс', slug: 'business' },
+  { id: 'f3', name: 'Премиум', slug: 'premium' },
+  { id: 'f4', name: 'Для семей', slug: 'family' },
+  { id: 'f5', name: 'С отделкой', slug: 'finished' },
+  { id: 'f6', name: 'Сдан', slug: 'ready' },
 ];

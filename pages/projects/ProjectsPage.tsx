@@ -108,22 +108,22 @@ export const ProjectsPage: React.FC = () => {
                       <div>
                         <div className="text-xs text-secondary uppercase tracking-wider">от</div>
                         <div className="text-lg font-bold text-primary">
-                          {project.plans[0]?.price || 'По запросу'}
+                          {project.cardPrice || project.plans[0]?.price || 'По запросу'}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-secondary uppercase tracking-wider">Планировки</div>
                         <div className="text-lg font-bold text-accent">
-                          {project.plans.length} вариантов
+                          {project.plans.length > 0 ? `${project.plans.length} вариантов` : 'Нет'}
                         </div>
                       </div>
                     </div>
 
-                    {project.promos.length > 0 && (
+                    {(project.cardPromo || project.promos.length > 0) && (
                       <div className="mt-4 pt-4 border-t border-sand">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-accent uppercase tracking-wider">Акция:</span>
-                          <span className="text-sm text-primary">{project.promos[0].title}</span>
+                          <span className="text-sm text-primary">{project.cardPromo || project.promos[0]?.title}</span>
                         </div>
                       </div>
                     )}

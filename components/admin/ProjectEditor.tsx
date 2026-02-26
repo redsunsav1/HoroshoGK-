@@ -222,6 +222,30 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                 className="w-full p-3 border border-gray-300 rounded-lg"
               />
             </div>
+
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-bold text-gray-700 mb-4">Отображение на карточке (список проектов)</h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Цена (на карточке)</label>
+                  <input
+                    value={project.cardPrice || ''}
+                    onChange={e => setProject({...project, cardPrice: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    placeholder="от 3.9 млн ₽"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Акция (на карточке)</label>
+                  <input
+                    value={project.cardPromo || ''}
+                    onChange={e => setProject({...project, cardPromo: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    placeholder="Материнский капитал"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
