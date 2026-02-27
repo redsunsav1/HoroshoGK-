@@ -3,7 +3,7 @@ import { useData } from '../context/DataContext'; // Updated to use Context
 import { Project } from '../types';
 import { ProjectDetail } from './ProjectDetail';
 import { Reveal } from './ui/Reveal';
-import { Menu, Phone, Instagram, Facebook, ArrowUpRight } from 'lucide-react';
+import { Menu, Phone, ArrowUpRight } from 'lucide-react';
 
 export const PublicSite: React.FC = () => {
   const { projects } = useData(); // Fetch from "Backend"
@@ -19,9 +19,15 @@ export const PublicSite: React.FC = () => {
     <div className="min-h-screen font-sans bg-white text-primary relative">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 px-6 py-5 md:px-12 md:py-6 flex justify-between items-center bg-white/90 backdrop-blur-md transition-all border-b border-sand">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-tr-xl rounded-bl-xl" />
-          <span className="font-bold text-xl tracking-tight uppercase text-primary">Хорошо!<span className="text-secondary font-light ml-1">ГК</span></span>
+        <div className="flex items-center gap-2.5">
+          <svg className="h-9 w-9" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#1a1a1a"/>
+            <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
+          </svg>
+          <div className="leading-none">
+            <div className="text-lg font-extrabold tracking-[0.15em] text-primary">ХОРОШО</div>
+            <div className="text-[8px] font-medium tracking-[0.25em] text-primary/60 mt-0.5">ГРУППА КОМПАНИЙ</div>
+          </div>
         </div>
         
         <nav className="hidden md:flex gap-8 text-sm font-medium tracking-wide text-primary">
@@ -47,7 +53,7 @@ export const PublicSite: React.FC = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[#fdfbf9]">
-             <img src="https://picsum.photos/seed/light-arch/1920/1080" className="w-full h-full object-cover opacity-20 grayscale-[20%]" alt="Background" />
+             <img src="/images/placeholder-hero.svg" className="w-full h-full object-cover opacity-20 grayscale-[20%]" alt="Background" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
         
@@ -166,7 +172,7 @@ export const PublicSite: React.FC = () => {
           <Reveal direction="left" delay={200}>
             <div className="relative p-4">
               <div className="absolute inset-0 bg-sand rounded-full blur-3xl opacity-60 transform rotate-12" />
-              <img src="https://picsum.photos/seed/interior/800/800" className="relative rounded-2xl shadow-xl grayscale-[20%]" alt="About us" />
+              <img src="/images/placeholder-card.svg" className="relative rounded-2xl shadow-xl grayscale-[20%]" alt="About us" />
             </div>
           </Reveal>
         </div>
@@ -194,11 +200,14 @@ export const PublicSite: React.FC = () => {
             <div>
               <h4 className="text-white/40 uppercase tracking-wider mb-6 text-xs font-bold">Соцсети</h4>
               <div className="flex gap-4">
-                <a href="#" className="p-3 bg-white/5 rounded-full hover:bg-white hover:text-primary transition-colors">
-                  <Instagram className="w-5 h-5" />
+                <a href="https://vk.com/" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-full hover:bg-white hover:text-primary transition-colors" title="ВКонтакте">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.132-.427.132-.427s-.02-1.304.587-1.496c.596-.19 1.362 1.26 2.174 1.817.613.42 1.08.328 1.08.328l2.172-.03s1.136-.07.598-.964c-.044-.073-.314-.661-1.618-1.869-1.366-1.264-1.183-1.06.462-3.246.998-1.33 1.398-2.142 1.273-2.49-.119-.332-.856-.244-.856-.244l-2.454.015s-.182-.025-.317.056c-.133.08-.218.264-.218.264s-.392 1.044-.915 1.932c-1.104 1.872-1.545 1.972-1.725 1.856-.42-.272-.315-1.09-.315-1.67 0-1.813.275-2.57-.536-2.766-.269-.065-.467-.108-1.155-.115-.882-.009-1.628.003-2.05.21-.28.137-.497.443-.365.46.163.022.533.1.729.365.253.343.244 1.113.244 1.113s.145 2.133-.34 2.397c-.332.182-.788-.189-1.767-1.888-.502-.87-.88-1.832-.88-1.832s-.073-.18-.203-.276c-.158-.117-.378-.154-.378-.154l-2.332.015s-.35.01-.479.163c-.114.135-.01.414-.01.414s1.839 4.304 3.924 6.471c1.912 1.988 4.085 1.857 4.085 1.857h.985z"/></svg>
                 </a>
-                <a href="#" className="p-3 bg-white/5 rounded-full hover:bg-white hover:text-primary transition-colors">
-                  <Facebook className="w-5 h-5" />
+                <a href="https://t.me/" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-full hover:bg-white hover:text-primary transition-colors" title="Телеграм">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </a>
+                <a href="https://max.ru/" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-full hover:bg-white hover:text-primary transition-colors" title="MAX">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.2 14.4L12 13.6l-3.2 2.8.8-3.8L6 9.6l3.9-.2L12 6l2.1 3.4 3.9.2-3.6 3z"/></svg>
                 </a>
               </div>
             </div>

@@ -65,7 +65,7 @@ export const InfrastructureEditor: React.FC<InfrastructureEditorProps> = ({ item
         className="relative w-full h-[500px] bg-gray-200 rounded-2xl overflow-hidden cursor-crosshair border-2 border-dashed border-gray-300 hover:border-blue-500 transition-colors"
       >
         <img 
-           src="https://picsum.photos/seed/mapbackground/1600/900" 
+           src="/images/placeholder-hero.svg" 
            alt="Map" 
            className="w-full h-full object-cover grayscale opacity-50 pointer-events-none"
         />

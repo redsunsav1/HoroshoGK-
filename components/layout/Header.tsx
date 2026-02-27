@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, ChevronDown } from 'lucide-react';
+import { useData } from '../../context/DataContext';
 
 interface NavItem {
   label: string;
@@ -28,7 +29,7 @@ const navigation: NavItem[] = [
     href: '/buy',
     children: [
       { label: 'Все способы', href: '/buy' },
-      { label: 'Ипотека', href: '/buy/ipoteka' },
+      { label: 'Ипотечный калькулятор', href: '/buy/ipoteka' },
       { label: 'Рассрочка', href: '/buy/rassrochka' },
       { label: 'Trade-in', href: '/buy/trade-in' },
       { label: 'Маткапитал', href: '/buy/materinskiy-kapital' },
@@ -54,6 +55,7 @@ export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const { siteSettings } = useData();
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
@@ -65,11 +67,15 @@ export const Header: React.FC = () => {
       <div className="max-w-[1600px] mx-auto px-4 md:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-tr-xl rounded-bl-xl" />
-            <span className="font-bold text-xl tracking-tight uppercase text-primary">
-              Хорошо!<span className="text-secondary font-light ml-1">ГК</span>
-            </span>
+          <Link to="/" className="flex items-center shrink-0">
+            {siteSettings.logoUrl ? (
+              <img src={siteSettings.logoUrl} alt={siteSettings.companyName || 'Логотип'} className="h-14 w-auto object-contain" />
+            ) : (
+              <svg className="h-12 w-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#1a1a1a"/>
+                <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
+              </svg>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
@@ -120,18 +126,12 @@ export const Header: React.FC = () => {
           {/* Right side */}
           <div className="flex items-center gap-4">
             <a
-              href="tel:+78000000000"
+              href={`tel:${siteSettings.phone.replace(/[^\d+]/g, '')}`}
               className="hidden md:flex items-center font-bold text-primary hover:text-accent transition-colors"
             >
               <Phone className="w-4 h-4 mr-2 text-accent" />
-              8 800 000-00-00
+              {siteSettings.phone}
             </a>
-            <Link
-              to="/personal"
-              className="hidden sm:block text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors"
-            >
-              Личный кабинет
-            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-primary"
@@ -175,13 +175,6 @@ export const Header: React.FC = () => {
                 )}
               </div>
             ))}
-            <Link
-              to="/personal"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-3 font-medium text-primary"
-            >
-              Личный кабинет
-            </Link>
           </nav>
         </div>
       )}

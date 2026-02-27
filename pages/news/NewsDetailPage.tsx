@@ -1,33 +1,13 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { Calendar, ArrowLeft, Share2 } from 'lucide-react';
 
-// Mock data - в реальном проекте данные будут из API/CMS
-const newsData: Record<string, { title: string; content: string; date: string; image: string; category: string }> = {
-  'new-project-announcement': {
-    title: 'Старт продаж нового ЖК «Гармония»',
-    content: `
-      <p>Рады объявить о начале продаж в нашем новом жилом комплексе «Гармония»!</p>
-      <p>ЖК «Гармония» — это современный жилой комплекс комфорт-класса, расположенный в экологически чистом районе города. Проект включает в себя 5 жилых корпусов с квартирами от студий до просторных 3-комнатных квартир.</p>
-      <h3>Преимущества проекта:</h3>
-      <ul>
-        <li>Закрытая охраняемая территория</li>
-        <li>Подземный паркинг</li>
-        <li>Детские и спортивные площадки</li>
-        <li>Собственная зеленая зона</li>
-      </ul>
-      <p>При покупке квартиры на старте продаж действует специальная скидка 10%.</p>
-    `,
-    date: '2024-01-15',
-    image: 'https://picsum.photos/seed/news1/1200/600',
-    category: 'Новости компании',
-  },
-};
-
 export const NewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? newsData[slug] : null;
+  const { news } = useData();
+  const article = news.find(n => n.slug === slug);
 
   if (!article) {
     return (

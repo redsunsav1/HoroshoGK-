@@ -6,8 +6,8 @@ import { CreditCard, Percent, RefreshCw, Baby, Heart, Tag, Shield, ArrowRight } 
 const buyOptions = [
   {
     icon: CreditCard,
-    title: 'Ипотека',
-    desc: 'Выгодные условия от банков-партнеров. Ставки от 5.9% годовых.',
+    title: 'Ипотечный калькулятор',
+    desc: 'Рассчитайте платёж и выберите ипотечную программу. Семейная, льготная, IT-ипотека.',
     href: '/buy/ipoteka',
     color: 'bg-blue-500',
   },
