@@ -1,153 +1,143 @@
-# Деплой и управление данными сайта HoroshoGK
+# Инструкция по деплою на Timeweb Cloud
 
-## Структура данных
+## Требования
+- Node.js 18+ на сервере
+- Доступ по SSH
 
-Данные загружаются в таком приоритете:
-1. **localStorage браузера** - кэш пользователя
-2. **Серверный API** (`/api/data`) - Express сервер (если запущен)
-3. **constants.ts** - значения по умолчанию
+## Шаги деплоя
 
----
-
-## Как изменить данные проекта (Brooklyn, Бабайка и т.д.)
-
-### Вариант 1: Через constants.ts (рекомендуется)
-
-1. Открой `constants.ts` и измени нужные данные
-2. Увеличь `DATA_VERSION` в `context/DataContext.tsx`:
-   ```typescript
-   const DATA_VERSION = '4'; // было '3', стало '4'
-   ```
-3. Пересобери и задеплой (см. ниже)
-
-### Вариант 2: Через админку
-
-1. Открой http://85.239.52.180/admin
-2. Внеси изменения
-3. Нажми "Сохранить"
-
-**Важно:** Изменения через админку сохраняются в localStorage. Если нужно применить их для всех пользователей - нужен работающий Express API на сервере.
-
----
-
-## Деплой на сервер
-
-### Быстрый деплой (одна команда)
-
-```bash
-cd /Users/admin/Documents/GitHub/HoroshoGK-
-git pull origin claude/fix-website-build-MvMIj && npm run build && scp -r dist/* root@85.239.52.180:/var/www/horoshogk/
-```
-
-### Пошаговый деплой
-
-```bash
-# 1. Перейти в папку проекта
-cd /Users/admin/Documents/GitHub/HoroshoGK-
-
-# 2. Получить последние изменения
-git pull origin claude/fix-website-build-MvMIj
-
-# 3. Собрать проект
-npm run build
-
-# 4. Загрузить на сервер
-scp -r dist/* root@85.239.52.180:/var/www/horoshogk/
-# Пароль: oh+u2C#S6vgE.n
-```
-
-### Если git pull не работает (конфликты)
-
-```bash
-git stash
-git pull origin claude/fix-website-build-MvMIj
-git stash pop
-```
-
-Или сбросить конфликтные файлы:
-```bash
-git checkout --theirs server/index.js server/package.json
-git add server/index.js server/package.json
-git pull origin claude/fix-website-build-MvMIj
-```
-
----
-
-## Проверка после деплоя
-
-1. Открой сайт в **режиме инкогнито** или нажми `Cmd+Shift+R`
-2. Проверь что изменения применились
-3. Проверь что хеш JS файла в `dist/assets/` изменился (например, `index-yLQ01nw1.js`)
-
----
-
-## Управление сервером
-
-### Подключение к серверу
+### 1. Подключитесь к серверу по SSH
 
 ```bash
 ssh root@85.239.52.180
-# Пароль: oh+u2C#S6vgE.n
 ```
 
-### Проверка процессов Node.js
+### 2. Установите Node.js (если ещё не установлен)
 
 ```bash
-ps aux | grep node
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+apt-get install -y nodejs
 ```
 
-### Остановка Express API (если нужно сбросить данные)
+### 3. Создайте папку для проекта
 
 ```bash
-kill <PID>  # где PID - номер процесса из предыдущей команды
+mkdir -p /var/www/horosho-gk
+cd /var/www/horosho-gk
 ```
 
-### Запуск Express API
+### 4. Загрузите файлы проекта
+
+**Вариант A: Через Git**
+```bash
+git clone https://github.com/redsunsav1/HoroshoGK-.git .
+```
+
+**Вариант B: Через SCP (с вашего Mac)**
+```bash
+# На вашем Mac выполните:
+scp -r /путь/к/проекту/* root@85.239.52.180:/var/www/horosho-gk/
+```
+
+### 5. Установите зависимости и соберите проект
 
 ```bash
-cd /var/www/horosho/server
-node index.js &
+cd /var/www/horosho-gk
+
+# Установка зависимостей фронтенда
+npm install
+
+# Сборка фронтенда
+npm run build
+
+# Установка зависимостей сервера
+cd server
+npm install
+cd ..
+```
+
+### 6. Настройте автозапуск через PM2
+
+```bash
+# Установите PM2 глобально
+npm install -g pm2
+
+# Запустите сервер
+cd /var/www/horosho-gk/server
+pm2 start server.js --name "horosho-gk"
+
+# Настройте автозапуск при перезагрузке
+pm2 startup
+pm2 save
+```
+
+### 7. Настройте Nginx (опционально, для порта 80)
+
+```bash
+apt install nginx -y
+```
+
+Создайте конфиг `/etc/nginx/sites-available/horosho-gk`:
+
+```nginx
+server {
+    listen 80;
+    server_name 85.239.52.180;
+
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Активируйте конфиг:
+
+```bash
+ln -s /etc/nginx/sites-available/horosho-gk /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/default
+nginx -t
+systemctl restart nginx
 ```
 
 ---
 
-## Принудительный сброс данных у всех пользователей
+## Обновление сайта
 
-Если нужно чтобы ВСЕ пользователи получили свежие данные из constants.ts:
+После внесения изменений:
 
-1. Увеличь `DATA_VERSION` в `context/DataContext.tsx`
-2. Пересобери и задеплой
-3. При следующем посещении у каждого пользователя localStorage очистится
+```bash
+cd /var/www/horosho-gk
+git pull origin main  # или загрузите файлы через SCP
+npm install
+npm run build
+pm2 restart horosho-gk
+```
 
 ---
 
-## Структура проекта
+## Проверка
 
-```
-/var/www/horoshogk/     - статика сайта (dist)
-/var/www/horosho/       - Express API сервер
-```
-
-## Важные файлы
-
-| Файл | Назначение |
-|------|------------|
-| `constants.ts` | Данные по умолчанию (проекты, новости, FAQ и т.д.) |
-| `context/DataContext.tsx` | Загрузка данных, DATA_VERSION |
-| `components/admin/AdminLayout.tsx` | Админ-панель |
+- Сайт: `http://85.239.52.180`
+- Админка: `http://85.239.52.180/admin`
+- API: `http://85.239.52.180/api/projects`
 
 ---
 
-## Частые проблемы
+## Про HTTPS
 
-### Изменения не применяются на сайте
+Для HTTPS нужен домен. Без домена бесплатный SSL (Let's Encrypt) не работает.
 
-1. Проверь что git pull прошёл успешно
-2. Проверь что npm run build создал новый хеш файла
-3. Обнови страницу с `Cmd+Shift+R`
-4. Проверь что Express API не возвращает старые данные: `curl http://85.239.52.180/api/data`
+**Рекомендую:**
+1. Купить домен (от 150₽/год на reg.ru или timeweb)
+2. Привязать к серверу
+3. Настроить SSL через Certbot:
 
-### Данные возвращаются к старым значениям
-
-- Express API хранит старые данные → убей процесс: `kill <PID>`
-- localStorage закэшировал старое → увеличь DATA_VERSION
+```bash
+apt install certbot python3-certbot-nginx -y
+certbot --nginx -d ваш-домен.ru
+```
