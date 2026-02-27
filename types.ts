@@ -136,8 +136,9 @@ export interface HomePageContent {
 // Site settings (logo, contacts, etc.)
 export interface SiteSettings {
   logoUrl: string;           // URL изображения логотипа
-  companyName: string;       // Название компании
-  companySubtitle: string;   // Подпись под названием
+  faviconUrl: string;        // URL фавикона (ICO, PNG 32x32 или 16x16)
+  companyName: string;       // Название компании (используется в копирайте)
+  companySubtitle: string;   // Подпись под названием (не отображается если есть логотип)
   phone: string;             // Телефон
   email: string;             // Email
   address: string;           // Адрес

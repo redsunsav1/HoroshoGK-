@@ -24,19 +24,15 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
+            <Link to="/" className="inline-flex items-center mb-6">
               {siteSettings.logoUrl ? (
-                <img src={siteSettings.logoUrl} alt={siteSettings.companyName} className="h-10 w-auto object-contain" />
+                <img src={siteSettings.logoUrl} alt={siteSettings.companyName || 'Логотип'} className="h-14 w-auto object-contain brightness-0 invert" />
               ) : (
-                <svg className="h-10 w-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg className="h-12 w-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fillRule="evenodd" clipRule="evenodd" d="M56 2L74 2L22 78H8V96H78V78H38L56 2ZM36 46L56 26V66L36 46Z" fill="#ffffff"/>
                   <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
                 </svg>
               )}
-              <div className="leading-none">
-                <div className="text-xl font-extrabold tracking-[0.15em] text-white">{siteSettings.companyName}</div>
-                <div className="text-[9px] font-medium tracking-[0.25em] text-white/50 mt-0.5">{siteSettings.companySubtitle}</div>
-              </div>
             </Link>
             <p className="text-white/60 font-light mb-6 max-w-sm">
               Создаем пространства, вдохновленные эстетикой, комфортом и теплом.

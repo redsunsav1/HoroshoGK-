@@ -352,39 +352,45 @@ const SiteSettingsSection: React.FC = () => {
         </button>
       </div>
 
-      {/* Logo & Company Name */}
+      {/* Logo */}
       <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
         <div className="px-6 py-3 bg-gray-50 border-b">
-          <h2 className="font-bold text-primary">Логотип и название компании</h2>
+          <h2 className="font-bold text-primary">Логотип</h2>
         </div>
         <div className="p-6 space-y-4">
           <div>
             <ImageUpload
-              label="Логотип (оставьте пустым для стандартного SVG)"
+              label="Логотип (PNG/SVG с прозрачным фоном)"
               value={settings.logoUrl}
               onChange={(url) => updateField('logoUrl', url)}
               placeholder="Перетащите логотип или введите URL"
             />
-            <p className="text-xs text-gray-500 mt-1">Если загружен логотип, в шапке и подвале будет отображаться изображение вместо стандартного логотипа.</p>
+            <p className="text-xs text-gray-500 mt-1">Рекомендуемый размер: высота 60-80px. Логотип будет отображаться в шапке и подвале сайта.</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Название компании</label>
-              <input
-                value={settings.companyName}
-                onChange={e => updateField('companyName', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="ХОРОШО"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Подпись</label>
-              <input
-                value={settings.companySubtitle}
-                onChange={e => updateField('companySubtitle', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="ГРУППА КОМПАНИЙ"
-              />
+        </div>
+      </div>
+
+      {/* Favicon */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Фавикон (иконка вкладки браузера)</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <ImageUpload
+              label="Фавикон"
+              value={settings.faviconUrl}
+              onChange={(url) => updateField('faviconUrl', url)}
+              placeholder="Перетащите фавикон или введите URL"
+            />
+            <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              <strong>Требования к фавикону:</strong>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Формат: ICO, PNG или SVG</li>
+                <li>Размер: 32×32 px (оптимально) или 16×16 px</li>
+                <li>Для ICO можно включить несколько размеров (16, 32, 48)</li>
+                <li>Фон: прозрачный или цветной</li>
+              </ul>
             </div>
           </div>
         </div>

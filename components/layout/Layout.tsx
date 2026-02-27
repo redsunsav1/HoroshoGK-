@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -11,13 +11,26 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { getPageSettings } = useData();
+  const { getPageSettings, siteSettings } = useData();
   const settings = getPageSettings(location.pathname);
 
   const seo = {
     title: settings?.title || 'ГК Хорошо',
     description: settings?.description || 'Группа Компаний «Хорошо» — застройщик в Астрахани.',
   };
+
+  // Динамическое обновление фавикона
+  useEffect(() => {
+    if (siteSettings.faviconUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = siteSettings.faviconUrl;
+    }
+  }, [siteSettings.faviconUrl]);
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-white text-primary">

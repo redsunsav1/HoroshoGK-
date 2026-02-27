@@ -313,6 +313,7 @@ export const PROJECT_FILTERS: ProjectFilter[] = [
 
 export const SITE_SETTINGS: SiteSettings = {
   logoUrl: '',
+  faviconUrl: '',
   companyName: 'ХОРОШО',
   companySubtitle: 'ГРУППА КОМПАНИЙ',
   phone: '8 800 000-00-00',
