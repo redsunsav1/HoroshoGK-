@@ -3,6 +3,7 @@ import { useData } from '../../context/DataContext';
 import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter, SiteSettings } from '../../types';
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
+import { ImageUpload } from './ImageUpload';
 import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
@@ -162,15 +163,11 @@ const HomePageSection: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Фоновое изображение (URL)</label>
-            <div className="flex gap-4">
-              <input
-                value={content.heroImage}
-                onChange={e => updateField('heroImage', e.target.value)}
-                className="flex-1 p-3 border border-gray-300 rounded-lg"
-              />
-              <img src={content.heroImage} className="w-20 h-14 object-cover rounded bg-gray-100" />
-            </div>
+            <ImageUpload
+              label="Фоновое изображение"
+              value={content.heroImage}
+              onChange={(url) => updateField('heroImage', url)}
+            />
           </div>
         </div>
       </div>
@@ -187,9 +184,6 @@ const HomePageSection: React.FC = () => {
           {content.promos.map((promo, idx) => (
             <div key={promo.id} className="border rounded-xl p-4 bg-gray-50">
               <div className="flex gap-4">
-                <div className="w-24 h-20 rounded-lg overflow-hidden bg-white border shrink-0">
-                  <img src={promo.image} className="w-full h-full object-cover" />
-                </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex gap-2">
                     <input
@@ -211,11 +205,10 @@ const HomePageSection: React.FC = () => {
                     placeholder="Описание"
                     className="w-full p-2 border rounded-lg text-sm"
                   />
-                  <input
+                  <ImageUpload
+                    label="Картинка акции"
                     value={promo.image}
-                    onChange={e => updatePromo(promo.id, 'image', e.target.value)}
-                    placeholder="URL изображения"
-                    className="w-full p-2 border rounded-lg text-sm text-gray-500"
+                    onChange={(url) => updatePromo(promo.id, 'image', url)}
                   />
                 </div>
                 <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
@@ -366,19 +359,13 @@ const SiteSettingsSection: React.FC = () => {
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">URL логотипа (оставьте пустым для стандартного SVG)</label>
-            <div className="flex gap-4">
-              <input
-                value={settings.logoUrl}
-                onChange={e => updateField('logoUrl', e.target.value)}
-                className="flex-1 p-3 border border-gray-300 rounded-lg"
-                placeholder="https://example.com/logo.png"
-              />
-              {settings.logoUrl && (
-                <img src={settings.logoUrl} className="h-14 w-auto object-contain rounded bg-gray-100 border" />
-              )}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Если URL указан, в шапке и подвале будет отображаться изображение вместо стандартного логотипа.</p>
+            <ImageUpload
+              label="Логотип (оставьте пустым для стандартного SVG)"
+              value={settings.logoUrl}
+              onChange={(url) => updateField('logoUrl', url)}
+              placeholder="Перетащите логотип или введите URL"
+            />
+            <p className="text-xs text-gray-500 mt-1">Если загружен логотип, в шапке и подвале будет отображаться изображение вместо стандартного логотипа.</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -585,11 +572,11 @@ const NewsEditor: React.FC<{ initialItem?: NewsItem }> = ({ initialItem }) => {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Изображение (URL)</label>
-          <div className="flex gap-4">
-            <input value={item.image} onChange={e => setItem({...item, image: e.target.value})} className="flex-1 p-3 border border-gray-300 rounded-lg" />
-            <img src={item.image} className="w-16 h-12 object-cover rounded bg-gray-100" />
-          </div>
+          <ImageUpload
+            label="Изображение новости"
+            value={item.image}
+            onChange={(url) => setItem({...item, image: url})}
+          />
         </div>
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">Краткое описание</label>
@@ -759,10 +746,16 @@ const TeamSection: React.FC = () => {
       {editing && (
         <div className="bg-white p-6 rounded-xl border border-accent/30 mb-6 shadow-lg">
           <h3 className="font-bold text-lg mb-4 text-primary">{editing === 'new' ? 'Новый сотрудник' : 'Редактирование'}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input placeholder="Имя" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="p-3 border rounded-lg" />
             <input placeholder="Должность" value={form.role} onChange={e => setForm({...form, role: e.target.value})} className="p-3 border rounded-lg" />
-            <input placeholder="URL фото" value={form.image} onChange={e => setForm({...form, image: e.target.value})} className="p-3 border rounded-lg" />
+          </div>
+          <div className="mt-4">
+            <ImageUpload
+              label="Фото сотрудника"
+              value={form.image}
+              onChange={(url) => setForm({...form, image: url})}
+            />
           </div>
           <div className="flex gap-3 mt-4">
             <button onClick={handleSave} className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-accent transition-colors">Сохранить</button>
