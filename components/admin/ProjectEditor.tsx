@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ApartmentStatus, ProjectTimelineItem } from '../../types';
 import { InfrastructureEditor } from './InfrastructureEditor';
+import { ImageUpload } from './ImageUpload';
 import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -185,15 +186,11 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
             </div>
 
             <div>
-               <label className="block text-sm font-bold text-gray-700 mb-2">Ссылка на главное изображение (Hero Image)</label>
-               <div className="flex gap-4">
-                  <input
-                    value={project.heroImage}
-                    onChange={e => setProject({...project, heroImage: e.target.value})}
-                    className="flex-1 p-3 border border-gray-300 rounded-lg"
-                  />
-                  <img src={project.heroImage} className="w-16 h-12 object-cover rounded bg-gray-100" />
-               </div>
+               <ImageUpload
+                 label="Главное изображение (Hero Image)"
+                 value={project.heroImage}
+                 onChange={(url) => setProject({...project, heroImage: url})}
+               />
             </div>
 
             <div>
@@ -366,11 +363,10 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">URL планировки</label>
-                    <input
+                    <ImageUpload
+                      label="Планировка"
                       value={plan.image}
-                      onChange={e => updatePlan(idx, 'image', e.target.value)}
-                      className="w-full p-2 border rounded-lg text-sm"
+                      onChange={(url) => updatePlan(idx, 'image', url)}
                     />
                   </div>
                 </div>
@@ -416,27 +412,31 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                      }}
                      className="w-full p-2 border rounded text-sm"
                    />
-                   <div className="flex gap-2">
-                     <input
-                       placeholder="Скидка (напр. -10%)"
-                       value={promo.discount || ''}
-                       onChange={e => {
-                         const newPromos = [...project.promos];
-                         newPromos[idx].discount = e.target.value;
-                         setProject({...project, promos: newPromos});
-                       }}
-                       className="w-1/2 p-2 border rounded text-sm"
-                     />
-                     <input
-                       placeholder="URL картинки"
-                       value={promo.image}
-                       onChange={e => {
-                         const newPromos = [...project.promos];
-                         newPromos[idx].image = e.target.value;
-                         setProject({...project, promos: newPromos});
-                       }}
-                       className="w-1/2 p-2 border rounded text-sm"
-                     />
+                   <div className="flex gap-2 items-end">
+                     <div className="w-1/3">
+                       <label className="block text-xs font-medium text-gray-500 mb-1">Скидка</label>
+                       <input
+                         placeholder="напр. -10%"
+                         value={promo.discount || ''}
+                         onChange={e => {
+                           const newPromos = [...project.promos];
+                           newPromos[idx].discount = e.target.value;
+                           setProject({...project, promos: newPromos});
+                         }}
+                         className="w-full p-2 border rounded text-sm"
+                       />
+                     </div>
+                     <div className="flex-1">
+                       <ImageUpload
+                         label="Картинка акции"
+                         value={promo.image}
+                         onChange={(url) => {
+                           const newPromos = [...project.promos];
+                           newPromos[idx].image = url;
+                           setProject({...project, promos: newPromos});
+                         }}
+                       />
+                     </div>
                    </div>
                 </div>
                 <button
