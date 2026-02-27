@@ -64,7 +64,7 @@ npm install -g pm2
 
 # Запустите сервер
 cd /var/www/horosho-gk/server
-pm2 start server.js --name "horosho-gk"
+pm2 start index.js --name "horosho-gk"
 
 # Настройте автозапуск при перезагрузке
 pm2 startup

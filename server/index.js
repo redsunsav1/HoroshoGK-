@@ -1,11 +1,24 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import multer from 'multer';
+import nodemailer from 'nodemailer';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Paths - work both in dev and production
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const DATA_FILE = path.join(DATA_DIR, 'projects.json');
+const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
+const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
+
+// Ensure directories exist
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // Email configuration from environment variables
 const emailConfig = {
@@ -28,51 +41,50 @@ if (emailConfig.auth.user && emailConfig.auth.pass) {
 } else {
   console.log('Email notifications disabled (SMTP_USER/SMTP_PASS not set)');
 }
-const PORT = 3001;
 
-const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'site-data.json');
-const UPLOADS_DIR = '/var/www/horoshogk/uploads';
+// --- Data helpers ---
 
-// Ensure directories exist
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+function readProjects() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const data = fs.readFileSync(DATA_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading projects:', error);
+  }
+  return [];
+}
+
+function writeProjects(projects) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+}
+
+function readBookings() {
+  try {
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      return JSON.parse(fs.readFileSync(BOOKINGS_FILE, 'utf-8'));
+    }
+  } catch (error) {
+    console.error('Error reading bookings:', error);
+  }
+  return [];
+}
+
+function writeBookings(bookings) {
+  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
+}
+
+// --- Middleware ---
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '10mb' }));
 
-// --- Data API ---
+// Serve static files from frontend build
+app.use(express.static(path.join(__dirname, '../dist')));
 
-function readData() {
-  if (fs.existsSync(DATA_FILE)) {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-  }
-  return null;
-}
-
-function writeData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-// Get all data
-app.get('/api/data', (req, res) => {
-  const data = readData();
-  if (data) {
-    res.json(data);
-  } else {
-    res.json(null);
-  }
-});
-
-// Save all data
-app.post('/api/data', (req, res) => {
-  try {
-    writeData(req.body);
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Serve uploaded files
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // --- Image Upload ---
 
@@ -105,20 +117,68 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   res.json({ url: '/uploads/' + req.file.filename });
 });
 
-// --- Booking API ---
+// --- Projects API (for DataContext.tsx) ---
 
-const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
+// Get all projects
+app.get('/api/projects', (req, res) => {
+  const projects = readProjects();
+  res.json(projects);
+});
 
-function readBookings() {
-  if (fs.existsSync(BOOKINGS_FILE)) {
-    return JSON.parse(fs.readFileSync(BOOKINGS_FILE, 'utf-8'));
+// Get single project
+app.get('/api/projects/:id', (req, res) => {
+  const projects = readProjects();
+  const project = projects.find(p => p.id === req.params.id);
+  if (project) {
+    res.json(project);
+  } else {
+    res.status(404).json({ error: 'Project not found' });
   }
-  return [];
-}
+});
 
-function writeBookings(bookings) {
-  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
-}
+// Create project
+app.post('/api/projects', (req, res) => {
+  const projects = readProjects();
+  const newProject = req.body;
+  projects.push(newProject);
+  writeProjects(projects);
+  res.status(201).json(newProject);
+});
+
+// Update project
+app.put('/api/projects/:id', (req, res) => {
+  const projects = readProjects();
+  const index = projects.findIndex(p => p.id === req.params.id);
+  if (index !== -1) {
+    projects[index] = req.body;
+    writeProjects(projects);
+    res.json(req.body);
+  } else {
+    res.status(404).json({ error: 'Project not found' });
+  }
+});
+
+// Delete project
+app.delete('/api/projects/:id', (req, res) => {
+  const projects = readProjects();
+  const index = projects.findIndex(p => p.id === req.params.id);
+  if (index !== -1) {
+    projects.splice(index, 1);
+    writeProjects(projects);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: 'Project not found' });
+  }
+});
+
+// Reset to initial data
+app.post('/api/reset', (req, res) => {
+  const initialProjects = req.body.projects || [];
+  writeProjects(initialProjects);
+  res.json({ success: true });
+});
+
+// --- Booking API ---
 
 app.post('/api/booking', async (req, res) => {
   try {
@@ -197,6 +257,19 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`API server running on http://127.0.0.1:${PORT}`);
+// Fallback to index.html for SPA routing
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, '../dist/index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Frontend not built. Run: npm run build');
+  }
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`API: http://localhost:${PORT}/api/projects`);
+  console.log(`Health: http://localhost:${PORT}/api/health`);
 });
