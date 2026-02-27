@@ -14,6 +14,14 @@ const PORT = process.env.PORT || 3001;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'projects.json');
 const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
+const SITE_SETTINGS_FILE = path.join(DATA_DIR, 'site-settings.json');
+const NEWS_FILE = path.join(DATA_DIR, 'news.json');
+const TEAM_FILE = path.join(DATA_DIR, 'team.json');
+const VACANCIES_FILE = path.join(DATA_DIR, 'vacancies.json');
+const FAQ_FILE = path.join(DATA_DIR, 'faq.json');
+const PAGE_SETTINGS_FILE = path.join(DATA_DIR, 'page-settings.json');
+const HOME_CONTENT_FILE = path.join(DATA_DIR, 'home-content.json');
+const PROJECT_FILTERS_FILE = path.join(DATA_DIR, 'project-filters.json');
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
 
 // Ensure directories exist
@@ -73,6 +81,70 @@ function readBookings() {
 
 function writeBookings(bookings) {
   fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
+}
+
+// Generic read/write helpers
+function readJsonFile(filePath, defaultValue = null) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+  } catch (error) {
+    console.error(`Error reading ${filePath}:`, error);
+  }
+  return defaultValue;
+}
+
+function writeJsonFile(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+// Site Settings
+function readSiteSettings() {
+  return readJsonFile(SITE_SETTINGS_FILE, {
+    logoUrl: '',
+    faviconUrl: '',
+    companyName: 'ХОРОШО',
+    companySubtitle: 'ГРУППА КОМПАНИЙ',
+    phone: '8 800 000-00-00',
+    email: 'info@horoshogk.ru',
+    address: 'г. Астрахань, ул. Теплая, д. 10, офис 305',
+  });
+}
+
+// News
+function readNews() {
+  return readJsonFile(NEWS_FILE, []);
+}
+
+// Team
+function readTeam() {
+  return readJsonFile(TEAM_FILE, []);
+}
+
+// Vacancies
+function readVacancies() {
+  return readJsonFile(VACANCIES_FILE, []);
+}
+
+// FAQ
+function readFaq() {
+  return readJsonFile(FAQ_FILE, []);
+}
+
+// Page Settings
+function readPageSettings() {
+  return readJsonFile(PAGE_SETTINGS_FILE, []);
+}
+
+// Home Content
+function readHomeContent() {
+  return readJsonFile(HOME_CONTENT_FILE, null);
+}
+
+// Project Filters
+function readProjectFilters() {
+  return readJsonFile(PROJECT_FILTERS_FILE, []);
 }
 
 // --- Middleware ---
@@ -176,6 +248,108 @@ app.post('/api/reset', (req, res) => {
   const initialProjects = req.body.projects || [];
   writeProjects(initialProjects);
   res.json({ success: true });
+});
+
+// --- Site Settings API ---
+
+app.get('/api/site-settings', (req, res) => {
+  res.json(readSiteSettings());
+});
+
+app.put('/api/site-settings', (req, res) => {
+  writeJsonFile(SITE_SETTINGS_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- News API ---
+
+app.get('/api/news', (req, res) => {
+  res.json(readNews());
+});
+
+app.put('/api/news', (req, res) => {
+  writeJsonFile(NEWS_FILE, req.body);
+  res.json(req.body);
+});
+
+app.post('/api/news', (req, res) => {
+  const news = readNews();
+  news.push(req.body);
+  writeJsonFile(NEWS_FILE, news);
+  res.status(201).json(req.body);
+});
+
+app.delete('/api/news/:id', (req, res) => {
+  const news = readNews();
+  const filtered = news.filter(n => n.id !== req.params.id);
+  writeJsonFile(NEWS_FILE, filtered);
+  res.json({ success: true });
+});
+
+// --- Team API ---
+
+app.get('/api/team', (req, res) => {
+  res.json(readTeam());
+});
+
+app.put('/api/team', (req, res) => {
+  writeJsonFile(TEAM_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Vacancies API ---
+
+app.get('/api/vacancies', (req, res) => {
+  res.json(readVacancies());
+});
+
+app.put('/api/vacancies', (req, res) => {
+  writeJsonFile(VACANCIES_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- FAQ API ---
+
+app.get('/api/faq', (req, res) => {
+  res.json(readFaq());
+});
+
+app.put('/api/faq', (req, res) => {
+  writeJsonFile(FAQ_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Page Settings API ---
+
+app.get('/api/page-settings', (req, res) => {
+  res.json(readPageSettings());
+});
+
+app.put('/api/page-settings', (req, res) => {
+  writeJsonFile(PAGE_SETTINGS_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Home Content API ---
+
+app.get('/api/home-content', (req, res) => {
+  res.json(readHomeContent());
+});
+
+app.put('/api/home-content', (req, res) => {
+  writeJsonFile(HOME_CONTENT_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Project Filters API ---
+
+app.get('/api/project-filters', (req, res) => {
+  res.json(readProjectFilters());
+});
+
+app.put('/api/project-filters', (req, res) => {
+  writeJsonFile(PROJECT_FILTERS_FILE, req.body);
+  res.json(req.body);
 });
 
 // --- Booking API ---
