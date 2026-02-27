@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 100">
+  <!-- Icon mark (white version) -->
+  <g transform="translate(0, 5) scale(0.9)">
+    <path fill-rule="evenodd" d="
+      M56,2 L74,2 L22,78 L8,78 L8,96 L78,96 L78,78 L38,78 Z
+      M36,46 L56,26 L56,66 Z
+    " fill="#ffffff"/>
+    <polygon points="68,6 88,33 68,58 54,33" fill="#b5935a"/>
+  </g>
+  <!-- ХОРОШО -->
+  <text x="100" y="52" font-family="'Manrope', 'Arial', sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="4">ХОРОШО</text>
+  <!-- ГРУППА КОМПАНИЙ -->
+  <text x="100" y="80" font-family="'Manrope', 'Arial', sans-serif" font-size="20" font-weight="500" fill="#ffffff" letter-spacing="6" opacity="0.7">ГРУППА КОМПАНИЙ</text>
+</svg>

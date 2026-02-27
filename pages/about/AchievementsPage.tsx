@@ -11,12 +11,12 @@ const achievements = [
 ];
 
 const completedProjects = [
-  { name: 'ЖК Солнечный', year: 2018, units: 450, image: 'https://picsum.photos/seed/proj1/600/400' },
-  { name: 'ЖК Парковый', year: 2019, units: 320, image: 'https://picsum.photos/seed/proj2/600/400' },
-  { name: 'ЖК Речной', year: 2020, units: 580, image: 'https://picsum.photos/seed/proj3/600/400' },
-  { name: 'ЖК Центральный', year: 2021, units: 420, image: 'https://picsum.photos/seed/proj4/600/400' },
-  { name: 'ЖК Уютный', year: 2022, units: 680, image: 'https://picsum.photos/seed/proj5/600/400' },
-  { name: 'ЖК Семейный', year: 2023, units: 520, image: 'https://picsum.photos/seed/proj6/600/400' },
+  { name: 'ЖК Солнечный', year: 2018, units: 450, image: '/images/placeholder-card.svg' },
+  { name: 'ЖК Парковый', year: 2019, units: 320, image: '/images/placeholder-card.svg' },
+  { name: 'ЖК Речной', year: 2020, units: 580, image: '/images/placeholder-card.svg' },
+  { name: 'ЖК Центральный', year: 2021, units: 420, image: '/images/placeholder-card.svg' },
+  { name: 'ЖК Уютный', year: 2022, units: 680, image: '/images/placeholder-card.svg' },
+  { name: 'ЖК Семейный', year: 2023, units: 520, image: '/images/placeholder-card.svg' },
 ];
 
 export const AchievementsPage: React.FC = () => {

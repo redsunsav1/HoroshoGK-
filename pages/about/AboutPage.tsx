@@ -36,7 +36,7 @@ export const AboutPage: React.FC = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-accent/20 rounded-3xl blur-3xl transform rotate-6" />
               <img
-                src="https://picsum.photos/seed/office/800/600"
+                src="/images/placeholder-card.svg"
                 alt="Офис компании"
                 className="relative rounded-2xl shadow-xl"
               />
@@ -91,7 +91,7 @@ export const AboutPage: React.FC = () => {
             </Reveal>
             <Reveal direction="left" delay={200}>
               <img
-                src="https://picsum.photos/seed/mission/800/600"
+                src="/images/placeholder-card.svg"
                 alt="Миссия"
                 className="rounded-2xl shadow-xl"
               />

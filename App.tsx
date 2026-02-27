@@ -25,10 +25,6 @@ import { NewsDetailPage } from './pages/news/NewsDetailPage';
 import { ContactsPage } from './pages/ContactsPage';
 import { FaqPage } from './pages/FaqPage';
 import { InvestorsPage } from './pages/InvestorsPage';
-import { PersonalPage } from './pages/personal/PersonalPage';
-import { AgentPage } from './pages/personal/AgentPage';
-import { ClientPage } from './pages/personal/ClientPage';
-
 export default function App() {
   return (
     <DataProvider>
@@ -70,11 +66,6 @@ export default function App() {
 
           {/* Investors */}
           <Route path="/investors" element={<Layout><InvestorsPage /></Layout>} />
-
-          {/* Personal */}
-          <Route path="/personal" element={<Layout><PersonalPage /></Layout>} />
-          <Route path="/personal/agent" element={<Layout><AgentPage /></Layout>} />
-          <Route path="/personal/client" element={<Layout><ClientPage /></Layout>} />
         </Routes>
       </BrowserRouter>
     </DataProvider>

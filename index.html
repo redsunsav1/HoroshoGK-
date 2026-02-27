@@ -3,7 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ХОРОШО! — Группа Компаний</title>
+    <title>ГК Хорошо — Застройщик в Астрахани | Квартиры в новостройках</title>
+    <meta name="description" content="Группа Компаний «Хорошо» — надежный застройщик в Астрахани. Квартиры в новостройках от 3.9 млн ₽. Ипотека от 0.1%, рассрочка 0%, Trade-in. Выберите свой дом!" />
+    <meta name="keywords" content="ГК Хорошо, застройщик Астрахань, новостройки Астрахань, купить квартиру, ипотека, рассрочка, ЖК Бруклин, ЖК Бабайка, ЖК Манхэттен" />
+    <meta name="author" content="ГК Хорошо" />
+    <link rel="canonical" href="https://horoshogk.ru" />
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ГК Хорошо" />
+    <meta property="og:title" content="ГК Хорошо — Застройщик в Астрахани" />
+    <meta property="og:description" content="Строим счастье. Квартиры в новостройках от 3.9 млн ₽. Ипотека, рассрочка, Trade-in." />
+    <meta property="og:url" content="https://horoshogk.ru" />
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- Yandex verification (замените на свой код) -->
+    <!-- <meta name="yandex-verification" content="ВАШ_КОД" /> -->
+
+    <!-- Favicon (замените на свой) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +51,7 @@
               'fade-in-up': 'fadeInUp 1s ease-out forwards',
               'scale-in': 'scaleIn 0.8s ease-out forwards',
               'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
             },
             keyframes: {
               fadeInUp: {
@@ -42,6 +65,10 @@
               slideUp: {
                 '0%': { transform: 'translateY(100%)', opacity: '0' },
                 '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
               }
             }
           },
@@ -79,5 +106,23 @@
   <body class="bg-white text-primary selection:bg-accent selection:text-white">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+
+    <!-- Яндекс.Метрика — замените XXXXXXXX на ID вашего счётчика -->
+    <!--
+    <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+      ym(XXXXXXXX, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+      });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/XXXXXXXX" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    -->
   </body>
 </html>

@@ -1,48 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { Calendar, ArrowRight } from 'lucide-react';
 
-const news = [
-  {
-    id: '1',
-    slug: 'new-project-announcement',
-    title: 'Старт продаж нового ЖК «Гармония»',
-    excerpt: 'Рады объявить о начале продаж в нашем новом жилом комплексе...',
-    date: '2024-01-15',
-    image: 'https://picsum.photos/seed/news1/800/500',
-    category: 'Новости компании',
-  },
-  {
-    id: '2',
-    slug: 'mortgage-rate-update',
-    title: 'Снижение ипотечных ставок у партнеров',
-    excerpt: 'Сбербанк и ВТБ снизили ставки по ипотеке для наших клиентов...',
-    date: '2024-01-10',
-    image: 'https://picsum.photos/seed/news2/800/500',
-    category: 'Ипотека',
-  },
-  {
-    id: '3',
-    slug: 'brooklyn-completion',
-    title: 'ЖК «Бруклин» сдан досрочно',
-    excerpt: 'Мы рады сообщить, что строительство ЖК «Бруклин» завершено на 2 месяца раньше срока...',
-    date: '2024-01-05',
-    image: 'https://picsum.photos/seed/news3/800/500',
-    category: 'Строительство',
-  },
-  {
-    id: '4',
-    slug: 'winter-promo',
-    title: 'Зимняя акция: скидки до 500 000 ₽',
-    excerpt: 'До конца февраля действуют специальные условия на покупку квартир...',
-    date: '2024-01-01',
-    image: 'https://picsum.photos/seed/news4/800/500',
-    category: 'Акции',
-  },
-];
-
 export const NewsPage: React.FC = () => {
+  const { news } = useData();
   return (
     <>
       {/* Hero */}
