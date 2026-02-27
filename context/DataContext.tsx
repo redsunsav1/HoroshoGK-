@@ -13,7 +13,7 @@ import {
 } from '../constants';
 
 // Bump this version to force localStorage reset on all clients
-const DATA_VERSION = '3';
+const DATA_VERSION = '4';
 const VERSION_KEY = 'horosho_data_version';
 
 interface AllData {
