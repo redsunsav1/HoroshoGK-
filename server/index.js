@@ -22,6 +22,11 @@ const FAQ_FILE = path.join(DATA_DIR, 'faq.json');
 const PAGE_SETTINGS_FILE = path.join(DATA_DIR, 'page-settings.json');
 const HOME_CONTENT_FILE = path.join(DATA_DIR, 'home-content.json');
 const PROJECT_FILTERS_FILE = path.join(DATA_DIR, 'project-filters.json');
+const PROMOTIONS_FILE = path.join(DATA_DIR, 'promotions.json');
+const INVESTORS_CONTENT_FILE = path.join(DATA_DIR, 'investors-content.json');
+const ABOUT_CONTENT_FILE = path.join(DATA_DIR, 'about-content.json');
+const CONTACTS_CONTENT_FILE = path.join(DATA_DIR, 'contacts-content.json');
+const BUY_METHODS_FILE = path.join(DATA_DIR, 'buy-methods.json');
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
 
 // Ensure directories exist
@@ -349,6 +354,61 @@ app.get('/api/project-filters', (req, res) => {
 
 app.put('/api/project-filters', (req, res) => {
   writeJsonFile(PROJECT_FILTERS_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Promotions API ---
+
+app.get('/api/promotions', (req, res) => {
+  res.json(readJsonFile(PROMOTIONS_FILE, []));
+});
+
+app.put('/api/promotions', (req, res) => {
+  writeJsonFile(PROMOTIONS_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Investors Content API ---
+
+app.get('/api/investors-content', (req, res) => {
+  res.json(readJsonFile(INVESTORS_CONTENT_FILE, {}));
+});
+
+app.put('/api/investors-content', (req, res) => {
+  writeJsonFile(INVESTORS_CONTENT_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- About Content API ---
+
+app.get('/api/about-content', (req, res) => {
+  res.json(readJsonFile(ABOUT_CONTENT_FILE, {}));
+});
+
+app.put('/api/about-content', (req, res) => {
+  writeJsonFile(ABOUT_CONTENT_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Contacts Content API ---
+
+app.get('/api/contacts-content', (req, res) => {
+  res.json(readJsonFile(CONTACTS_CONTENT_FILE, {}));
+});
+
+app.put('/api/contacts-content', (req, res) => {
+  writeJsonFile(CONTACTS_CONTENT_FILE, req.body);
+  res.json(req.body);
+});
+
+// --- Buy Methods API ---
+
+app.get('/api/buy-methods', (req, res) => {
+  res.json(readJsonFile(BUY_METHODS_FILE, []));
+});
+
+app.put('/api/buy-methods', (req, res) => {
+  writeJsonFile(BUY_METHODS_FILE, req.body);
   res.json(req.body);
 });
 
