@@ -2,60 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
 import { CreditCard, Percent, RefreshCw, Baby, Heart, Tag, Shield, ArrowRight } from 'lucide-react';
+import { useData } from '../../context/DataContext';
 
-const buyOptions = [
-  {
-    icon: CreditCard,
-    title: 'Ипотечный калькулятор',
-    desc: 'Рассчитайте платёж и выберите ипотечную программу. Семейная, льготная, IT-ипотека.',
-    href: '/buy/ipoteka',
-    color: 'bg-blue-500',
-  },
-  {
-    icon: Percent,
-    title: 'Рассрочка',
-    desc: 'Без переплат до конца строительства. Первоначальный взнос от 10%.',
-    href: '/buy/rassrochka',
-    color: 'bg-green-500',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Trade-in',
-    desc: 'Обменяйте старую квартиру на новую. Зачтем полную стоимость.',
-    href: '/buy/trade-in',
-    color: 'bg-purple-500',
-  },
-  {
-    icon: Baby,
-    title: 'Материнский капитал',
-    desc: 'Используйте государственную поддержку для покупки квартиры.',
-    href: '/buy/materinskiy-kapital',
-    color: 'bg-pink-500',
-  },
-  {
-    icon: Heart,
-    title: 'Социальная поддержка',
-    desc: 'Специальные условия для льготных категорий граждан.',
-    href: '/buy/social-support',
-    color: 'bg-red-500',
-  },
-  {
-    icon: Tag,
-    title: 'Акции',
-    desc: 'Актуальные скидки и специальные предложения на квартиры.',
-    href: '/buy/akcii',
-    color: 'bg-orange-500',
-  },
-  {
-    icon: Shield,
-    title: 'Скидка участникам СВО',
-    desc: 'Особые условия для военнослужащих и их семей.',
-    href: '/buy/svo',
-    color: 'bg-teal-500',
-  },
-];
+const iconMap: Record<string, React.FC<{ className?: string }>> = {
+  CreditCard, Percent, RefreshCw, Baby, Heart, Tag, Shield
+};
 
 export const BuyPage: React.FC = () => {
+  const { buyMethods } = useData();
+
   return (
     <>
       {/* Hero */}
@@ -77,25 +32,28 @@ export const BuyPage: React.FC = () => {
       <section className="py-16 px-4 md:px-8 bg-white">
         <div className="max-w-[1600px] mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {buyOptions.map((option, idx) => (
-              <Reveal key={option.href} delay={idx * 100}>
-                <Link
-                  to={option.href}
-                  className="block p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
-                >
-                  <div className={`w-14 h-14 ${option.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform`}>
-                    <option.icon className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-primary mb-3 group-hover:text-accent transition-colors">
-                    {option.title}
-                  </h3>
-                  <p className="text-secondary mb-4">{option.desc}</p>
-                  <span className="inline-flex items-center text-accent font-medium">
-                    Подробнее <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
+            {buyMethods.map((method, idx) => {
+              const Icon = iconMap[method.icon] || CreditCard;
+              return (
+                <Reveal key={method.slug} delay={idx * 100}>
+                  <Link
+                    to={`/buy/${method.slug}`}
+                    className="block p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
+                  >
+                    <div className={`w-14 h-14 ${method.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-7 h-7" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-primary mb-3 group-hover:text-accent transition-colors">
+                      {method.title}
+                    </h3>
+                    <p className="text-secondary mb-4">{method.description}</p>
+                    <span className="inline-flex items-center text-accent font-medium">
+                      Подробнее <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>

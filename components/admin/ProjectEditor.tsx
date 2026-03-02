@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ApartmentStatus, ProjectTimelineItem } from '../../types';
 import { InfrastructureEditor } from './InfrastructureEditor';
 import { ImageUpload } from './ImageUpload';
-import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
@@ -34,7 +34,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     timeline: []
   });
 
-  const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline' | 'features' | 'gallery'>('general');
 
   const handleSave = () => {
     if (isNew) {
@@ -79,6 +79,20 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     setProject({ ...project, timeline: [...(project.timeline || []), newItem] });
   };
 
+  const handleFeatureAdd = () => {
+    const newFeature: ProjectFeature = {
+      id: Date.now().toString(),
+      title: 'Новое преимущество',
+      description: 'Описание преимущества',
+      icon: 'Shield'
+    };
+    setProject({ ...project, features: [...project.features, newFeature] });
+  };
+
+  const handleGalleryAdd = (url: string) => {
+    setProject({ ...project, gallery: [...project.gallery, url] });
+  };
+
   const updatePlan = (idx: number, field: keyof ApartmentPlan, value: any) => {
     const newPlans = [...project.plans];
     (newPlans[idx] as any)[field] = value;
@@ -118,6 +132,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
         <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
           {[
             { id: 'general', label: 'Основное' },
+            { id: 'features', label: 'УТП' },
+            { id: 'gallery', label: 'Галерея' },
             { id: 'plans', label: 'Квартиры' },
             { id: 'promos', label: 'Акции' },
             { id: 'infra', label: 'Инфраструктура' },
@@ -456,6 +472,137 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
             items={project.infrastructure || []}
             onChange={(newInfra) => setProject({...project, infrastructure: newInfra})}
           />
+        )}
+
+        {/* Features (УТП) Tab */}
+        {activeTab === 'features' && (
+          <div className="space-y-6">
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-green-800 text-sm">
+              <strong>Уникальные торговые преимущества (УТП):</strong> Добавьте ключевые преимущества проекта — архитектура, безопасность, локация, инфраструктура и т.д.
+              Эти преимущества отображаются на странице проекта.
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                Всего УТП: <strong>{project.features.length}</strong>
+              </div>
+              <button onClick={handleFeatureAdd} className="flex items-center gap-2 text-sm bg-accent text-white px-4 py-2 rounded-lg hover:bg-primary">
+                <Plus className="w-4 h-4" /> Добавить УТП
+              </button>
+            </div>
+
+            {project.features.length === 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <Star className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Нет преимуществ. Нажмите «Добавить УТП» чтобы начать.</p>
+              </div>
+            )}
+
+            {project.features.map((feature, idx) => (
+              <div key={feature.id || idx} className="border rounded-xl p-4 bg-white shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Иконка (Lucide)</label>
+                    <select
+                      value={feature.icon}
+                      onChange={e => {
+                        const newFeatures = [...project.features];
+                        newFeatures[idx] = { ...newFeatures[idx], icon: e.target.value };
+                        setProject({ ...project, features: newFeatures });
+                      }}
+                      className="w-full p-2 border rounded-lg"
+                    >
+                      {['Shield', 'Building', 'MapPin', 'Trees', 'Car', 'Wifi', 'Lock', 'Sun', 'Landmark', 'Heart', 'Star', 'Award', 'Zap', 'Eye', 'Home'].map(icon => (
+                        <option key={icon} value={icon}>{icon}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Заголовок</label>
+                    <input
+                      value={feature.title}
+                      onChange={e => {
+                        const newFeatures = [...project.features];
+                        newFeatures[idx] = { ...newFeatures[idx], title: e.target.value };
+                        setProject({ ...project, features: newFeatures });
+                      }}
+                      placeholder="Архитектура"
+                      className="w-full p-2 border rounded-lg font-medium"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
+                    <textarea
+                      value={feature.description}
+                      onChange={e => {
+                        const newFeatures = [...project.features];
+                        newFeatures[idx] = { ...newFeatures[idx], description: e.target.value };
+                        setProject({ ...project, features: newFeatures });
+                      }}
+                      placeholder="Описание преимущества..."
+                      className="w-full p-2 border rounded-lg text-sm h-20"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end mt-3">
+                  <button
+                    onClick={() => setProject({ ...project, features: project.features.filter((_, i) => i !== idx) })}
+                    className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" /> Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Gallery Tab */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-6">
+            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-800 text-sm">
+              <strong>Галерея проекта:</strong> Загрузите фотографии ЖК — рендеры, ход строительства, интерьеры, территория.
+              Изображения будут показаны на странице проекта в слайдере.
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                Всего фото: <strong>{project.gallery.length}</strong>
+              </div>
+            </div>
+
+            <div>
+              <ImageUpload
+                label="Добавить фото в галерею"
+                value=""
+                onChange={(url) => handleGalleryAdd(url)}
+              />
+            </div>
+
+            {project.gallery.length === 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <Images className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Нет фотографий. Загрузите изображение выше.</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {project.gallery.map((img, idx) => (
+                <div key={idx} className="relative group rounded-xl overflow-hidden border bg-gray-50 aspect-video">
+                  <img src={img} alt={`Фото ${idx + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      onClick={() => setProject({ ...project, gallery: project.gallery.filter((_, i) => i !== idx) })}
+                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    #{idx + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Timeline Tab */}
