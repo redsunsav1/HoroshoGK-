@@ -121,10 +121,22 @@ export const HomePage: React.FC = () => {
 
               <Reveal delay={200}>
                 <h1 className="mb-6">
-                  <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-primary">
+                  <span
+                    className="block font-bold tracking-tight text-primary"
+                    style={{
+                      fontSize: `clamp(3rem, 10vw, ${homePageContent.heroTitleFontSize || '120px'})`,
+                      lineHeight: homePageContent.heroTitleLineHeight || '0.9'
+                    }}
+                  >
                     {homePageContent.heroTitle1}
                   </span>
-                  <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-bold tracking-tight leading-[0.9] text-accent">
+                  <span
+                    className="block font-bold tracking-tight text-accent"
+                    style={{
+                      fontSize: `clamp(3rem, 10vw, ${homePageContent.heroTitleFontSize || '120px'})`,
+                      lineHeight: homePageContent.heroTitleLineHeight || '0.9'
+                    }}
+                  >
                     {homePageContent.heroTitle2}
                   </span>
                 </h1>
@@ -229,28 +241,27 @@ export const HomePage: React.FC = () => {
       <section className="py-24 bg-beige px-4 md:px-8">
         <div className="max-w-[1600px] mx-auto grid md:grid-cols-2 gap-16 items-center">
           <Reveal>
-            <h2 className="text-3xl md:text-5xl font-medium leading-tight mb-8 text-primary">
-              Мы строим <span className="text-accent italic font-serif">с душой</span> для вашего уюта.
-            </h2>
+            <h2
+              className="text-3xl md:text-5xl font-medium leading-tight mb-8 text-primary"
+              dangerouslySetInnerHTML={{ __html: homePageContent.aboutTitle || 'Мы строим <span class="text-accent italic font-serif">с душой</span> для вашего уюта.' }}
+            />
             <div className="space-y-6 text-primary/70 text-lg leading-relaxed font-light">
               <p>
-                Группа Компаний «Хорошо!» — это философия комфортной жизни.
-                Мы используем натуральные материалы, спокойные цветовые решения
-                и создаем атмосферу, в которой отдыхаешь душой.
+                {homePageContent.aboutText1 || 'Группа Компаний «Хорошо!» — это философия комфортной жизни. Мы используем натуральные материалы, спокойные цветовые решения и создаем атмосферу, в которой отдыхаешь душой.'}
               </p>
               <p>
-                Наши дворы — это приватные парки, а подъезды — лобби пятизвездочных отелей.
+                {homePageContent.aboutText2 || 'Наши дворы — это приватные парки, а подъезды — лобби пятизвездочных отелей.'}
               </p>
             </div>
 
             <div className="flex gap-12 mt-12">
               <div className="border-l-2 border-accent/30 pl-6">
-                <div className="text-4xl font-medium text-accent mb-1">15+</div>
-                <div className="text-sm text-secondary uppercase tracking-wider">Лет опыта</div>
+                <div className="text-4xl font-medium text-accent mb-1">{homePageContent.aboutStat1Value || '15+'}</div>
+                <div className="text-sm text-secondary uppercase tracking-wider">{homePageContent.aboutStat1Label || 'Лет опыта'}</div>
               </div>
               <div className="border-l-2 border-accent/30 pl-6">
-                <div className="text-4xl font-medium text-accent mb-1">5k+</div>
-                <div className="text-sm text-secondary uppercase tracking-wider">Ключей выдано</div>
+                <div className="text-4xl font-medium text-accent mb-1">{homePageContent.aboutStat2Value || '5k+'}</div>
+                <div className="text-sm text-secondary uppercase tracking-wider">{homePageContent.aboutStat2Label || 'Ключей выдано'}</div>
               </div>
             </div>
 
@@ -265,7 +276,7 @@ export const HomePage: React.FC = () => {
             <div className="relative p-4">
               <div className="absolute inset-0 bg-sand rounded-full blur-3xl opacity-60 transform rotate-12" />
               <img
-                src="/images/placeholder-card.svg"
+                src={homePageContent.aboutImage || '/images/placeholder-card.svg'}
                 className="relative rounded-2xl shadow-xl grayscale-[20%]"
                 alt="About us"
               />

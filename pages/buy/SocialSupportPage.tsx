@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, Heart, Users, Home } from 'lucide-react';
 
 const categories = [
@@ -12,6 +13,8 @@ const categories = [
 ];
 
 export const SocialSupportPage: React.FC = () => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
   return (
     <>
       {/* Breadcrumbs */}
@@ -77,7 +80,10 @@ export const SocialSupportPage: React.FC = () => {
               <p className="text-white/70 mb-8 max-w-xl mx-auto">
                 Оставьте заявку, и мы расскажем о всех доступных программах поддержки
               </p>
-              <button className="bg-white text-primary px-8 py-4 rounded-xl font-medium hover:bg-accent hover:text-white transition-colors">
+              <button
+                onClick={() => setShowContactModal(true)}
+                className="bg-white text-primary px-8 py-4 rounded-xl font-medium hover:bg-accent hover:text-white transition-colors"
+              >
                 Получить консультацию
               </button>
             </Reveal>
@@ -93,6 +99,14 @@ export const SocialSupportPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Консультация по льготам"
+          context="Социальная поддержка: консультация"
+        />
+      )}
     </>
   );
 };

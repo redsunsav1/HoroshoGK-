@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, RefreshCw, Home, Clock, Shield } from 'lucide-react';
 
 export const TradeInPage: React.FC = () => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
   return (
     <>
       {/* Breadcrumbs */}
@@ -31,7 +34,10 @@ export const TradeInPage: React.FC = () => {
               по рыночной стоимости и зачтем её в счет покупки.
             </p>
             <div className="flex gap-4">
-              <button className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors">
+              <button
+                onClick={() => setShowContactModal(true)}
+                className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
+              >
                 Оценить квартиру
               </button>
             </div>
@@ -108,6 +114,14 @@ export const TradeInPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Заявка на Trade-in"
+          context="Trade-in: оценка квартиры"
+        />
+      )}
     </>
   );
 };

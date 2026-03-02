@@ -131,6 +131,18 @@ export interface HomePageContent {
   heroImage: string;
   heroButtonText: string;
   promos: HomePagePromo[];
+  // Hero styling options
+  heroTitleFontSize?: string;   // e.g. "120px" or "8rem"
+  heroTitleLineHeight?: string; // e.g. "0.9" or "1.1"
+  // About section (after "Наши проекты")
+  aboutTitle?: string;
+  aboutText1?: string;
+  aboutText2?: string;
+  aboutImage?: string;
+  aboutStat1Value?: string;
+  aboutStat1Label?: string;
+  aboutStat2Value?: string;
+  aboutStat2Label?: string;
 }
 
 // Site settings (logo, contacts, etc.)
@@ -149,4 +161,86 @@ export interface ProjectFilter {
   id: string;
   name: string;
   slug: string;
+}
+
+// Global promotions (displayed in header menu and main page)
+export interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  discount?: string;
+  image: string;
+  showOnMain: boolean;
+  showInHeader: boolean;
+  active: boolean;
+}
+
+// Investors page content
+export interface InvestorsContent {
+  heroTitle: string;
+  heroSubtitle: string;
+  stats: { value: string; label: string }[];
+  aboutTitle: string;
+  aboutText1: string;
+  aboutText2: string;
+  aboutImage: string;
+  documents: { id: string; name: string; size: string; type: string; url: string }[];
+  ctaTitle: string;
+  ctaText: string;
+  ctaEmail: string;
+}
+
+// About page content
+export interface AboutContent {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroImage: string;
+  stats: { value: string; label: string; icon: string }[];
+  missionTitle: string;
+  missionText1: string;
+  missionText2: string;
+  missionText3: string;
+  missionImage: string;
+  values: { title: string; description: string }[];
+  ctaTitle: string;
+  ctaText: string;
+}
+
+// Contacts page content
+export interface ContactsContent {
+  heroTitle: string;
+  heroSubtitle: string;
+  offices: {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+    hours: string;
+  }[];
+  hotlinePhone: string;
+  hotlineText: string;
+  yandexMapCoords?: string; // "lat,lng" format
+  yandexMapZoom?: number;
+  messengers: {
+    telegram?: string;
+    vk?: string;
+    whatsapp?: string;
+  };
+}
+
+// Buy methods content
+export interface BuyMethodContent {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  features: { title: string; description: string }[];
+  howItWorks: { step: number; title: string; description: string }[];
+  ctaTitle: string;
+  ctaText: string;
 }

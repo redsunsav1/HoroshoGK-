@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, Shield, CheckCircle } from 'lucide-react';
 
 export const SvoPage: React.FC = () => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
   return (
     <>
       {/* Breadcrumbs */}
@@ -104,7 +107,10 @@ export const SvoPage: React.FC = () => {
             <p className="text-secondary mb-8 max-w-xl mx-auto">
               Оставьте заявку, и наш специалист свяжется с вами для уточнения условий
             </p>
-            <button className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors">
+            <button
+              onClick={() => setShowContactModal(true)}
+              className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+            >
               Оставить заявку
             </button>
           </Reveal>
@@ -119,6 +125,14 @@ export const SvoPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Заявка для участников СВО"
+          context="Скидка участникам СВО: консультация"
+        />
+      )}
     </>
   );
 };

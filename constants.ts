@@ -1,4 +1,4 @@
-import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter, SiteSettings } from './types';
+import { Project, NewsItem, FaqCategory, TeamMember, Vacancy, PageSettings, HomePageContent, ProjectFilter, SiteSettings, Promotion, InvestorsContent, AboutContent, ContactsContent, BuyMethodContent } from './types';
 
 export const PROJECTS: Project[] = [
   {
@@ -300,6 +300,18 @@ export const HOME_PAGE_CONTENT: HomePageContent = {
     { id: 'hp3', title: 'Паркинг в подарок', description: 'При покупке 3-комнатной квартиры', discount: 'Подарок', image: '/images/placeholder-card.svg' },
     { id: 'hp4', title: 'Отделка в подарок', description: 'При бронировании до конца месяца', discount: '-300 т.₽', image: '/images/placeholder-card.svg' },
   ],
+  // Hero styling
+  heroTitleFontSize: '120px',
+  heroTitleLineHeight: '0.9',
+  // About section
+  aboutTitle: 'Мы строим <span class="text-accent italic font-serif">с душой</span> для вашего уюта.',
+  aboutText1: 'Группа Компаний «Хорошо!» — это философия комфортной жизни. Мы используем натуральные материалы, спокойные цветовые решения и создаем атмосферу, в которой отдыхаешь душой.',
+  aboutText2: 'Наши дворы — это приватные парки, а подъезды — лобби пятизвездочных отелей.',
+  aboutImage: '/images/placeholder-card.svg',
+  aboutStat1Value: '15+',
+  aboutStat1Label: 'Лет опыта',
+  aboutStat2Value: '5k+',
+  aboutStat2Label: 'Ключей выдано',
 };
 
 export const PROJECT_FILTERS: ProjectFilter[] = [
@@ -320,3 +332,229 @@ export const SITE_SETTINGS: SiteSettings = {
   email: 'info@horoshogk.ru',
   address: 'г. Астрахань, ул. Теплая, д. 10, офис 305',
 };
+
+export const PROMOTIONS: Promotion[] = [
+  { id: 'promo1', title: 'Ипотека 0.1%', description: 'На первый год для семей с детьми', discount: '-5%', image: '/images/placeholder-card.svg', showOnMain: true, showInHeader: true, active: true },
+  { id: 'promo2', title: 'Рассрочка 0%', description: 'Без переплат до конца строительства', discount: '-10%', image: '/images/placeholder-card.svg', showOnMain: true, showInHeader: false, active: true },
+];
+
+export const INVESTORS_CONTENT: InvestorsContent = {
+  heroTitle: 'Инвесторам',
+  heroSubtitle: 'Информация для инвесторов и партнеров. Финансовые показатели, отчетность и перспективы развития компании.',
+  stats: [
+    { value: '15+', label: 'Лет на рынке' },
+    { value: '12', label: 'Реализованных проектов' },
+    { value: '5 000+', label: 'Сданных квартир' },
+    { value: '98%', label: 'Сделок вовремя' },
+  ],
+  aboutTitle: 'Стабильный рост и развитие',
+  aboutText1: 'ГК «Хорошо!» демонстрирует устойчивый рост на протяжении последних 15 лет. Компания занимает лидирующие позиции на региональном рынке жилой недвижимости.',
+  aboutText2: 'Наша стратегия направлена на качественное строительство и долгосрочные отношения с клиентами и партнерами.',
+  aboutImage: '/images/placeholder-card.svg',
+  documents: [
+    { id: 'd1', name: 'Годовой отчет 2023', size: '2.4 MB', type: 'PDF', url: '' },
+    { id: 'd2', name: 'Финансовая отчетность Q4 2023', size: '1.8 MB', type: 'PDF', url: '' },
+    { id: 'd3', name: 'Презентация для инвесторов', size: '5.2 MB', type: 'PDF', url: '' },
+    { id: 'd4', name: 'Устав компании', size: '0.8 MB', type: 'PDF', url: '' },
+  ],
+  ctaTitle: 'Хотите стать партнером?',
+  ctaText: 'Свяжитесь с нашим отделом по работе с инвесторами',
+  ctaEmail: 'investors@horoshogk.ru',
+};
+
+export const ABOUT_CONTENT: AboutContent = {
+  heroTitle: 'О компании',
+  heroSubtitle: 'Группа Компаний «Хорошо!» — это философия комфортной жизни. Мы строим не просто дома, а создаем пространства для счастья.',
+  heroImage: '/images/placeholder-card.svg',
+  stats: [
+    { value: '15+', label: 'Лет на рынке', icon: 'Building' },
+    { value: '5 000+', label: 'Ключей выдано', icon: 'Award' },
+    { value: '12', label: 'Реализованных проектов', icon: 'Target' },
+    { value: '150+', label: 'Сотрудников', icon: 'Users' },
+  ],
+  missionTitle: 'Наша миссия',
+  missionText1: 'Мы верим, что каждый человек заслуживает жить в красивом и комфортном доме. Наша задача — сделать это доступным.',
+  missionText2: 'Мы используем натуральные материалы, спокойные цветовые решения и создаем атмосферу, в которой отдыхаешь душой.',
+  missionText3: 'Наши дворы — это приватные парки, а подъезды — лобби пятизвездочных отелей.',
+  missionImage: '/images/placeholder-card.svg',
+  values: [
+    { title: 'Качество', description: 'Мы не экономим на материалах и технологиях. Каждый дом строится так, будто мы строим его для себя.' },
+    { title: 'Честность', description: 'Прозрачные условия, точные сроки, никаких скрытых платежей. Мы дорожим доверием клиентов.' },
+    { title: 'Забота', description: 'Мы сопровождаем клиента на каждом этапе — от выбора квартиры до получения ключей и после.' },
+  ],
+  ctaTitle: 'Хотите стать частью команды?',
+  ctaText: 'Мы всегда в поиске талантливых специалистов, разделяющих наши ценности.',
+};
+
+export const CONTACTS_CONTENT: ContactsContent = {
+  heroTitle: 'Контакты',
+  heroSubtitle: 'Свяжитесь с нами любым удобным способом. Мы всегда рады помочь!',
+  offices: [
+    {
+      id: 'o1',
+      name: 'Главный офис',
+      address: 'г. Астрахань, ул. Теплая, д. 10, офис 305',
+      phone: '8 800 000-00-00',
+      email: 'info@horoshogk.ru',
+      hours: 'Пн-Пт: 9:00-19:00, Сб: 10:00-17:00',
+    },
+    {
+      id: 'o2',
+      name: 'Клиентский офис ГК "ХОРОШО"',
+      address: 'г. Астрахань, ул. Бруклинская, д. 1',
+      phone: '8 800 000-00-01',
+      email: 'brooklyn@horoshogk.ru',
+      hours: 'Ежедневно: 10:00-20:00',
+    },
+  ],
+  hotlinePhone: '8 800 000-00-00',
+  hotlineText: 'Бесплатный звонок по России',
+  yandexMapCoords: '46.347869,48.030596',
+  yandexMapZoom: 15,
+  messengers: {
+    telegram: 'https://t.me/horoshogk',
+    vk: 'https://vk.com/horoshogk',
+    whatsapp: 'https://wa.me/78000000000',
+  },
+};
+
+export const BUY_METHODS: BuyMethodContent[] = [
+  {
+    id: 'bm1',
+    slug: 'ipoteka',
+    title: 'Ипотечный калькулятор',
+    description: 'Рассчитайте платёж и выберите ипотечную программу. Семейная, льготная, IT-ипотека.',
+    icon: 'CreditCard',
+    color: 'bg-blue-500',
+    heroTitle: 'Ипотечный калькулятор',
+    heroSubtitle: 'Рассчитайте ежемесячный платеж и подберите оптимальные условия кредитования.',
+    features: [
+      { title: 'Низкие ставки', description: 'От 0.1% для льготных категорий' },
+      { title: 'Быстрое одобрение', description: 'Решение за 1 день' },
+      { title: 'Много банков', description: 'Работаем с 15+ банками-партнерами' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Оставьте заявку', description: 'Заполните форму или позвоните нам' },
+      { step: 2, title: 'Получите одобрение', description: 'Мы отправим заявку в банки-партнеры' },
+      { step: 3, title: 'Выберите условия', description: 'Сравните предложения и выберите лучшее' },
+      { step: 4, title: 'Оформите сделку', description: 'Подпишите документы и получите ключи' },
+    ],
+    ctaTitle: 'Рассчитайте ипотеку',
+    ctaText: 'Узнайте ежемесячный платеж за 2 минуты',
+  },
+  {
+    id: 'bm2',
+    slug: 'rassrochka',
+    title: 'Рассрочка',
+    description: 'Без переплат до конца строительства. Первоначальный взнос от 10%.',
+    icon: 'Percent',
+    color: 'bg-green-500',
+    heroTitle: 'Рассрочка от застройщика',
+    heroSubtitle: 'Покупайте квартиру без переплат — 0% на весь срок строительства.',
+    features: [
+      { title: '0% переплаты', description: 'Никаких процентов и скрытых комиссий' },
+      { title: 'От 10% взнос', description: 'Минимальный первоначальный взнос' },
+      { title: 'Гибкий график', description: 'Настройте платежи под свой бюджет' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Выберите квартиру', description: 'Подберите планировку и этаж' },
+      { step: 2, title: 'Внесите первый взнос', description: 'От 10% стоимости квартиры' },
+      { step: 3, title: 'Платите по графику', description: 'Равными платежами до сдачи дома' },
+      { step: 4, title: 'Получите ключи', description: 'Оформите собственность и заселяйтесь' },
+    ],
+    ctaTitle: 'Оформить рассрочку',
+    ctaText: 'Оставьте заявку и мы подберем оптимальный график платежей',
+  },
+  {
+    id: 'bm3',
+    slug: 'trade-in',
+    title: 'Trade-in',
+    description: 'Обменяйте старую квартиру на новую. Зачтем полную стоимость.',
+    icon: 'RefreshCw',
+    color: 'bg-purple-500',
+    heroTitle: 'Trade-in',
+    heroSubtitle: 'Обменяйте вашу квартиру на новую — мы зачтем её полную стоимость.',
+    features: [
+      { title: 'Быстрая оценка', description: 'Оценим вашу квартиру за 1 день' },
+      { title: 'Полный зачет', description: 'Зачтем 100% стоимости вашей квартиры' },
+      { title: 'Без посредников', description: 'Работаем напрямую, без агентов' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Оцените квартиру', description: 'Мы бесплатно оценим вашу недвижимость' },
+      { step: 2, title: 'Выберите новую', description: 'Подберите квартиру в наших ЖК' },
+      { step: 3, title: 'Зафиксируйте цену', description: 'Мы зафиксируем стоимость обеих квартир' },
+      { step: 4, title: 'Совершите обмен', description: 'Проведем сделку и оформим документы' },
+    ],
+    ctaTitle: 'Оценить квартиру',
+    ctaText: 'Узнайте стоимость вашей квартиры бесплатно',
+  },
+  {
+    id: 'bm4',
+    slug: 'materinskiy-kapital',
+    title: 'Материнский капитал',
+    description: 'Используйте государственную поддержку для покупки квартиры.',
+    icon: 'Baby',
+    color: 'bg-pink-500',
+    heroTitle: 'Материнский капитал',
+    heroSubtitle: 'Используйте материнский капитал как первоначальный взнос или часть оплаты.',
+    features: [
+      { title: 'Полный зачет', description: 'Принимаем маткапитал без ограничений' },
+      { title: 'Помощь в оформлении', description: 'Поможем собрать документы для ПФР' },
+      { title: 'Комбинируйте', description: 'Совмещайте с ипотекой или рассрочкой' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Выберите квартиру', description: 'Подберите жилье в наших ЖК' },
+      { step: 2, title: 'Соберите документы', description: 'Мы поможем с подготовкой пакета' },
+      { step: 3, title: 'Подайте заявление', description: 'Отправим документы в ПФР' },
+      { step: 4, title: 'Получите ключи', description: 'После перевода средств — заселяйтесь' },
+    ],
+    ctaTitle: 'Использовать маткапитал',
+    ctaText: 'Узнайте, как применить материнский капитал',
+  },
+  {
+    id: 'bm5',
+    slug: 'social-support',
+    title: 'Социальная поддержка',
+    description: 'Специальные условия для льготных категорий граждан.',
+    icon: 'Heart',
+    color: 'bg-red-500',
+    heroTitle: 'Социальная поддержка',
+    heroSubtitle: 'Специальные условия для молодых семей, медработников, педагогов и других льготных категорий.',
+    features: [
+      { title: 'Скидки до 10%', description: 'Для льготных категорий граждан' },
+      { title: 'Субсидии', description: 'Поможем получить господдержку' },
+      { title: 'Льготная ипотека', description: 'Сниженные ставки для молодых семей' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Уточните статус', description: 'Проверим, подходите ли вы под программу' },
+      { step: 2, title: 'Соберите документы', description: 'Поможем с подготовкой справок' },
+      { step: 3, title: 'Получите льготы', description: 'Оформим скидку или субсидию' },
+      { step: 4, title: 'Купите квартиру', description: 'Выгодно приобретете жилье' },
+    ],
+    ctaTitle: 'Узнать о льготах',
+    ctaText: 'Проверьте, какие программы доступны для вас',
+  },
+  {
+    id: 'bm6',
+    slug: 'svo',
+    title: 'Скидка участникам СВО',
+    description: 'Особые условия для военнослужащих и их семей.',
+    icon: 'Shield',
+    color: 'bg-teal-500',
+    heroTitle: 'Скидка участникам СВО',
+    heroSubtitle: 'Особые условия приобретения жилья для участников специальной военной операции и членов их семей.',
+    features: [
+      { title: 'Скидка до 500 000 ₽', description: 'Специальная скидка на все квартиры' },
+      { title: 'Военная ипотека', description: 'Помощь в оформлении военной ипотеки' },
+      { title: 'Приоритетный выбор', description: 'Первоочередное бронирование квартир' },
+    ],
+    howItWorks: [
+      { step: 1, title: 'Предоставьте документы', description: 'Удостоверение участника СВО' },
+      { step: 2, title: 'Выберите квартиру', description: 'Получите приоритетный доступ к планировкам' },
+      { step: 3, title: 'Получите скидку', description: 'Скидка применится автоматически' },
+      { step: 4, title: 'Оформите сделку', description: 'Поможем с документами и ипотекой' },
+    ],
+    ctaTitle: 'Получить скидку',
+    ctaText: 'Оставьте заявку для участников СВО',
+  },
+];

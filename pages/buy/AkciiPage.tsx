@@ -5,8 +5,18 @@ import { Reveal } from '../../components/ui/Reveal';
 import { ArrowLeft, Tag, ArrowRight } from 'lucide-react';
 
 export const AkciiPage: React.FC = () => {
-  const { projects } = useData();
-  const allPromos = projects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
+  const { projects, promotions } = useData();
+
+  // Combine global promotions with project-specific promos
+  const globalPromos = promotions.filter(p => p.active).map(promo => ({
+    ...promo,
+    project: null as any, // Global promos don't have a project
+  }));
+
+  const projectPromos = projects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
+
+  // All promos: global first, then project-specific
+  const allPromos = [...globalPromos, ...projectPromos];
 
   return (
     <>
@@ -63,12 +73,21 @@ export const AkciiPage: React.FC = () => {
                       )}
                       <h3 className="text-2xl font-bold text-white mb-2">{promo.title}</h3>
                       <p className="text-white/80 mb-4">{promo.description}</p>
-                      <Link
-                        to={`/projects/${promo.project.slug}`}
-                        className="inline-flex items-center text-white font-medium hover:text-accent transition-colors"
-                      >
-                        {promo.project.name} <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
+                      {promo.project ? (
+                        <Link
+                          to={`/projects/${promo.project.slug}`}
+                          className="inline-flex items-center text-white font-medium hover:text-accent transition-colors"
+                        >
+                          {promo.project.name} <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/contacts"
+                          className="inline-flex items-center text-white font-medium hover:text-accent transition-colors"
+                        >
+                          Узнать подробнее <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </Reveal>

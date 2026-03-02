@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, Baby, FileText, CheckCircle } from 'lucide-react';
 
 export const MatkapitalPage: React.FC = () => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
   return (
     <>
       {/* Breadcrumbs */}
@@ -114,7 +117,10 @@ export const MatkapitalPage: React.FC = () => {
             <p className="text-secondary mb-8 max-w-xl mx-auto">
               Наши специалисты помогут оформить все документы и ответят на вопросы
             </p>
-            <button className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors">
+            <button
+              onClick={() => setShowContactModal(true)}
+              className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+            >
               Оставить заявку
             </button>
           </Reveal>
@@ -129,6 +135,14 @@ export const MatkapitalPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Консультация по маткапиталу"
+          context="Материнский капитал: консультация"
+        />
+      )}
     </>
   );
 };

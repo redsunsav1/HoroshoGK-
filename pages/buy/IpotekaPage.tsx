@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { Calculator, ArrowLeft, Check } from 'lucide-react';
 
 interface MortgageProgram {
@@ -86,6 +87,7 @@ export const IpotekaPage: React.FC = () => {
   const [price, setPrice] = useState(5000000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [years, setYears] = useState(20);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const downPayment = Math.round(price * downPaymentPercent / 100);
   const rate = selectedProgram.rate;
@@ -322,7 +324,10 @@ export const IpotekaPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button className="w-full bg-accent text-white py-4 rounded-xl font-medium hover:bg-accent/90 transition-colors text-lg">
+                <button
+                  onClick={() => setShowContactModal(true)}
+                  className="w-full bg-accent text-white py-4 rounded-xl font-medium hover:bg-accent/90 transition-colors text-lg"
+                >
                   Оставить заявку
                 </button>
                 <p className="text-center text-white/30 text-xs mt-3">
@@ -342,6 +347,14 @@ export const IpotekaPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Заявка на ипотеку"
+          context={`Ипотека: ${selectedProgram.name}, ${formatNumber(price)} ₽, ${downPaymentPercent}% взнос, ${years} лет`}
+        />
+      )}
     </>
   );
 };

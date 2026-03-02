@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter, SiteSettings } from '../../types';
+import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageSettings, HomePageContent, HomePagePromo, ProjectFilter, SiteSettings, Promotion, InvestorsContent, AboutContent, ContactsContent, BuyMethodContent } from '../../types';
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
 import { ImageUpload } from './ImageUpload';
@@ -8,18 +8,24 @@ import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
   Calendar, Image, FileText, Home, Filter, Settings,
+  Tag, TrendingUp, Building, Phone, ShoppingCart,
 } from 'lucide-react';
 
 // ============================================================
 // Sidebar Component
 // ============================================================
-type Section = 'homepage' | 'projects' | 'filters' | 'news' | 'faq' | 'team' | 'vacancies' | 'pages' | 'settings';
+type Section = 'homepage' | 'projects' | 'filters' | 'promotions' | 'news' | 'faq' | 'team' | 'vacancies' | 'about' | 'investors' | 'contacts' | 'buy-methods' | 'pages' | 'settings';
 
 const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'homepage', label: 'Главная', icon: <Home className="w-5 h-5" /> },
   { id: 'projects', label: 'Проекты', icon: <LayoutGrid className="w-5 h-5" /> },
   { id: 'filters', label: 'Фильтры ЖК', icon: <Filter className="w-5 h-5" /> },
+  { id: 'promotions', label: 'Акции', icon: <Tag className="w-5 h-5" /> },
+  { id: 'buy-methods', label: 'Способы покупки', icon: <ShoppingCart className="w-5 h-5" /> },
   { id: 'news', label: 'Новости', icon: <Newspaper className="w-5 h-5" /> },
+  { id: 'about', label: 'О компании', icon: <Building className="w-5 h-5" /> },
+  { id: 'investors', label: 'Инвесторам', icon: <TrendingUp className="w-5 h-5" /> },
+  { id: 'contacts', label: 'Контакты', icon: <Phone className="w-5 h-5" /> },
   { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-5 h-5" /> },
   { id: 'team', label: 'Команда', icon: <Users className="w-5 h-5" /> },
   { id: 'vacancies', label: 'Вакансии', icon: <Briefcase className="w-5 h-5" /> },
@@ -146,6 +152,28 @@ const HomePageSection: React.FC = () => {
               />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Размер шрифта заголовка</label>
+              <input
+                value={content.heroTitleFontSize || '120px'}
+                onChange={e => updateField('heroTitleFontSize', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="120px"
+              />
+              <p className="text-xs text-gray-500 mt-1">Например: 100px, 8rem, 10vw</p>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Межстрочный интервал (line-height)</label>
+              <input
+                value={content.heroTitleLineHeight || '0.9'}
+                onChange={e => updateField('heroTitleLineHeight', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="0.9"
+              />
+              <p className="text-xs text-gray-500 mt-1">Например: 0.9, 1.0, 1.2</p>
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Подзаголовок</label>
             <input
@@ -167,6 +195,90 @@ const HomePageSection: React.FC = () => {
               label="Фоновое изображение"
               value={content.heroImage}
               onChange={(url) => updateField('heroImage', url)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* About Section Settings (раздел после "Наши проекты") */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Раздел «О компании» (после «Наши проекты»)</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Заголовок (поддерживает HTML для стилей)</label>
+            <input
+              value={content.aboutTitle || ''}
+              onChange={e => updateField('aboutTitle', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder='Мы строим <span class="text-accent italic font-serif">с душой</span> для вашего уюта.'
+            />
+            <p className="text-xs text-gray-500 mt-1">Можно использовать HTML: &lt;span class="text-accent"&gt;текст&lt;/span&gt;</p>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Первый абзац</label>
+            <textarea
+              value={content.aboutText1 || ''}
+              onChange={e => updateField('aboutText1', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg h-24"
+              placeholder="Группа Компаний «Хорошо!» — это философия комфортной жизни..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Второй абзац</label>
+            <textarea
+              value={content.aboutText2 || ''}
+              onChange={e => updateField('aboutText2', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg h-24"
+              placeholder="Наши дворы — это приватные парки..."
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Статистика 1: значение</label>
+              <input
+                value={content.aboutStat1Value || ''}
+                onChange={e => updateField('aboutStat1Value', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="15+"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Статистика 1: подпись</label>
+              <input
+                value={content.aboutStat1Label || ''}
+                onChange={e => updateField('aboutStat1Label', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="Лет опыта"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Статистика 2: значение</label>
+              <input
+                value={content.aboutStat2Value || ''}
+                onChange={e => updateField('aboutStat2Value', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="5k+"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Статистика 2: подпись</label>
+              <input
+                value={content.aboutStat2Label || ''}
+                onChange={e => updateField('aboutStat2Label', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="Ключей выдано"
+              />
+            </div>
+          </div>
+          <div>
+            <ImageUpload
+              label="Изображение раздела"
+              value={content.aboutImage || ''}
+              onChange={(url) => updateField('aboutImage', url)}
             />
           </div>
         </div>
@@ -870,6 +982,1047 @@ const VacancySection: React.FC = () => {
 };
 
 // ============================================================
+// Promotions Section (Акции)
+// ============================================================
+const PromotionsSection: React.FC = () => {
+  const { promotions, updatePromotions } = useData();
+  const [promos, setPromos] = useState<Promotion[]>(promotions);
+  const [saved, setSaved] = useState(true);
+
+  const addPromo = () => {
+    const newPromo: Promotion = {
+      id: Date.now().toString(),
+      title: 'Новая акция',
+      description: 'Описание акции',
+      discount: '-10%',
+      image: '/images/placeholder-card.svg',
+      showOnMain: true,
+      showInHeader: false,
+      active: true,
+    };
+    setPromos([...promos, newPromo]);
+    setSaved(false);
+  };
+
+  const updatePromo = (id: string, field: keyof Promotion, value: string | boolean) => {
+    setPromos(promos.map(p => p.id === id ? { ...p, [field]: value } : p));
+    setSaved(false);
+  };
+
+  const removePromo = (id: string) => {
+    setPromos(promos.filter(p => p.id !== id));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updatePromotions(promos);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Акции и спецпредложения</h1>
+        <div className="flex gap-3">
+          <button onClick={addPromo} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-200">
+            <Plus className="w-4 h-4" /> Добавить акцию
+          </button>
+          <button
+            onClick={handleSave}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+              saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+            }`}
+          >
+            <Save className="w-4 h-4" /> Сохранить
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm mb-6">
+        <strong>Где отображаются акции:</strong>
+        <ul className="list-disc list-inside mt-2">
+          <li>«Показать на главной» — акция появится в слайдере внизу главной страницы</li>
+          <li>«Показать в хедере» — акция появится в выпадающем меню «Способы покупки» → «Акции»</li>
+          <li>Страница «/buy/akcii» — отображает все активные акции</li>
+        </ul>
+      </div>
+
+      <div className="space-y-4">
+        {promos.map(promo => (
+          <div key={promo.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex gap-6">
+              <div className="w-32 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                <img src={promo.image} alt={promo.title} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <div className="grid grid-cols-3 gap-3">
+                  <input
+                    value={promo.title}
+                    onChange={e => updatePromo(promo.id, 'title', e.target.value)}
+                    placeholder="Название"
+                    className="col-span-2 p-2 border rounded-lg font-bold"
+                  />
+                  <input
+                    value={promo.discount || ''}
+                    onChange={e => updatePromo(promo.id, 'discount', e.target.value)}
+                    placeholder="Скидка"
+                    className="p-2 border rounded-lg text-center"
+                  />
+                </div>
+                <input
+                  value={promo.description}
+                  onChange={e => updatePromo(promo.id, 'description', e.target.value)}
+                  placeholder="Описание"
+                  className="w-full p-2 border rounded-lg text-sm"
+                />
+                <div className="flex gap-6 items-center">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={promo.showOnMain}
+                      onChange={e => updatePromo(promo.id, 'showOnMain', e.target.checked)}
+                      className="w-4 h-4 accent-accent"
+                    />
+                    <span className="text-sm">Показать на главной</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={promo.showInHeader}
+                      onChange={e => updatePromo(promo.id, 'showInHeader', e.target.checked)}
+                      className="w-4 h-4 accent-accent"
+                    />
+                    <span className="text-sm">Показать в хедере</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={promo.active}
+                      onChange={e => updatePromo(promo.id, 'active', e.target.checked)}
+                      className="w-4 h-4 accent-green-500"
+                    />
+                    <span className="text-sm">Активна</span>
+                  </label>
+                </div>
+                <ImageUpload
+                  label="Изображение"
+                  value={promo.image}
+                  onChange={(url) => updatePromo(promo.id, 'image', url)}
+                />
+              </div>
+              <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0 self-start">
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {promos.length === 0 && <p className="text-gray-400 py-8 text-center">Нет акций. Нажмите «Добавить акцию».</p>}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// Investors Section (Инвесторам)
+// ============================================================
+const InvestorsSection: React.FC = () => {
+  const { investorsContent, updateInvestorsContent } = useData();
+  const [content, setContent] = useState<InvestorsContent>(investorsContent);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (field: keyof InvestorsContent, value: any) => {
+    setContent(prev => ({ ...prev, [field]: value }));
+    setSaved(false);
+  };
+
+  const updateStat = (idx: number, field: 'value' | 'label', value: string) => {
+    const newStats = [...content.stats];
+    newStats[idx] = { ...newStats[idx], [field]: value };
+    updateField('stats', newStats);
+  };
+
+  const addStat = () => {
+    updateField('stats', [...content.stats, { value: '', label: '' }]);
+  };
+
+  const removeStat = (idx: number) => {
+    updateField('stats', content.stats.filter((_, i) => i !== idx));
+  };
+
+  const updateDoc = (idx: number, field: string, value: string) => {
+    const newDocs = [...content.documents];
+    newDocs[idx] = { ...newDocs[idx], [field]: value };
+    updateField('documents', newDocs);
+  };
+
+  const addDoc = () => {
+    updateField('documents', [...content.documents, { id: Date.now().toString(), name: '', size: '', type: 'PDF', url: '' }]);
+  };
+
+  const removeDoc = (idx: number) => {
+    updateField('documents', content.documents.filter((_, i) => i !== idx));
+  };
+
+  const handleSave = () => {
+    updateInvestorsContent(content);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Страница «Инвесторам»</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {/* Hero */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Заголовок страницы</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.heroTitle}
+            onChange={e => updateField('heroTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Инвесторам"
+          />
+          <textarea
+            value={content.heroSubtitle}
+            onChange={e => updateField('heroSubtitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Подзаголовок"
+          />
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <h2 className="font-bold text-primary">Статистика</h2>
+          <button onClick={addStat} className="text-sm text-accent hover:underline flex items-center gap-1">
+            <Plus className="w-3 h-3" /> Добавить
+          </button>
+        </div>
+        <div className="p-6 space-y-3">
+          {content.stats.map((stat, idx) => (
+            <div key={idx} className="flex gap-3 items-center">
+              <input
+                value={stat.value}
+                onChange={e => updateStat(idx, 'value', e.target.value)}
+                className="w-24 p-2 border rounded-lg font-bold text-center"
+                placeholder="15+"
+              />
+              <input
+                value={stat.label}
+                onChange={e => updateStat(idx, 'label', e.target.value)}
+                className="flex-1 p-2 border rounded-lg"
+                placeholder="Лет на рынке"
+              />
+              <button onClick={() => removeStat(idx)} className="p-1 text-red-400 hover:text-red-600">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* About */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Описание компании</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.aboutTitle}
+            onChange={e => updateField('aboutTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Заголовок"
+          />
+          <textarea
+            value={content.aboutText1}
+            onChange={e => updateField('aboutText1', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-24"
+            placeholder="Первый абзац"
+          />
+          <textarea
+            value={content.aboutText2}
+            onChange={e => updateField('aboutText2', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-24"
+            placeholder="Второй абзац"
+          />
+          <ImageUpload
+            label="Изображение"
+            value={content.aboutImage}
+            onChange={(url) => updateField('aboutImage', url)}
+          />
+        </div>
+      </div>
+
+      {/* Documents */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <h2 className="font-bold text-primary">Документы (PDF)</h2>
+          <button onClick={addDoc} className="text-sm text-accent hover:underline flex items-center gap-1">
+            <Plus className="w-3 h-3" /> Добавить
+          </button>
+        </div>
+        <div className="p-6 space-y-3">
+          {content.documents.map((doc, idx) => (
+            <div key={doc.id} className="flex gap-3 items-center border rounded-lg p-3 bg-gray-50">
+              <input
+                value={doc.name}
+                onChange={e => updateDoc(idx, 'name', e.target.value)}
+                className="flex-1 p-2 border rounded-lg"
+                placeholder="Название документа"
+              />
+              <input
+                value={doc.size}
+                onChange={e => updateDoc(idx, 'size', e.target.value)}
+                className="w-24 p-2 border rounded-lg text-center"
+                placeholder="2.4 MB"
+              />
+              <input
+                value={doc.url}
+                onChange={e => updateDoc(idx, 'url', e.target.value)}
+                className="w-48 p-2 border rounded-lg text-sm"
+                placeholder="URL файла"
+              />
+              <button onClick={() => removeDoc(idx)} className="p-1 text-red-400 hover:text-red-600">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Призыв к действию</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.ctaTitle}
+            onChange={e => updateField('ctaTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Заголовок"
+          />
+          <input
+            value={content.ctaText}
+            onChange={e => updateField('ctaText', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Текст"
+          />
+          <input
+            value={content.ctaEmail}
+            onChange={e => updateField('ctaEmail', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Email для связи"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// About Section (О компании)
+// ============================================================
+const AboutSection: React.FC = () => {
+  const { aboutContent, updateAboutContent } = useData();
+  const [content, setContent] = useState<AboutContent>(aboutContent);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (field: keyof AboutContent, value: any) => {
+    setContent(prev => ({ ...prev, [field]: value }));
+    setSaved(false);
+  };
+
+  const updateStat = (idx: number, field: string, value: string) => {
+    const newStats = [...content.stats];
+    newStats[idx] = { ...newStats[idx], [field]: value };
+    updateField('stats', newStats);
+  };
+
+  const updateValue = (idx: number, field: string, value: string) => {
+    const newValues = [...content.values];
+    newValues[idx] = { ...newValues[idx], [field]: value };
+    updateField('values', newValues);
+  };
+
+  const addValue = () => {
+    updateField('values', [...content.values, { title: '', description: '' }]);
+  };
+
+  const removeValue = (idx: number) => {
+    updateField('values', content.values.filter((_, i) => i !== idx));
+  };
+
+  const handleSave = () => {
+    updateAboutContent(content);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Страница «О компании»</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {/* Hero */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Заголовок страницы</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.heroTitle}
+            onChange={e => updateField('heroTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="О компании"
+          />
+          <textarea
+            value={content.heroSubtitle}
+            onChange={e => updateField('heroSubtitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Подзаголовок"
+          />
+          <ImageUpload
+            label="Изображение hero"
+            value={content.heroImage}
+            onChange={(url) => updateField('heroImage', url)}
+          />
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Статистика (4 блока)</h2>
+        </div>
+        <div className="p-6 grid grid-cols-2 gap-4">
+          {content.stats.map((stat, idx) => (
+            <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={stat.value}
+                  onChange={e => updateStat(idx, 'value', e.target.value)}
+                  className="p-2 border rounded-lg font-bold text-center"
+                  placeholder="15+"
+                />
+                <input
+                  value={stat.icon}
+                  onChange={e => updateStat(idx, 'icon', e.target.value)}
+                  className="p-2 border rounded-lg text-sm"
+                  placeholder="Building"
+                />
+              </div>
+              <input
+                value={stat.label}
+                onChange={e => updateStat(idx, 'label', e.target.value)}
+                className="w-full p-2 border rounded-lg mt-2"
+                placeholder="Подпись"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Mission */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Миссия компании</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.missionTitle}
+            onChange={e => updateField('missionTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Наша миссия"
+          />
+          <textarea
+            value={content.missionText1}
+            onChange={e => updateField('missionText1', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Первый абзац"
+          />
+          <textarea
+            value={content.missionText2}
+            onChange={e => updateField('missionText2', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Второй абзац"
+          />
+          <textarea
+            value={content.missionText3}
+            onChange={e => updateField('missionText3', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Третий абзац"
+          />
+          <ImageUpload
+            label="Изображение миссии"
+            value={content.missionImage}
+            onChange={(url) => updateField('missionImage', url)}
+          />
+        </div>
+      </div>
+
+      {/* Values */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <h2 className="font-bold text-primary">Ценности компании</h2>
+          <button onClick={addValue} className="text-sm text-accent hover:underline flex items-center gap-1">
+            <Plus className="w-3 h-3" /> Добавить
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          {content.values.map((val, idx) => (
+            <div key={idx} className="border rounded-lg p-4 bg-gray-50">
+              <div className="flex gap-3 items-start">
+                <div className="flex-1 space-y-2">
+                  <input
+                    value={val.title}
+                    onChange={e => updateValue(idx, 'title', e.target.value)}
+                    className="w-full p-2 border rounded-lg font-bold"
+                    placeholder="Название"
+                  />
+                  <textarea
+                    value={val.description}
+                    onChange={e => updateValue(idx, 'description', e.target.value)}
+                    className="w-full p-2 border rounded-lg h-20"
+                    placeholder="Описание"
+                  />
+                </div>
+                <button onClick={() => removeValue(idx)} className="p-1 text-red-400 hover:text-red-600">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Призыв к действию</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.ctaTitle}
+            onChange={e => updateField('ctaTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Заголовок"
+          />
+          <input
+            value={content.ctaText}
+            onChange={e => updateField('ctaText', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Текст"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// Contacts Section (Контакты)
+// ============================================================
+const ContactsSection: React.FC = () => {
+  const { contactsContent, updateContactsContent } = useData();
+  const [content, setContent] = useState<ContactsContent>(contactsContent);
+  const [saved, setSaved] = useState(true);
+
+  const updateField = (field: keyof ContactsContent, value: any) => {
+    setContent(prev => ({ ...prev, [field]: value }));
+    setSaved(false);
+  };
+
+  const updateOffice = (idx: number, field: string, value: string) => {
+    const newOffices = [...content.offices];
+    newOffices[idx] = { ...newOffices[idx], [field]: value };
+    updateField('offices', newOffices);
+  };
+
+  const addOffice = () => {
+    updateField('offices', [...content.offices, { id: Date.now().toString(), name: '', address: '', phone: '', email: '', hours: '' }]);
+  };
+
+  const removeOffice = (idx: number) => {
+    updateField('offices', content.offices.filter((_, i) => i !== idx));
+  };
+
+  const updateMessenger = (key: string, value: string) => {
+    updateField('messengers', { ...content.messengers, [key]: value });
+  };
+
+  const handleSave = () => {
+    updateContactsContent(content);
+    setSaved(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Страница «Контакты»</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {/* Hero */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Заголовок страницы</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <input
+            value={content.heroTitle}
+            onChange={e => updateField('heroTitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg font-bold"
+            placeholder="Контакты"
+          />
+          <textarea
+            value={content.heroSubtitle}
+            onChange={e => updateField('heroSubtitle', e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg h-20"
+            placeholder="Подзаголовок"
+          />
+        </div>
+      </div>
+
+      {/* Offices */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <h2 className="font-bold text-primary">Офисы</h2>
+          <button onClick={addOffice} className="text-sm text-accent hover:underline flex items-center gap-1">
+            <Plus className="w-3 h-3" /> Добавить офис
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          {content.offices.map((office, idx) => (
+            <div key={office.id} className="border rounded-lg p-4 bg-gray-50">
+              <div className="flex gap-3 items-start">
+                <div className="flex-1 space-y-3">
+                  <input
+                    value={office.name}
+                    onChange={e => updateOffice(idx, 'name', e.target.value)}
+                    className="w-full p-2 border rounded-lg font-bold"
+                    placeholder="Название офиса"
+                  />
+                  <input
+                    value={office.address}
+                    onChange={e => updateOffice(idx, 'address', e.target.value)}
+                    className="w-full p-2 border rounded-lg"
+                    placeholder="Адрес"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      value={office.phone}
+                      onChange={e => updateOffice(idx, 'phone', e.target.value)}
+                      className="p-2 border rounded-lg"
+                      placeholder="Телефон"
+                    />
+                    <input
+                      value={office.email}
+                      onChange={e => updateOffice(idx, 'email', e.target.value)}
+                      className="p-2 border rounded-lg"
+                      placeholder="Email"
+                    />
+                  </div>
+                  <input
+                    value={office.hours}
+                    onChange={e => updateOffice(idx, 'hours', e.target.value)}
+                    className="w-full p-2 border rounded-lg"
+                    placeholder="Часы работы"
+                  />
+                </div>
+                <button onClick={() => removeOffice(idx)} className="p-1 text-red-400 hover:text-red-600">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Hotline */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Горячая линия</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              value={content.hotlinePhone}
+              onChange={e => updateField('hotlinePhone', e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg font-bold"
+              placeholder="8 800 000-00-00"
+            />
+            <input
+              value={content.hotlineText}
+              onChange={e => updateField('hotlineText', e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg"
+              placeholder="Бесплатный звонок по России"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Yandex Map */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Яндекс Карта</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Координаты (lat,lng)</label>
+              <input
+                value={content.yandexMapCoords || ''}
+                onChange={e => updateField('yandexMapCoords', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="46.347869,48.030596"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Масштаб (zoom)</label>
+              <input
+                type="number"
+                value={content.yandexMapZoom || 15}
+                onChange={e => updateField('yandexMapZoom', parseInt(e.target.value) || 15)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                min={1}
+                max={21}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">Координаты можно получить на Яндекс Картах, кликнув правой кнопкой на нужную точку.</p>
+        </div>
+      </div>
+
+      {/* Messengers */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Мессенджеры</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Telegram</label>
+            <input
+              value={content.messengers?.telegram || ''}
+              onChange={e => updateMessenger('telegram', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="https://t.me/username"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">ВКонтакте</label>
+            <input
+              value={content.messengers?.vk || ''}
+              onChange={e => updateMessenger('vk', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="https://vk.com/group"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">WhatsApp</label>
+            <input
+              value={content.messengers?.whatsapp || ''}
+              onChange={e => updateMessenger('whatsapp', e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="https://wa.me/78000000000"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// Buy Methods Section (Способы покупки)
+// ============================================================
+const BuyMethodsSection: React.FC = () => {
+  const { buyMethods, updateBuyMethods } = useData();
+  const [methods, setMethods] = useState<BuyMethodContent[]>(buyMethods);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [saved, setSaved] = useState(true);
+
+  const updateMethod = (id: string, field: keyof BuyMethodContent, value: any) => {
+    setMethods(methods.map(m => m.id === id ? { ...m, [field]: value } : m));
+    setSaved(false);
+  };
+
+  const updateFeature = (methodId: string, idx: number, field: string, value: string) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        const newFeatures = [...m.features];
+        newFeatures[idx] = { ...newFeatures[idx], [field]: value };
+        return { ...m, features: newFeatures };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const addFeature = (methodId: string) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        return { ...m, features: [...m.features, { title: '', description: '' }] };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const removeFeature = (methodId: string, idx: number) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        return { ...m, features: m.features.filter((_, i) => i !== idx) };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const updateHowItWorks = (methodId: string, idx: number, field: string, value: string | number) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        const newSteps = [...m.howItWorks];
+        newSteps[idx] = { ...newSteps[idx], [field]: value };
+        return { ...m, howItWorks: newSteps };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const addHowItWorks = (methodId: string) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        const nextStep = m.howItWorks.length + 1;
+        return { ...m, howItWorks: [...m.howItWorks, { step: nextStep, title: '', description: '' }] };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const removeHowItWorks = (methodId: string, idx: number) => {
+    setMethods(methods.map(m => {
+      if (m.id === methodId) {
+        return { ...m, howItWorks: m.howItWorks.filter((_, i) => i !== idx) };
+      }
+      return m;
+    }));
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    updateBuyMethods(methods);
+    setSaved(true);
+  };
+
+  const editingMethod = methods.find(m => m.id === editingId);
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Способы покупки</h1>
+        <button
+          onClick={handleSave}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-lg ${
+            saved ? 'bg-gray-300 text-gray-500' : 'bg-accent text-white hover:bg-opacity-90'
+          }`}
+        >
+          <Save className="w-4 h-4" /> Сохранить
+        </button>
+      </div>
+
+      {editingId && editingMethod ? (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-6 py-3 bg-gray-50 border-b flex justify-between items-center">
+            <h2 className="font-bold text-primary">Редактирование: {editingMethod.title}</h2>
+            <button onClick={() => setEditingId(null)} className="text-sm text-gray-500 hover:text-gray-700">
+              ← Назад к списку
+            </button>
+          </div>
+          <div className="p-6 space-y-6">
+            {/* Basic info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Название</label>
+                <input
+                  value={editingMethod.title}
+                  onChange={e => updateMethod(editingId, 'title', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Краткое описание</label>
+                <input
+                  value={editingMethod.description}
+                  onChange={e => updateMethod(editingId, 'description', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Заголовок Hero</label>
+                <input
+                  value={editingMethod.heroTitle}
+                  onChange={e => updateMethod(editingId, 'heroTitle', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Подзаголовок Hero</label>
+                <input
+                  value={editingMethod.heroSubtitle}
+                  onChange={e => updateMethod(editingId, 'heroSubtitle', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-gray-700">Преимущества</h3>
+                <button onClick={() => addFeature(editingId)} className="text-sm text-accent hover:underline flex items-center gap-1">
+                  <Plus className="w-3 h-3" /> Добавить
+                </button>
+              </div>
+              <div className="space-y-3">
+                {editingMethod.features.map((f, idx) => (
+                  <div key={idx} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg">
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <input
+                        value={f.title}
+                        onChange={e => updateFeature(editingId, idx, 'title', e.target.value)}
+                        className="p-2 border rounded-lg font-medium"
+                        placeholder="Заголовок"
+                      />
+                      <input
+                        value={f.description}
+                        onChange={e => updateFeature(editingId, idx, 'description', e.target.value)}
+                        className="p-2 border rounded-lg"
+                        placeholder="Описание"
+                      />
+                    </div>
+                    <button onClick={() => removeFeature(editingId, idx)} className="p-1 text-red-400 hover:text-red-600">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-gray-700">Как это работает</h3>
+                <button onClick={() => addHowItWorks(editingId)} className="text-sm text-accent hover:underline flex items-center gap-1">
+                  <Plus className="w-3 h-3" /> Добавить шаг
+                </button>
+              </div>
+              <div className="space-y-3">
+                {editingMethod.howItWorks.map((step, idx) => (
+                  <div key={idx} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg">
+                    <div className="w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center font-bold shrink-0">
+                      {step.step}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <input
+                        value={step.title}
+                        onChange={e => updateHowItWorks(editingId, idx, 'title', e.target.value)}
+                        className="w-full p-2 border rounded-lg font-medium"
+                        placeholder="Заголовок шага"
+                      />
+                      <input
+                        value={step.description}
+                        onChange={e => updateHowItWorks(editingId, idx, 'description', e.target.value)}
+                        className="w-full p-2 border rounded-lg text-sm"
+                        placeholder="Описание шага"
+                      />
+                    </div>
+                    <button onClick={() => removeHowItWorks(editingId, idx)} className="p-1 text-red-400 hover:text-red-600">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="border-t pt-4">
+              <h3 className="font-bold text-gray-700 mb-3">Призыв к действию</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  value={editingMethod.ctaTitle}
+                  onChange={e => updateMethod(editingId, 'ctaTitle', e.target.value)}
+                  className="p-3 border border-gray-300 rounded-lg"
+                  placeholder="Заголовок кнопки"
+                />
+                <input
+                  value={editingMethod.ctaText}
+                  onChange={e => updateMethod(editingId, 'ctaText', e.target.value)}
+                  className="p-3 border border-gray-300 rounded-lg"
+                  placeholder="Текст под кнопкой"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {methods.map(method => (
+            <div key={method.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 ${method.color} rounded-xl flex items-center justify-center text-white`}>
+                  <ShoppingCart className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-primary">{method.title}</h3>
+                  <div className="text-sm text-gray-500">{method.features.length} преимуществ • {method.howItWorks.length} шагов</div>
+                </div>
+              </div>
+              <button onClick={() => setEditingId(method.id)} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <Edit2 className="w-5 h-5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
 // Page Settings Section
 // ============================================================
 const PageSettingsSection: React.FC = () => {
@@ -955,7 +2108,12 @@ const AdminDashboard: React.FC = () => {
         {section === 'homepage' && <HomePageSection />}
         {section === 'projects' && <ProjectsSection />}
         {section === 'filters' && <FiltersSection />}
+        {section === 'promotions' && <PromotionsSection />}
+        {section === 'buy-methods' && <BuyMethodsSection />}
         {section === 'news' && <NewsSection />}
+        {section === 'about' && <AboutSection />}
+        {section === 'investors' && <InvestorsSection />}
+        {section === 'contacts' && <ContactsSection />}
         {section === 'faq' && <FaqSection />}
         {section === 'team' && <TeamSection />}
         {section === 'vacancies' && <VacancySection />}

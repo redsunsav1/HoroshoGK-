@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, CheckCircle, Calendar, Percent } from 'lucide-react';
 
 export const RassrochkaPage: React.FC = () => {
+  const [showContactModal, setShowContactModal] = useState(false);
+
   return (
     <>
       {/* Breadcrumbs */}
@@ -86,7 +89,10 @@ export const RassrochkaPage: React.FC = () => {
           <Reveal>
             <h2 className="text-2xl md:text-3xl font-medium text-primary mb-4">Оформить рассрочку</h2>
             <p className="text-secondary mb-8">Оставьте заявку, и мы подберем оптимальные условия</p>
-            <button className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors">
+            <button
+              onClick={() => setShowContactModal(true)}
+              className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+            >
               Оставить заявку
             </button>
           </Reveal>
@@ -101,6 +107,14 @@ export const RassrochkaPage: React.FC = () => {
           </Link>
         </div>
       </section>
+
+      {showContactModal && (
+        <ContactModal
+          onClose={() => setShowContactModal(false)}
+          title="Заявка на рассрочку"
+          context="Рассрочка от застройщика"
+        />
+      )}
     </>
   );
 };

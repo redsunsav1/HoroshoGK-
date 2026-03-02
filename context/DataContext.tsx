@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import {
   Project, NewsItem, FaqCategory, TeamMember, Vacancy,
-  PageSettings, HomePageContent, SiteSettings, ProjectFilter
+  PageSettings, HomePageContent, SiteSettings, ProjectFilter,
+  Promotion, InvestorsContent, AboutContent, ContactsContent, BuyMethodContent
 } from '../types';
 import {
   PROJECTS as INITIAL_PROJECTS,
@@ -12,7 +13,12 @@ import {
   PAGE_SETTINGS as INITIAL_PAGE_SETTINGS,
   HOME_PAGE_CONTENT as INITIAL_HOME_CONTENT,
   SITE_SETTINGS as INITIAL_SITE_SETTINGS,
-  PROJECT_FILTERS as INITIAL_PROJECT_FILTERS
+  PROJECT_FILTERS as INITIAL_PROJECT_FILTERS,
+  PROMOTIONS as INITIAL_PROMOTIONS,
+  INVESTORS_CONTENT as INITIAL_INVESTORS_CONTENT,
+  ABOUT_CONTENT as INITIAL_ABOUT_CONTENT,
+  CONTACTS_CONTENT as INITIAL_CONTACTS_CONTENT,
+  BUY_METHODS as INITIAL_BUY_METHODS
 } from '../constants';
 
 // API URL - will be same origin in production
@@ -66,6 +72,26 @@ interface DataContextType {
   projectFilters: ProjectFilter[];
   updateProjectFilters: (filters: ProjectFilter[]) => Promise<void>;
 
+  // Promotions
+  promotions: Promotion[];
+  updatePromotions: (promotions: Promotion[]) => Promise<void>;
+
+  // Investors Content
+  investorsContent: InvestorsContent;
+  updateInvestorsContent: (content: InvestorsContent) => Promise<void>;
+
+  // About Content
+  aboutContent: AboutContent;
+  updateAboutContent: (content: AboutContent) => Promise<void>;
+
+  // Contacts Content
+  contactsContent: ContactsContent;
+  updateContactsContent: (content: ContactsContent) => Promise<void>;
+
+  // Buy Methods
+  buyMethods: BuyMethodContent[];
+  updateBuyMethods: (methods: BuyMethodContent[]) => Promise<void>;
+
   // Utils
   resetData: () => Promise<void>;
   refreshData: () => Promise<void>;
@@ -84,6 +110,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [homePageContent, setHomePageContent] = useState<HomePageContent>(INITIAL_HOME_CONTENT);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SITE_SETTINGS);
   const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>(INITIAL_PROJECT_FILTERS);
+  const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
+  const [investorsContent, setInvestorsContent] = useState<InvestorsContent>(INITIAL_INVESTORS_CONTENT);
+  const [aboutContent, setAboutContent] = useState<AboutContent>(INITIAL_ABOUT_CONTENT);
+  const [contactsContent, setContactsContent] = useState<ContactsContent>(INITIAL_CONTACTS_CONTENT);
+  const [buyMethods, setBuyMethods] = useState<BuyMethodContent[]>(INITIAL_BUY_METHODS);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +135,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         { url: `${API_URL}/home-content`, setter: setHomePageContent, initial: INITIAL_HOME_CONTENT },
         { url: `${API_URL}/site-settings`, setter: setSiteSettings, initial: INITIAL_SITE_SETTINGS },
         { url: `${API_URL}/project-filters`, setter: setProjectFilters, initial: INITIAL_PROJECT_FILTERS },
+        { url: `${API_URL}/promotions`, setter: setPromotions, initial: INITIAL_PROMOTIONS },
+        { url: `${API_URL}/investors-content`, setter: setInvestorsContent, initial: INITIAL_INVESTORS_CONTENT },
+        { url: `${API_URL}/about-content`, setter: setAboutContent, initial: INITIAL_ABOUT_CONTENT },
+        { url: `${API_URL}/contacts-content`, setter: setContactsContent, initial: INITIAL_CONTACTS_CONTENT },
+        { url: `${API_URL}/buy-methods`, setter: setBuyMethods, initial: INITIAL_BUY_METHODS },
       ];
 
       await Promise.all(endpoints.map(async ({ url, setter, initial }) => {
@@ -316,6 +352,61 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProjectFilters(filters);
   };
 
+  // --- Promotions ---
+  const updatePromotions = async (promos: Promotion[]) => {
+    const response = await fetch(`${API_URL}/promotions`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(promos),
+    });
+    if (!response.ok) throw new Error('Failed to update promotions');
+    setPromotions(promos);
+  };
+
+  // --- Investors Content ---
+  const updateInvestorsContent = async (content: InvestorsContent) => {
+    const response = await fetch(`${API_URL}/investors-content`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(content),
+    });
+    if (!response.ok) throw new Error('Failed to update investors content');
+    setInvestorsContent(content);
+  };
+
+  // --- About Content ---
+  const updateAboutContent = async (content: AboutContent) => {
+    const response = await fetch(`${API_URL}/about-content`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(content),
+    });
+    if (!response.ok) throw new Error('Failed to update about content');
+    setAboutContent(content);
+  };
+
+  // --- Contacts Content ---
+  const updateContactsContent = async (content: ContactsContent) => {
+    const response = await fetch(`${API_URL}/contacts-content`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(content),
+    });
+    if (!response.ok) throw new Error('Failed to update contacts content');
+    setContactsContent(content);
+  };
+
+  // --- Buy Methods ---
+  const updateBuyMethods = async (methods: BuyMethodContent[]) => {
+    const response = await fetch(`${API_URL}/buy-methods`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(methods),
+    });
+    if (!response.ok) throw new Error('Failed to update buy methods');
+    setBuyMethods(methods);
+  };
+
   // --- Utils ---
   const resetData = async () => {
     if (confirm('Вы уверены? Все ваши изменения будут удалены и вернутся исходные данные.')) {
@@ -330,6 +421,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetch(`${API_URL}/home-content`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_HOME_CONTENT) }),
         fetch(`${API_URL}/site-settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_SITE_SETTINGS) }),
         fetch(`${API_URL}/project-filters`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_PROJECT_FILTERS) }),
+        fetch(`${API_URL}/promotions`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_PROMOTIONS) }),
+        fetch(`${API_URL}/investors-content`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_INVESTORS_CONTENT) }),
+        fetch(`${API_URL}/about-content`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_ABOUT_CONTENT) }),
+        fetch(`${API_URL}/contacts-content`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_CONTACTS_CONTENT) }),
+        fetch(`${API_URL}/buy-methods`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(INITIAL_BUY_METHODS) }),
       ]);
 
       // Reset local state
@@ -342,6 +438,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setHomePageContent(INITIAL_HOME_CONTENT);
       setSiteSettings(INITIAL_SITE_SETTINGS);
       setProjectFilters(INITIAL_PROJECT_FILTERS);
+      setPromotions(INITIAL_PROMOTIONS);
+      setInvestorsContent(INITIAL_INVESTORS_CONTENT);
+      setAboutContent(INITIAL_ABOUT_CONTENT);
+      setContactsContent(INITIAL_CONTACTS_CONTENT);
+      setBuyMethods(INITIAL_BUY_METHODS);
     }
   };
 
@@ -397,6 +498,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Project Filters
       projectFilters,
       updateProjectFilters,
+
+      // Promotions
+      promotions,
+      updatePromotions,
+
+      // Investors Content
+      investorsContent,
+      updateInvestorsContent,
+
+      // About Content
+      aboutContent,
+      updateAboutContent,
+
+      // Contacts Content
+      contactsContent,
+      updateContactsContent,
+
+      // Buy Methods
+      buyMethods,
+      updateBuyMethods,
 
       // Utils
       resetData,
