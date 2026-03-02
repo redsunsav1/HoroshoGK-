@@ -27,6 +27,7 @@ const INVESTORS_CONTENT_FILE = path.join(DATA_DIR, 'investors-content.json');
 const ABOUT_CONTENT_FILE = path.join(DATA_DIR, 'about-content.json');
 const CONTACTS_CONTENT_FILE = path.join(DATA_DIR, 'contacts-content.json');
 const BUY_METHODS_FILE = path.join(DATA_DIR, 'buy-methods.json');
+const ADMIN_AUTH_FILE = path.join(DATA_DIR, 'admin-auth.json');
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
 
 // Ensure directories exist
@@ -410,6 +411,31 @@ app.get('/api/buy-methods', (req, res) => {
 app.put('/api/buy-methods', (req, res) => {
   writeJsonFile(BUY_METHODS_FILE, req.body);
   res.json(req.body);
+});
+
+// --- Admin Auth API ---
+
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  const auth = readJsonFile(ADMIN_AUTH_FILE, { password: 'admin' });
+  if (password === auth.password) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: 'Wrong password' });
+  }
+});
+
+app.put('/api/admin/password', (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const auth = readJsonFile(ADMIN_AUTH_FILE, { password: 'admin' });
+  if (currentPassword !== auth.password) {
+    return res.status(401).json({ error: 'Current password is wrong' });
+  }
+  if (!newPassword || newPassword.length < 3) {
+    return res.status(400).json({ error: 'Password too short' });
+  }
+  writeJsonFile(ADMIN_AUTH_FILE, { password: newPassword });
+  res.json({ success: true });
 });
 
 // --- Booking API ---

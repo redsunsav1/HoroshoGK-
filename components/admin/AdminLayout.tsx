@@ -40,7 +40,7 @@ const Sidebar: React.FC<{ active: Section; onSelect: (s: Section) => void; reset
       <div className="p-6 border-b border-white/10">
         <div className="font-bold text-xl tracking-tight">ХОРОШО <span className="text-gray-400">Admin</span></div>
       </div>
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {sidebarItems.map(item => (
           <button
             key={item.id}
@@ -549,6 +549,110 @@ const SiteSettingsSection: React.FC = () => {
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 text-sm">
         <strong>Примечание:</strong> Изменения будут применены к шапке и подвалу сайта.
         Если указан URL логотипа, он заменит стандартный SVG-логотип.
+      </div>
+
+      {/* Password Change */}
+      <PasswordChangeBlock />
+    </div>
+  );
+};
+
+const PasswordChangeBlock: React.FC = () => {
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const API_URL = window.location.origin + '/api';
+
+  const handleChange = async () => {
+    setMsg(null);
+    if (!currentPwd || !newPwd) {
+      setMsg({ text: 'Заполните все поля', ok: false });
+      return;
+    }
+    if (newPwd.length < 3) {
+      setMsg({ text: 'Новый пароль слишком короткий (мин. 3 символа)', ok: false });
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setMsg({ text: 'Новый пароль и подтверждение не совпадают', ok: false });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: currentPwd, newPassword: newPwd }),
+      });
+      if (res.ok) {
+        setMsg({ text: 'Пароль успешно изменён!', ok: true });
+        setCurrentPwd('');
+        setNewPwd('');
+        setConfirmPwd('');
+      } else {
+        const data = await res.json();
+        setMsg({ text: data.error === 'Current password is wrong' ? 'Текущий пароль неверный' : 'Ошибка', ok: false });
+      }
+    } catch {
+      setMsg({ text: 'Ошибка соединения с сервером', ok: false });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 mt-6 overflow-hidden">
+      <div className="px-6 py-3 bg-gray-50 border-b">
+        <h2 className="font-bold text-primary">Смена пароля админки</h2>
+      </div>
+      <div className="p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Текущий пароль</label>
+          <input
+            type="password"
+            value={currentPwd}
+            onChange={e => setCurrentPwd(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Введите текущий пароль"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Новый пароль</label>
+            <input
+              type="password"
+              value={newPwd}
+              onChange={e => setNewPwd(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Новый пароль"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Подтвердите пароль</label>
+            <input
+              type="password"
+              value={confirmPwd}
+              onChange={e => setConfirmPwd(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+              placeholder="Повторите пароль"
+            />
+          </div>
+        </div>
+        {msg && (
+          <div className={`p-3 rounded-lg text-sm ${msg.ok ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+            {msg.text}
+          </div>
+        )}
+        <button
+          onClick={handleChange}
+          disabled={loading}
+          className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 disabled:opacity-50"
+        >
+          {loading ? 'Сохраняю...' : 'Изменить пароль'}
+        </button>
       </div>
     </div>
   );
@@ -2152,6 +2256,32 @@ const ProjectEditorWrapper: React.FC = () => {
 export const AdminLayout: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  const API_URL = window.location.origin + '/api';
+
+  const handleLogin = async () => {
+    if (!password) return;
+    setLoginLoading(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${API_URL}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setIsAuth(true);
+      } else {
+        setLoginError('Неверный пароль');
+      }
+    } catch {
+      setLoginError('Ошибка соединения с сервером');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   if (!isAuth) {
     return (
@@ -2160,17 +2290,19 @@ export const AdminLayout: React.FC = () => {
           <h2 className="text-2xl font-bold mb-6 text-primary">Вход в систему</h2>
           <input
             type="password"
-            placeholder="Пароль (admin)"
-            className="w-full p-3 border rounded-xl mb-4 text-center"
+            placeholder="Введите пароль"
+            className="w-full p-3 border rounded-xl mb-2 text-center"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && (password === 'admin' ? setIsAuth(true) : alert('Неверный пароль'))}
+            onChange={e => { setPassword(e.target.value); setLoginError(''); }}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
           />
+          {loginError && <p className="text-red-500 text-sm mb-2">{loginError}</p>}
           <button
-            onClick={() => password === 'admin' ? setIsAuth(true) : alert('Неверный пароль')}
-            className="w-full bg-primary text-white py-3 rounded-xl font-bold"
+            onClick={handleLogin}
+            disabled={loginLoading}
+            className="w-full bg-primary text-white py-3 rounded-xl font-bold disabled:opacity-50"
           >
-            Войти
+            {loginLoading ? 'Вход...' : 'Войти'}
           </button>
         </div>
       </div>
