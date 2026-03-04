@@ -1,0 +1,766 @@
+diff --git a/components/admin/AdminLayout.tsx b/components/admin/AdminLayout.tsx
+index 62430fb..ef7e617 100644
+--- a/components/admin/AdminLayout.tsx
++++ b/components/admin/AdminLayout.tsx
+@@ -2130,15 +2130,53 @@ const BuyMethodsSection: React.FC = () => {
+ // Page Settings Section
+ // ============================================================
+ const PageSettingsSection: React.FC = () => {
+-  const { pageSettings, updatePageSettings } = useData();
+-  const [settings, setSettings] = useState<PageSettings[]>(pageSettings);
++  const { pageSettings, updatePageSettings, projects } = useData();
++
++  // Merge existing settings with auto-generated project pages
++  const allPaths = React.useMemo(() => {
++    const existing = new Set(pageSettings.map(p => p.path));
++    const projectPages: PageSettings[] = projects
++      .filter(p => !existing.has(`/projects/${p.slug}`))
++      .map(p => ({
++        path: `/projects/${p.slug}`,
++        title: p.name,
++        description: p.shortDescription,
++        h1: p.name,
++      }));
++    return [...pageSettings, ...projectPages];
++  }, [pageSettings, projects]);
++
++  const [settings, setSettings] = useState<PageSettings[]>(allPaths);
+   const [saved, setSaved] = useState(true);
++  const [newPath, setNewPath] = useState('');
++
++  // Sync when allPaths changes
++  React.useEffect(() => {
++    setSettings(prev => {
++      const existingPaths = new Set(prev.map(p => p.path));
++      const toAdd = allPaths.filter(p => !existingPaths.has(p.path));
++      return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
++    });
++  }, [allPaths]);
+ 
+   const updateField = (path: string, field: keyof PageSettings, value: string) => {
+     setSettings(prev => prev.map(s => s.path === path ? { ...s, [field]: value } : s));
+     setSaved(false);
+   };
+ 
++  const addPage = () => {
++    const path = newPath.trim();
++    if (!path || settings.some(s => s.path === path)) return;
++    setSettings(prev => [...prev, { path, title: '', description: '', h1: '' }]);
++    setNewPath('');
++    setSaved(false);
++  };
++
++  const removePage = (path: string) => {
++    setSettings(prev => prev.filter(s => s.path !== path));
++    setSaved(false);
++  };
++
+   const handleSave = () => {
+     updatePageSettings(settings);
+     setSaved(true);
+@@ -2157,11 +2195,39 @@ const PageSettingsSection: React.FC = () => {
+           <Save className="w-4 h-4" /> Сохранить
+         </button>
+       </div>
++
++      {/* Add new page */}
++      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex gap-3 items-end">
++        <div className="flex-1">
++          <label className="block text-sm font-bold text-gray-700 mb-1">Добавить страницу (путь)</label>
++          <input
++            value={newPath}
++            onChange={e => setNewPath(e.target.value)}
++            placeholder="/privacy-policy"
++            className="w-full p-3 border border-gray-300 rounded-lg text-sm font-mono"
++          />
++        </div>
++        <button
++          onClick={addPage}
++          className="px-4 py-3 bg-accent text-white rounded-lg text-sm font-bold hover:bg-primary transition-colors"
++        >
++          + Добавить
++        </button>
++      </div>
++
++      <div className="text-sm text-gray-500 mb-4">Всего страниц: {settings.length}</div>
++
+       <div className="space-y-4">
+         {settings.map(page => (
+           <div key={page.path} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+-            <div className="px-6 py-3 bg-gray-50 border-b flex items-center gap-3">
++            <div className="px-6 py-3 bg-gray-50 border-b flex items-center justify-between">
+               <span className="text-xs font-mono bg-gray-200 px-2 py-1 rounded text-gray-600">{page.path}</span>
++              <button
++                onClick={() => removePage(page.path)}
++                className="text-xs text-red-500 hover:text-red-700"
++              >
++                Удалить
++              </button>
+             </div>
+             <div className="p-6 space-y-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+diff --git a/components/admin/ProjectEditor.tsx b/components/admin/ProjectEditor.tsx
+index 5c322fb..95ed798 100644
+--- a/components/admin/ProjectEditor.tsx
++++ b/components/admin/ProjectEditor.tsx
+@@ -1,5 +1,5 @@
+ import React, { useState } from 'react';
+-import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ApartmentStatus, ProjectTimelineItem } from '../../types';
++import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem } from '../../types';
+ import { InfrastructureEditor } from './InfrastructureEditor';
+ import { ImageUpload } from './ImageUpload';
+ import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images } from 'lucide-react';
+@@ -52,9 +52,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+       area: 40,
+       price: 'от 5.0 млн ₽',
+       image: '/images/placeholder-plan.svg',
+-      floor: 1,
+-      number: '',
+-      status: 'available'
++      floor: '',
++      number: ''
+     };
+     setProject({ ...project, plans: [...project.plans, newPlan] });
+   };
+@@ -105,12 +104,6 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+     setProject({ ...project, timeline: newTimeline });
+   };
+ 
+-  const statusOptions: { value: ApartmentStatus; label: string; color: string }[] = [
+-    { value: 'available', label: 'Свободна', color: 'bg-green-100 text-green-700' },
+-    { value: 'reserved', label: 'Бронь', color: 'bg-yellow-100 text-yellow-700' },
+-    { value: 'sold', label: 'Продана', color: 'bg-red-100 text-red-600' },
+-  ];
+-
+   return (
+     <div className="bg-white min-h-screen pb-20">
+       {/* Header */}
+@@ -266,8 +259,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+         {activeTab === 'plans' && (
+           <div className="space-y-6">
+             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm">
+-              <strong>Управление квартирами:</strong> Добавьте планировки и укажите для каждой этаж, номер квартиры и статус (свободна/бронь/продана).
+-              Этажи: от 1 до {project.totalFloors || 19}. Измените количество этажей во вкладке «Основное».
++              <strong>Управление квартирами:</strong> Добавьте планировки и укажите для каждой этаж (можно диапазон: «2-5, 7») и планировку (напр. «1Б», «2Г»).
+             </div>
+             <div className="flex justify-between items-center">
+               <div className="text-sm text-gray-500">
+@@ -296,14 +288,9 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+                       {plan.rooms}-комн. квартира, {plan.area} м²
+                     </div>
+                     <div className="text-sm text-gray-500">
+-                      Этаж {plan.floor || '?'}{plan.number ? `, кв. №${plan.number}` : ''}
++                      Этаж: {plan.floor || '?'}{plan.number ? `, планировка: ${plan.number}` : ''}
+                     </div>
+                   </div>
+-                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+-                    statusOptions.find(s => s.value === (plan.status || 'available'))?.color
+-                  }`}>
+-                    {statusOptions.find(s => s.value === (plan.status || 'available'))?.label}
+-                  </div>
+                   <button
+                     onClick={() => setProject({...project, plans: project.plans.filter(p => p.id !== plan.id)})}
+                     className="p-2 text-red-500 hover:bg-red-50 rounded"
+@@ -336,22 +323,20 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+                     />
+                   </div>
+                   <div>
+-                    <label className="block text-xs font-medium text-gray-500 mb-1">Этаж (1-{project.totalFloors || 19})</label>
++                    <label className="block text-xs font-medium text-gray-500 mb-1">Этаж</label>
+                     <input
+-                      type="number"
+-                      min="1"
+-                      max={project.totalFloors || 19}
+-                      value={plan.floor || 1}
+-                      onChange={e => updatePlan(idx, 'floor', parseInt(e.target.value))}
++                      value={plan.floor || ''}
++                      onChange={e => updatePlan(idx, 'floor', e.target.value)}
++                      placeholder="напр. 2-5, 7"
+                       className="w-full p-2 border rounded-lg"
+                     />
+                   </div>
+                   <div>
+-                    <label className="block text-xs font-medium text-gray-500 mb-1">№ квартиры</label>
++                    <label className="block text-xs font-medium text-gray-500 mb-1">Планировка</label>
+                     <input
+                       value={plan.number || ''}
+                       onChange={e => updatePlan(idx, 'number', e.target.value)}
+-                      placeholder="напр. 42"
++                      placeholder="напр. 1Б, 2Г"
+                       className="w-full p-2 border rounded-lg"
+                     />
+                   </div>
+@@ -364,20 +349,6 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+                       className="w-full p-2 border rounded-lg"
+                     />
+                   </div>
+-                  <div>
+-                    <label className="block text-xs font-medium text-gray-500 mb-1">Статус</label>
+-                    <select
+-                      value={plan.status || 'available'}
+-                      onChange={e => updatePlan(idx, 'status', e.target.value as ApartmentStatus)}
+-                      className={`w-full p-2 border rounded-lg ${
+-                        statusOptions.find(s => s.value === (plan.status || 'available'))?.color
+-                      }`}
+-                    >
+-                      {statusOptions.map(opt => (
+-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+-                      ))}
+-                    </select>
+-                  </div>
+                   <div className="col-span-2">
+                     <ImageUpload
+                       label="Планировка"
+@@ -499,24 +470,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+ 
+             {project.features.map((feature, idx) => (
+               <div key={feature.id || idx} className="border rounded-xl p-4 bg-white shadow-sm">
+-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
++                <div className="space-y-4">
+                   <div>
+-                    <label className="block text-xs font-medium text-gray-500 mb-1">Иконка (Lucide)</label>
+-                    <select
+-                      value={feature.icon}
+-                      onChange={e => {
+-                        const newFeatures = [...project.features];
+-                        newFeatures[idx] = { ...newFeatures[idx], icon: e.target.value };
+-                        setProject({ ...project, features: newFeatures });
+-                      }}
+-                      className="w-full p-2 border rounded-lg"
+-                    >
+-                      {['Shield', 'Building', 'MapPin', 'Trees', 'Car', 'Wifi', 'Lock', 'Sun', 'Landmark', 'Heart', 'Star', 'Award', 'Zap', 'Eye', 'Home'].map(icon => (
+-                        <option key={icon} value={icon}>{icon}</option>
+-                      ))}
+-                    </select>
+-                  </div>
+-                  <div className="md:col-span-2">
+                     <label className="block text-xs font-medium text-gray-500 mb-1">Заголовок</label>
+                     <input
+                       value={feature.title}
+@@ -529,7 +484,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject })
+                       className="w-full p-2 border rounded-lg font-medium"
+                     />
+                   </div>
+-                  <div className="md:col-span-3">
++                  <div>
+                     <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
+                     <textarea
+                       value={feature.description}
+diff --git a/components/layout/Header.tsx b/components/layout/Header.tsx
+index 8ab5848..94daf66 100644
+--- a/components/layout/Header.tsx
++++ b/components/layout/Header.tsx
+@@ -32,7 +32,7 @@ const navigation: NavItem[] = [
+       { label: 'Ипотечный калькулятор', href: '/buy/ipoteka' },
+       { label: 'Рассрочка', href: '/buy/rassrochka' },
+       { label: 'Trade-in', href: '/buy/trade-in' },
+-      { label: 'Маткапитал', href: '/buy/materinskiy-kapital' },
++      { label: 'Материнский капитал', href: '/buy/materinskiy-kapital' },
+       { label: 'Соц. поддержка', href: '/buy/social-support' },
+       { label: 'Акции', href: '/buy/akcii' },
+     ],
+diff --git a/constants.ts b/constants.ts
+index 79ef0cf..a4177b0 100644
+--- a/constants.ts
++++ b/constants.ts
+@@ -72,13 +72,13 @@ export const PROJECTS: Project[] = [
+     ],
+     totalFloors: 9,
+     plans: [
+-      { id: 'ba-1-2', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: '/images/placeholder-plan.svg', floor: 2, number: '5', status: 'available' },
+-      { id: 'ba-1-4', rooms: 1, area: 38.0, price: 'от 4.1 млн ₽', image: '/images/placeholder-plan.svg', floor: 4, number: '13', status: 'sold' },
+-      { id: 'ba-1-6', rooms: 1, area: 39.0, price: 'от 4.3 млн ₽', image: '/images/placeholder-plan.svg', floor: 6, number: '21', status: 'available' },
+-      { id: 'ba-1-9', rooms: 1, area: 38.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 9, number: '33', status: 'available' },
+-      { id: 'ba-2-3', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '9', status: 'available' },
+-      { id: 'ba-2-5', rooms: 2, area: 56.0, price: 'от 5.8 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '17', status: 'reserved' },
+-      { id: 'ba-2-7', rooms: 2, area: 55.0, price: 'от 6.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 7, number: '25', status: 'available' },
++      { id: 'ba-1-2', rooms: 1, area: 38.0, price: 'от 3.9 млн ₽', image: '/images/placeholder-plan.svg', floor: '2', number: '5' },
++      { id: 'ba-1-4', rooms: 1, area: 38.0, price: 'от 4.1 млн ₽', image: '/images/placeholder-plan.svg', floor: '4', number: '13' },
++      { id: 'ba-1-6', rooms: 1, area: 39.0, price: 'от 4.3 млн ₽', image: '/images/placeholder-plan.svg', floor: '6', number: '21' },
++      { id: 'ba-1-9', rooms: 1, area: 38.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '9', number: '33' },
++      { id: 'ba-2-3', rooms: 2, area: 55.0, price: 'от 5.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '3', number: '9' },
++      { id: 'ba-2-5', rooms: 2, area: 56.0, price: 'от 5.8 млн ₽', image: '/images/placeholder-plan.svg', floor: '5', number: '17' },
++      { id: 'ba-2-7', rooms: 2, area: 55.0, price: 'от 6.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '7', number: '25' },
+     ],
+     promos: [
+       { id: 'p3', title: 'Материнский капитал', description: 'Удваиваем скидку при использовании маткапитала.', image: '/images/placeholder-card.svg' },
+@@ -113,14 +113,14 @@ export const PROJECTS: Project[] = [
+     ],
+     totalFloors: 22,
+     plans: [
+-      { id: 'm-1-5', rooms: 1, area: 40.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '18', status: 'available' },
+-      { id: 'm-1-10', rooms: 1, area: 40.0, price: 'от 7.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 10, number: '38', status: 'sold' },
+-      { id: 'm-1-18', rooms: 1, area: 42.0, price: 'от 8.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 18, number: '70', status: 'available' },
+-      { id: 'm-2-3', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '10', status: 'available' },
+-      { id: 'm-2-8', rooms: 2, area: 75.0, price: 'от 12.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 8, number: '30', status: 'reserved' },
+-      { id: 'm-2-15', rooms: 2, area: 78.0, price: 'от 13.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 15, number: '58', status: 'available' },
+-      { id: 'm-3-6', rooms: 3, area: 105.0, price: 'от 16.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 6, number: '22', status: 'available' },
+-      { id: 'm-3-20', rooms: 3, area: 110.0, price: 'от 19.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 20, number: '78', status: 'available' },
++      { id: 'm-1-5', rooms: 1, area: 40.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '5', number: '18' },
++      { id: 'm-1-10', rooms: 1, area: 40.0, price: 'от 7.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '10', number: '38' },
++      { id: 'm-1-18', rooms: 1, area: 42.0, price: 'от 8.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '18', number: '70' },
++      { id: 'm-2-3', rooms: 2, area: 75.0, price: 'от 12.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '3', number: '10' },
++      { id: 'm-2-8', rooms: 2, area: 75.0, price: 'от 12.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '8', number: '30' },
++      { id: 'm-2-15', rooms: 2, area: 78.0, price: 'от 13.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '15', number: '58' },
++      { id: 'm-3-6', rooms: 3, area: 105.0, price: 'от 16.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '6', number: '22' },
++      { id: 'm-3-20', rooms: 3, area: 110.0, price: 'от 19.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '20', number: '78' },
+     ],
+     promos: [
+       { id: 'p4', title: 'Ипотека 1.9%', description: 'Специальная ставка для IT-специалистов.', image: '/images/placeholder-card.svg' },
+@@ -153,13 +153,13 @@ export const PROJECTS: Project[] = [
+     ],
+     totalFloors: 12,
+     plans: [
+-      { id: 'c-1-2', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 2, number: '6', status: 'available' },
+-      { id: 'c-1-5', rooms: 1, area: 40.0, price: 'от 4.7 млн ₽', image: '/images/placeholder-plan.svg', floor: 5, number: '18', status: 'sold' },
+-      { id: 'c-1-8', rooms: 1, area: 41.0, price: 'от 5.0 млн ₽', image: '/images/placeholder-plan.svg', floor: 8, number: '30', status: 'available' },
+-      { id: 'c-2-3', rooms: 2, area: 62.0, price: 'от 6.2 млн ₽', image: '/images/placeholder-plan.svg', floor: 3, number: '10', status: 'available' },
+-      { id: 'c-2-7', rooms: 2, area: 62.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 7, number: '26', status: 'available' },
+-      { id: 'c-3-4', rooms: 3, area: 88.0, price: 'от 8.5 млн ₽', image: '/images/placeholder-plan.svg', floor: 4, number: '14', status: 'reserved' },
+-      { id: 'c-3-11', rooms: 3, area: 90.0, price: 'от 9.2 млн ₽', image: '/images/placeholder-plan.svg', floor: 11, number: '42', status: 'available' },
++      { id: 'c-1-2', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '2', number: '6' },
++      { id: 'c-1-5', rooms: 1, area: 40.0, price: 'от 4.7 млн ₽', image: '/images/placeholder-plan.svg', floor: '5', number: '18' },
++      { id: 'c-1-8', rooms: 1, area: 41.0, price: 'от 5.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '8', number: '30' },
++      { id: 'c-2-3', rooms: 2, area: 62.0, price: 'от 6.2 млн ₽', image: '/images/placeholder-plan.svg', floor: '3', number: '10' },
++      { id: 'c-2-7', rooms: 2, area: 62.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '7', number: '26' },
++      { id: 'c-3-4', rooms: 3, area: 88.0, price: 'от 8.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '4', number: '14' },
++      { id: 'c-3-11', rooms: 3, area: 90.0, price: 'от 9.2 млн ₽', image: '/images/placeholder-plan.svg', floor: '11', number: '42' },
+     ],
+     promos: [
+       { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: '/images/placeholder-card.svg' },
+diff --git a/pages/about/VacancyPage.tsx b/pages/about/VacancyPage.tsx
+index e2df924..5b7872b 100644
+--- a/pages/about/VacancyPage.tsx
++++ b/pages/about/VacancyPage.tsx
+@@ -1,10 +1,13 @@
+-import React from 'react';
++import React, { useState } from 'react';
+ import { useData } from '../../context/DataContext';
+ import { Reveal } from '../../components/ui/Reveal';
++import { ContactModal } from '../../components/ui/ContactModal';
+ import { MapPin, Clock, Banknote, ArrowRight } from 'lucide-react';
+ 
+ export const VacancyPage: React.FC = () => {
+   const { vacancies } = useData();
++  const [showContactModal, setShowContactModal] = useState(false);
++  const [selectedVacancy, setSelectedVacancy] = useState('');
+   return (
+     <>
+       {/* Hero */}
+@@ -79,7 +82,10 @@ export const VacancyPage: React.FC = () => {
+                         </span>
+                       </div>
+                     </div>
+-                    <button className="flex items-center text-accent font-medium hover:underline shrink-0">
++                    <button
++                      onClick={() => { setSelectedVacancy(vacancy.title); setShowContactModal(true); }}
++                      className="flex items-center text-accent font-medium hover:underline shrink-0"
++                    >
+                       Откликнуться <ArrowRight className="w-4 h-4 ml-2" />
+                     </button>
+                   </div>
+@@ -100,15 +106,23 @@ export const VacancyPage: React.FC = () => {
+             <p className="text-secondary mb-8 max-w-xl mx-auto">
+               Отправьте нам резюме, и мы свяжемся с вами, когда появится подходящая позиция.
+             </p>
+-            <a
+-              href="mailto:hr@horoshogk.ru"
++            <button
++              onClick={() => { setSelectedVacancy('Общий отклик'); setShowContactModal(true); }}
+               className="inline-block bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+             >
+-              hr@horoshogk.ru
+-            </a>
++              Оставить заявку
++            </button>
+           </Reveal>
+         </div>
+       </section>
++
++      {showContactModal && (
++        <ContactModal
++          onClose={() => setShowContactModal(false)}
++          title="Отклик на вакансию"
++          context={`Вакансия: ${selectedVacancy}`}
++        />
++      )}
+     </>
+   );
+ };
+diff --git a/pages/buy/BuyPage.tsx b/pages/buy/BuyPage.tsx
+index 9c5b213..a79ab1b 100644
+--- a/pages/buy/BuyPage.tsx
++++ b/pages/buy/BuyPage.tsx
+@@ -38,16 +38,16 @@ export const BuyPage: React.FC = () => {
+                 <Reveal key={method.slug} delay={idx * 100}>
+                   <Link
+                     to={`/buy/${method.slug}`}
+-                    className="block p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
++                    className="flex flex-col p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
+                   >
+-                    <div className={`w-14 h-14 ${method.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform`}>
++                    <div className={`w-14 h-14 ${method.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform shrink-0`}>
+                       <Icon className="w-7 h-7" />
+                     </div>
+                     <h3 className="text-2xl font-bold text-primary mb-3 group-hover:text-accent transition-colors">
+                       {method.title}
+                     </h3>
+-                    <p className="text-secondary mb-4">{method.description}</p>
+-                    <span className="inline-flex items-center text-accent font-medium">
++                    <p className="text-secondary mb-4 flex-1">{method.description}</p>
++                    <span className="inline-flex items-center text-accent font-medium mt-auto">
+                       Подробнее <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                     </span>
+                   </Link>
+diff --git a/pages/buy/IpotekaPage.tsx b/pages/buy/IpotekaPage.tsx
+index 725887e..d0b75f1 100644
+--- a/pages/buy/IpotekaPage.tsx
++++ b/pages/buy/IpotekaPage.tsx
+@@ -175,7 +175,7 @@ export const IpotekaPage: React.FC = () => {
+                 <Reveal key={program.id} delay={idx * 80}>
+                   <button
+                     onClick={() => handleProgramSelect(program)}
+-                    className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 relative ${
++                    className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 relative h-full flex flex-col ${
+                       isActive
+                         ? 'border-accent bg-accent/5 shadow-md'
+                         : 'border-sand bg-white hover:border-accent/40 hover:shadow-sm'
+@@ -189,16 +189,16 @@ export const IpotekaPage: React.FC = () => {
+                       </span>
+                     )}
+ 
+-                    <div className="flex items-start gap-3">
++                    <div className="flex items-start gap-3 flex-1">
+                       <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                         isActive ? 'border-accent bg-accent' : 'border-gray-300'
+                       }`}>
+                         {isActive && <Check className="w-3 h-3 text-white" />}
+                       </div>
+-                      <div>
++                      <div className="flex flex-col flex-1">
+                         <div className="font-semibold text-primary mb-1">{program.name}</div>
+-                        <div className="text-sm text-secondary mb-3">{program.description}</div>
+-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
++                        <div className="text-sm text-secondary mb-3 flex-1">{program.description}</div>
++                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm mt-auto">
+                           <span className="text-accent font-bold">от {program.rate}%</span>
+                           <span className="text-secondary">взнос от {program.minDownPayment}%</span>
+                           <span className="text-secondary">до {program.maxTerm} {pluralYears(program.maxTerm)}</span>
+diff --git a/pages/projects/ProjectDetailPage.tsx b/pages/projects/ProjectDetailPage.tsx
+index 76aed06..3e9d17c 100644
+--- a/pages/projects/ProjectDetailPage.tsx
++++ b/pages/projects/ProjectDetailPage.tsx
+@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
+ import { useData } from '../../context/DataContext';
+ import { Reveal } from '../../components/ui/Reveal';
+ import { InfrastructureMap } from '../../components/InfrastructureMap';
+-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, Download } from 'lucide-react';
++import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn } from 'lucide-react';
+ import { ApartmentPlan } from '../../types';
+ 
+ // ============================================================
+@@ -134,9 +134,11 @@ const BookingModal: React.FC<{
+                 <span className="font-bold text-primary">{apartment.rooms}-комн., {apartment.area} м²</span>
+                 <span className="font-bold text-accent">{apartment.price}</span>
+               </div>
+-              <div className="text-sm text-secondary mt-1">
+-                Этаж {apartment.floor}{apartment.number ? `, кв. №${apartment.number}` : ''}
+-              </div>
++              {(apartment.floor || apartment.number) && (
++                <div className="text-sm text-secondary mt-1">
++                  {apartment.floor ? `Этаж: ${apartment.floor}` : ''}{apartment.number ? `, планировка: ${apartment.number}` : ''}
++                </div>
++              )}
+             </div>
+ 
+             <form onSubmit={handleSubmit} className="space-y-4">
+@@ -199,62 +201,29 @@ const BookingModal: React.FC<{
+ };
+ 
+ // ============================================================
+-// Floor Selector Component
++// Plan Image Popup
+ // ============================================================
+-const FloorSelector: React.FC<{
+-  totalFloors: number;
+-  plans: ApartmentPlan[];
+-  selectedFloor: number | null;
+-  onSelectFloor: (floor: number) => void;
+-  roomFilter: number | null;
+-}> = ({ totalFloors, plans, selectedFloor, onSelectFloor, roomFilter }) => {
+-  const floors = Array.from({ length: totalFloors }, (_, i) => totalFloors - i);
+-
+-  const getFloorStatus = (floor: number) => {
+-    const floorPlans = plans.filter(p => p.floor === floor && (roomFilter === null || p.rooms === roomFilter));
+-    if (floorPlans.length === 0) return 'empty';
+-    const hasAvailable = floorPlans.some(p => p.status === 'available');
+-    const allSold = floorPlans.every(p => p.status === 'sold');
+-    if (allSold) return 'sold';
+-    if (hasAvailable) return 'available';
+-    return 'reserved';
+-  };
+-
+-  return (
+-    <div className="flex flex-col gap-1">
+-      <div className="text-sm text-secondary mb-2 font-medium">Выберите этаж:</div>
+-      <div className="flex flex-wrap gap-2">
+-        {floors.map(floor => {
+-          const status = getFloorStatus(floor);
+-          const isSelected = selectedFloor === floor;
+-          let bg = 'bg-gray-100 text-gray-400';
+-          if (status === 'available') bg = 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer';
+-          if (status === 'reserved') bg = 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 cursor-pointer';
+-          if (status === 'sold') bg = 'bg-red-100 text-red-400';
+-          if (isSelected) bg = 'bg-primary text-white ring-2 ring-accent';
+-
+-          return (
+-            <button
+-              key={floor}
+-              onClick={() => status !== 'empty' && onSelectFloor(floor)}
+-              disabled={status === 'empty'}
+-              className={`w-12 h-10 rounded-lg text-sm font-bold transition-all ${bg}`}
+-              title={`Этаж ${floor}${status === 'available' ? ' — есть квартиры' : status === 'sold' ? ' — продано' : status === 'reserved' ? ' — бронь' : ' — нет квартир'}`}
+-            >
+-              {floor}
+-            </button>
+-          );
+-        })}
+-      </div>
+-      <div className="flex gap-4 mt-3 text-xs text-secondary">
+-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-200 inline-block" /> Свободно</span>
+-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-200 inline-block" /> Бронь</span>
+-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-200 inline-block" /> Продано</span>
+-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-100 inline-block" /> Нет квартир</span>
+-      </div>
++const PlanImagePopup: React.FC<{
++  image: string;
++  title: string;
++  onClose: () => void;
++}> = ({ image, title, onClose }) => (
++  <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={onClose}>
++    <div className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center" onClick={e => e.stopPropagation()}>
++      <button
++        onClick={onClose}
++        className="absolute -top-12 right-0 text-white hover:text-accent transition-colors p-2"
++      >
++        <X className="w-8 h-8" />
++      </button>
++      <img
++        src={image}
++        alt={title}
++        className="max-w-full max-h-[85vh] object-contain bg-white rounded-2xl p-4"
++      />
+     </div>
+-  );
+-};
++  </div>
++);
+ 
+ // ============================================================
+ // Apartment Card
+@@ -263,28 +232,19 @@ const ApartmentCard: React.FC<{
+   plan: ApartmentPlan;
+   projectName: string;
+   onBook: (plan: ApartmentPlan) => void;
+-}> = ({ plan, projectName, onBook }) => {
+-  const statusLabels: Record<string, string> = {
+-    available: 'Свободна',
+-    reserved: 'Забронирована',
+-    sold: 'Продана',
+-  };
+-  const statusColors: Record<string, string> = {
+-    available: 'bg-green-100 text-green-700',
+-    reserved: 'bg-yellow-100 text-yellow-700',
+-    sold: 'bg-red-100 text-red-500',
+-  };
+-
+-  const status = plan.status || 'available';
+-
++  onViewPlan: (plan: ApartmentPlan) => void;
++}> = ({ plan, projectName, onBook, onViewPlan }) => {
+   return (
+     <div className="bg-white border border-sand rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
+-      <div className="p-8 bg-beige/30 flex items-center justify-center h-56 relative">
+-        <img src={plan.image} alt="Plan" className="max-h-full max-w-full mix-blend-multiply opacity-80" />
+-        <div className="absolute top-4 left-4">
+-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[status]}`}>
+-            {statusLabels[status]}
+-          </span>
++      <div
++        className="p-8 bg-beige/30 flex items-center justify-center h-56 relative cursor-pointer group"
++        onClick={() => onViewPlan(plan)}
++      >
++        <img src={plan.image} alt="Plan" className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
++        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
++          <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-3 shadow-lg">
++            <ZoomIn className="w-6 h-6 text-primary" />
++          </div>
+         </div>
+         <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold shadow-sm text-primary">
+           {plan.rooms}-комн.
+@@ -302,32 +262,15 @@ const ApartmentCard: React.FC<{
+           </div>
+         </div>
+         <div className="flex justify-between text-sm text-secondary mb-4">
+-          <span>Этаж: <strong className="text-primary">{plan.floor}</strong></span>
+-          {plan.number && <span>Кв. №<strong className="text-primary">{plan.number}</strong></span>}
++          {plan.floor && <span>Этаж: <strong className="text-primary">{plan.floor}</strong></span>}
++          {plan.number && <span>Планировка: <strong className="text-primary">{plan.number}</strong></span>}
+         </div>
+-        <a
+-          href={plan.image}
+-          download={`planировка-${plan.rooms}комн-${plan.area}м2-этаж${plan.floor}.svg`}
+-          target="_blank"
+-          rel="noopener noreferrer"
+-          className="w-full py-3 mb-2 border border-sand text-primary rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-beige transition-all duration-300 flex items-center justify-center gap-2"
++        <button
++          onClick={() => onBook(plan)}
++          className="w-full py-3 bg-accent text-white rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-primary hover:shadow-lg transition-all duration-300"
+         >
+-          <Download className="w-4 h-4" /> Скачать планировку
+-        </a>
+-        {status === 'available' ? (
+-          <button
+-            onClick={() => onBook(plan)}
+-            className="w-full py-3 bg-accent text-white rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-primary hover:shadow-lg transition-all duration-300"
+-          >
+-            Забронировать
+-          </button>
+-        ) : (
+-          <div className={`w-full py-3 text-center rounded-lg text-sm font-bold uppercase tracking-wide ${
+-            status === 'reserved' ? 'bg-yellow-50 text-yellow-600 border border-yellow-200' : 'bg-gray-50 text-gray-400 border border-gray-200'
+-          }`}>
+-            {statusLabels[status]}
+-          </div>
+-        )}
++          Забронировать
++        </button>
+       </div>
+     </div>
+   );
+@@ -342,8 +285,8 @@ export const ProjectDetailPage: React.FC = () => {
+   const project = projects.find(p => p.slug === slug);
+ 
+   const [roomFilter, setRoomFilter] = useState<number | null>(null);
+-  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
+   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
++  const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
+ 
+   if (!project) {
+     return (
+@@ -357,18 +300,13 @@ export const ProjectDetailPage: React.FC = () => {
+     );
+   }
+ 
+-  const availableRoomTypes = Array.from(new Set(project.plans.map(p => p.rooms))).sort().filter(r => r >= 1 && r <= 3);
++  const availableRoomTypes = Array.from(new Set(project.plans.map(p => p.rooms))).sort((a: number, b: number) => a - b);
+ 
+   const filteredPlans = project.plans.filter(p => {
+     if (roomFilter !== null && p.rooms !== roomFilter) return false;
+-    if (selectedFloor !== null && p.floor !== selectedFloor) return false;
+     return true;
+   });
+ 
+-  const handleFloorSelect = (floor: number) => {
+-    setSelectedFloor(prev => prev === floor ? null : floor);
+-  };
+-
+   return (
+     <>
+       {/* Breadcrumbs */}
+@@ -540,7 +478,7 @@ export const ProjectDetailPage: React.FC = () => {
+                 <h2 className="text-3xl md:text-5xl font-medium text-primary">Выбрать квартиру</h2>
+                 <div className="flex gap-2 mt-6 md:mt-0 flex-wrap">
+                   <button
+-                    onClick={() => { setRoomFilter(null); setSelectedFloor(null); }}
++                    onClick={() => setRoomFilter(null)}
+                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                       roomFilter === null ? 'bg-primary text-white' : 'bg-beige text-secondary hover:bg-sand'
+                     }`}
+@@ -550,7 +488,7 @@ export const ProjectDetailPage: React.FC = () => {
+                   {availableRoomTypes.map(rooms => (
+                     <button
+                       key={rooms}
+-                      onClick={() => { setRoomFilter(rooms === roomFilter ? null : rooms); setSelectedFloor(null); }}
++                      onClick={() => setRoomFilter(rooms === roomFilter ? null : rooms)}
+                       className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                         roomFilter === rooms ? 'bg-primary text-white' : 'bg-beige text-secondary hover:bg-sand'
+                       }`}
+@@ -562,21 +500,6 @@ export const ProjectDetailPage: React.FC = () => {
+               </div>
+             </Reveal>
+ 
+-            {/* Floor Selector */}
+-            {project.totalFloors && (
+-              <Reveal>
+-                <div className="mb-10 bg-white p-6 rounded-2xl border border-sand">
+-                  <FloorSelector
+-                    totalFloors={project.totalFloors}
+-                    plans={project.plans}
+-                    selectedFloor={selectedFloor}
+-                    onSelectFloor={handleFloorSelect}
+-                    roomFilter={roomFilter}
+-                  />
+-                </div>
+-              </Reveal>
+-            )}
+-
+             {/* Apartment Cards */}
+             {filteredPlans.length > 0 ? (
+               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+@@ -586,6 +509,7 @@ export const ProjectDetailPage: React.FC = () => {
+                       plan={plan}
+                       projectName={project.name}
+                       onBook={setBookingApartment}
++                      onViewPlan={setViewPlanImage}
+                     />
+                   </Reveal>
+                 ))}
+@@ -594,7 +518,7 @@ export const ProjectDetailPage: React.FC = () => {
+               <div className="text-center py-16 text-secondary">
+                 <p className="text-lg">Квартир по выбранным параметрам не найдено.</p>
+                 <button
+-                  onClick={() => { setRoomFilter(null); setSelectedFloor(null); }}
++                  onClick={() => setRoomFilter(null)}
+                   className="mt-4 text-accent hover:underline"
+                 >
+                   Сбросить фильтры
+@@ -671,6 +595,15 @@ export const ProjectDetailPage: React.FC = () => {
+         </div>
+       </section>
+ 
++      {/* Plan Image Popup */}
++      {viewPlanImage && (
++        <PlanImagePopup
++          image={viewPlanImage.image}
++          title={`${viewPlanImage.rooms}-комн., ${viewPlanImage.area} м²`}
++          onClose={() => setViewPlanImage(null)}
++        />
++      )}
++
+       {/* Booking Modal */}
+       {bookingApartment && (
+         <BookingModal
+diff --git a/types.ts b/types.ts
+index 5a277fb..a82d942 100644
+--- a/types.ts
++++ b/types.ts
+@@ -8,17 +8,14 @@ export interface InfrastructureItem {
+   y: number; // percentage 0-100
+ }
+ 
+-export type ApartmentStatus = 'available' | 'reserved' | 'sold';
+-
+ export interface ApartmentPlan {
+   id: string;
+   rooms: number;
+   area: number;
+   price: string;
+   image: string;
+-  floor?: number;
++  floor?: string;
+   number?: string;
+-  status?: ApartmentStatus;
+ }
+ 
+ export interface ProjectFeature {
