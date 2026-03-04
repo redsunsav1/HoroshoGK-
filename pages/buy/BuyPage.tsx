@@ -35,7 +35,7 @@ export const BuyPage: React.FC = () => {
             {buyMethods.map((method, idx) => {
               const Icon = iconMap[method.icon] || CreditCard;
               return (
-                <Reveal key={method.slug} delay={idx * 100}>
+                <Reveal key={method.slug} delay={idx * 100} className="h-full">
                   <Link
                     to={`/buy/${method.slug}`}
                     className="flex flex-col p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
