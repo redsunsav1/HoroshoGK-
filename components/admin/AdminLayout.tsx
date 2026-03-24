@@ -322,6 +322,7 @@ const HomePageSection: React.FC = () => {
                     value={promo.image}
                     onChange={(url) => updatePromo(promo.id, 'image', url)}
                   />
+                  <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 400×300 px (карточка виджета)</p>
                 </div>
                 <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
                   <Trash2 className="w-5 h-5" />
@@ -549,6 +550,61 @@ const SiteSettingsSection: React.FC = () => {
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 text-sm">
         <strong>Примечание:</strong> Изменения будут применены к шапке и подвалу сайта.
         Если указан URL логотипа, он заменит стандартный SVG-логотип.
+      </div>
+
+      {/* Analytics & Tracking */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden mt-6">
+        <div className="px-6 py-3 bg-gray-50 border-b">
+          <h2 className="font-bold text-primary">Аналитика и трекинг</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 text-blue-800 text-sm mb-2">
+            Заполните ID/ключи нужных сервисов — скрипты подключатся автоматически. Оставьте пустым, если сервис не используется.
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Яндекс.Метрика (ID счётчика)</label>
+              <input
+                value={(settings as any).yandexMetrikaId || ''}
+                onChange={e => updateField('yandexMetrikaId' as any, e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="12345678"
+              />
+              <p className="text-xs text-gray-500 mt-1">Включает Метрику + Вебвизор. Найдите ID в настройках счётчика Яндекс.Метрики.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Яндекс.Директ (ID счётчика)</label>
+              <input
+                value={(settings as any).yandexDirectId || ''}
+                onChange={e => updateField('yandexDirectId' as any, e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="12345678"
+              />
+              <p className="text-xs text-gray-500 mt-1">ID рекламного счётчика Яндекс.Директ для отслеживания конверсий.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Calltouch — Mod ID</label>
+              <input
+                value={(settings as any).calltouchModId || ''}
+                onChange={e => updateField('calltouchModId' as any, e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="abcdef123456"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Calltouch — routKey</label>
+              <input
+                value={(settings as any).calltouchRoutKey || ''}
+                onChange={e => updateField('calltouchRoutKey' as any, e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                placeholder="abcdef123456"
+              />
+              <p className="text-xs text-gray-500 mt-1">Mod ID и routKey из личного кабинета Calltouch.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Password Change */}

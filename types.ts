@@ -177,6 +177,11 @@ export interface SiteSettings {
   phone: string;             // Телефон
   email: string;             // Email
   address: string;           // Адрес
+  // Analytics
+  yandexMetrikaId?: string;     // ID счётчика Яндекс.Метрики (также включает Вебвизор)
+  yandexDirectId?: string;      // ID кампании Яндекс.Директ
+  calltouchModId?: string;      // Mod ID для Calltouch
+  calltouchRoutKey?: string;    // routKey для Calltouch
 }
 
 // Project filters (editable in admin)

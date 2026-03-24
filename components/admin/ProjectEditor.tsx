@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, GalleryImage, GalleryCategory } from '../../types';
 import { ImageUpload } from './ImageUpload';
-import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
@@ -444,6 +444,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                            setProject({...project, promos: newPromos});
                          }}
                        />
+                       <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 600×400 px</p>
                      </div>
                      <div className="flex-1">
                        <ImageUpload
@@ -455,6 +456,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                            setProject({...project, promos: newPromos});
                          }}
                        />
+                       <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×600 px</p>
                      </div>
                    </div>
                 </div>
@@ -652,6 +654,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                   <div className="aspect-video">
                     <img src={img.url} alt={`Фото ${idx + 1}`} className="w-full h-full object-cover" />
                   </div>
+                  <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">{idx + 1}</div>
                   <div className="p-2 bg-white border-t">
                     <select
                       value={img.category}
@@ -668,13 +671,40 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                       ))}
                     </select>
                   </div>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+                    {idx > 0 && (
+                      <button
+                        onClick={() => {
+                          const imgs = [...(project.galleryImages || [])];
+                          [imgs[idx - 1], imgs[idx]] = [imgs[idx], imgs[idx - 1]];
+                          setProject({ ...project, galleryImages: imgs });
+                        }}
+                        className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 pointer-events-auto"
+                        title="Переместить влево"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => setProject({ ...project, galleryImages: (project.galleryImages || []).filter(i => i.id !== img.id) })}
                       className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 pointer-events-auto"
+                      title="Удалить"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
+                    {idx < (project.galleryImages || []).length - 1 && (
+                      <button
+                        onClick={() => {
+                          const imgs = [...(project.galleryImages || [])];
+                          [imgs[idx], imgs[idx + 1]] = [imgs[idx + 1], imgs[idx]];
+                          setProject({ ...project, galleryImages: imgs });
+                        }}
+                        className="p-2 bg-white text-gray-700 rounded-full hover:bg-gray-100 pointer-events-auto"
+                        title="Переместить вправо"
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

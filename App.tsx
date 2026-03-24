@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
 import { Layout } from './components/layout';
+import { AnalyticsScripts } from './components/AnalyticsScripts';
 import { AdminLayout } from './components/admin/AdminLayout';
 
 // Pages
@@ -63,6 +64,7 @@ export default function App() {
           {/* Investors */}
           <Route path="/investors" element={<Layout><InvestorsPage /></Layout>} />
         </Routes>
+        <AnalyticsScripts />
       </BrowserRouter>
     </DataProvider>
   );
