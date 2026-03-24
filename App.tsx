@@ -10,7 +10,6 @@ import { ProjectsPage } from './pages/projects/ProjectsPage';
 import { ProjectDetailPage } from './pages/projects/ProjectDetailPage';
 import { AboutPage } from './pages/about/AboutPage';
 
-import { VacancyPage } from './pages/about/VacancyPage';
 
 import { BuyPage } from './pages/buy/BuyPage';
 import { IpotekaPage } from './pages/buy/IpotekaPage';
@@ -42,7 +41,6 @@ export default function App() {
 
           {/* About */}
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-          <Route path="/about/vacancy" element={<Layout><VacancyPage /></Layout>} />
 
           {/* Buy */}
           <Route path="/buy" element={<Layout><BuyPage /></Layout>} />

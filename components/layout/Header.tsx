@@ -13,10 +13,6 @@ const navigation: NavItem[] = [
   {
     label: 'О компании',
     href: '/about',
-    children: [
-      { label: 'О нас', href: '/about' },
-      { label: 'Вакансии', href: '/about/vacancy' },
-    ],
   },
   {
     label: 'Проекты',

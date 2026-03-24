@@ -31,10 +31,10 @@ export const AboutPage: React.FC = () => {
                 Наши проекты
               </Link>
               <Link
-                to="/about/vacancy"
+                to="/contacts"
                 className="border border-primary text-primary px-6 py-3 rounded-xl font-medium hover:bg-primary hover:text-white transition-colors"
               >
-                Вакансии
+                Контакты
               </Link>
             </div>
           </Reveal>
@@ -130,10 +130,10 @@ export const AboutPage: React.FC = () => {
               {aboutContent.ctaText}
             </p>
             <Link
-              to="/about/vacancy"
+              to="/projects"
               className="inline-flex items-center bg-white text-primary px-8 py-4 rounded-xl font-medium hover:bg-accent hover:text-white transition-colors"
             >
-              Смотреть вакансии <ArrowRight className="w-4 h-4 ml-2" />
+              Наши проекты <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Reveal>
         </div>
