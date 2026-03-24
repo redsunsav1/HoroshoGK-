@@ -4,6 +4,14 @@ import { useData } from '../context/DataContext';
 export const AnalyticsScripts: React.FC = () => {
   const { siteSettings } = useData();
 
+  // Dynamic favicon from site settings
+  useEffect(() => {
+    if (siteSettings.faviconUrl) {
+      const links = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+      links.forEach(link => link.setAttribute('href', siteSettings.faviconUrl));
+    }
+  }, [siteSettings.faviconUrl]);
+
   useEffect(() => {
     // Яндекс.Метрика + Вебвизор
     if (siteSettings.yandexMetrikaId) {
