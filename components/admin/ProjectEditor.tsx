@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem } from '../../types';
-import { InfrastructureEditor } from './InfrastructureEditor';
+import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, GalleryImage, GalleryCategory } from '../../types';
 import { ImageUpload } from './ImageUpload';
-import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
@@ -31,10 +30,15 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     promos: [],
     infrastructure: [],
     totalFloors: 19,
-    timeline: []
+    timeline: [],
+    constructionUpdates: [],
+    galleryImages: [],
+    galleryCategories: [],
+    streamUrl: '',
+    yandexMapUrl: ''
   });
 
-  const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline' | 'features' | 'gallery'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline' | 'features' | 'gallery' | 'construction'>('general');
 
   const handleSave = () => {
     if (isNew) {
@@ -129,6 +133,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
             { id: 'gallery', label: 'Галерея' },
             { id: 'plans', label: 'Квартиры' },
             { id: 'promos', label: 'Акции' },
+            { id: 'construction', label: 'Ход стройки' },
             { id: 'infra', label: 'Инфраструктура' },
             { id: 'timeline', label: 'Таймлайн' },
           ].map(tab => (
@@ -250,6 +255,22 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                     placeholder="Материнский капитал"
                   />
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-bold text-gray-700 mb-4">Трансляция строительства</h3>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <Video className="w-4 h-4 inline mr-1" />
+                  Ссылка на трансляцию (видео)
+                </label>
+                <input
+                  value={project.streamUrl || ''}
+                  onChange={e => setProject({...project, streamUrl: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  placeholder="https://youtube.com/..."
+                />
               </div>
             </div>
           </div>
@@ -389,15 +410,15 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                      }}
                      className="w-full p-2 border rounded font-bold"
                    />
-                   <input
-                     placeholder="Описание"
+                   <textarea
+                     placeholder="Описание (поддерживает абзацы — используйте Enter)"
                      value={promo.description}
                      onChange={e => {
                        const newPromos = [...project.promos];
                        newPromos[idx].description = e.target.value;
                        setProject({...project, promos: newPromos});
                      }}
-                     className="w-full p-2 border rounded text-sm"
+                     className="w-full p-2 border rounded text-sm h-24"
                    />
                    <div className="flex gap-2 items-end">
                      <div className="w-1/3">
@@ -415,11 +436,22 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                      </div>
                      <div className="flex-1">
                        <ImageUpload
-                         label="Картинка акции"
+                         label="Обложка (заставка)"
                          value={promo.image}
                          onChange={(url) => {
                            const newPromos = [...project.promos];
                            newPromos[idx].image = url;
+                           setProject({...project, promos: newPromos});
+                         }}
+                       />
+                     </div>
+                     <div className="flex-1">
+                       <ImageUpload
+                         label="Картинка в pop-up"
+                         value={promo.popupImage || ''}
+                         onChange={(url) => {
+                           const newPromos = [...project.promos];
+                           newPromos[idx].popupImage = url;
                            setProject({...project, promos: newPromos});
                          }}
                        />
@@ -437,12 +469,38 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
           </div>
         )}
 
-        {/* Infrastructure Tab */}
+        {/* Infrastructure Tab — Yandex Maps */}
         {activeTab === 'infra' && (
-          <InfrastructureEditor
-            items={project.infrastructure || []}
-            onChange={(newInfra) => setProject({...project, infrastructure: newInfra})}
-          />
+          <div className="space-y-6">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm">
+              <strong>Инфраструктура через Яндекс Карты:</strong> Вставьте ссылку на карту из Яндекс Карт.
+              Для этого откройте <a href="https://yandex.ru/maps" target="_blank" rel="noopener noreferrer" className="underline">Яндекс Карты</a>, найдите нужное место,
+              нажмите «Поделиться» → «Встроить карту» и скопируйте URL из параметра src iframe.
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                <Map className="w-4 h-4 inline mr-1" />
+                URL Яндекс Карты (iframe src)
+              </label>
+              <input
+                value={project.yandexMapUrl || ''}
+                onChange={e => setProject({...project, yandexMapUrl: e.target.value})}
+                className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm"
+                placeholder="https://yandex.ru/map-widget/v1/?..."
+              />
+            </div>
+            {project.yandexMapUrl && (
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                <iframe
+                  src={project.yandexMapUrl}
+                  width="100%"
+                  height="400"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Features (УТП) Tab */}
@@ -515,24 +573,73 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
         {activeTab === 'gallery' && (
           <div className="space-y-6">
             <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-800 text-sm">
-              <strong>Галерея проекта:</strong> Загрузите фотографии ЖК — рендеры, ход строительства, интерьеры, территория.
-              Изображения будут показаны на странице проекта в слайдере.
+              <strong>Галерея проекта:</strong> Создайте категории (МОП, Дом, Велоколясочная, Кладовые и т.д.) и привяжите фото к каждой.
+              Фильтры будут отображаться на странице проекта рядом с заголовком «Галерея».
             </div>
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-500">
-                Всего фото: <strong>{project.gallery.length}</strong>
+
+            {/* Gallery Categories */}
+            <div className="border rounded-xl p-4 bg-gray-50">
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-sm font-bold text-gray-700">Категории галереи</label>
+                <button
+                  onClick={() => {
+                    const newCat: GalleryCategory = { id: Date.now().toString(), name: 'Новая категория' };
+                    setProject({ ...project, galleryCategories: [...(project.galleryCategories || []), newCat] });
+                  }}
+                  className="flex items-center gap-1 text-xs bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-primary"
+                >
+                  <Plus className="w-3 h-3" /> Добавить категорию
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(project.galleryCategories || []).map((cat, idx) => (
+                  <div key={cat.id} className="flex items-center gap-1 bg-white border rounded-lg px-2 py-1">
+                    <input
+                      value={cat.name}
+                      onChange={e => {
+                        const cats = [...(project.galleryCategories || [])];
+                        cats[idx] = { ...cats[idx], name: e.target.value };
+                        setProject({ ...project, galleryCategories: cats });
+                      }}
+                      className="p-1 text-sm border-0 bg-transparent w-32 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => setProject({
+                        ...project,
+                        galleryCategories: (project.galleryCategories || []).filter(c => c.id !== cat.id),
+                        galleryImages: (project.galleryImages || []).map(img => img.category === cat.id ? { ...img, category: 'all' } : img)
+                      })}
+                      className="text-red-400 hover:text-red-600"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {(!project.galleryCategories || project.galleryCategories.length === 0) && (
+                  <span className="text-xs text-gray-400">Нет категорий. Все фото будут без фильтра.</span>
+                )}
               </div>
             </div>
 
-            <div>
-              <ImageUpload
-                label="Добавить фото в галерею"
-                value=""
-                onChange={(url) => handleGalleryAdd(url)}
-              />
+            {/* Add photo */}
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <ImageUpload
+                  label="Добавить фото в галерею"
+                  value=""
+                  onChange={(url) => {
+                    const newImg: GalleryImage = { id: Date.now().toString(), url, category: 'all' };
+                    setProject({ ...project, galleryImages: [...(project.galleryImages || []), newImg] });
+                  }}
+                />
+              </div>
             </div>
 
-            {project.gallery.length === 0 && (
+            <div className="text-sm text-gray-500">
+              Всего фото: <strong>{(project.galleryImages || []).length || project.gallery.length}</strong>
+            </div>
+
+            {(project.galleryImages || []).length === 0 && project.gallery.length === 0 && (
               <div className="text-center py-12 text-gray-400">
                 <Images className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Нет фотографий. Загрузите изображение выше.</p>
@@ -540,23 +647,162 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
             )}
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {project.gallery.map((img, idx) => (
-                <div key={idx} className="relative group rounded-xl overflow-hidden border bg-gray-50 aspect-video">
-                  <img src={img} alt={`Фото ${idx + 1}`} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              {(project.galleryImages || []).map((img, idx) => (
+                <div key={img.id} className="relative group rounded-xl overflow-hidden border bg-gray-50">
+                  <div className="aspect-video">
+                    <img src={img.url} alt={`Фото ${idx + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-2 bg-white border-t">
+                    <select
+                      value={img.category}
+                      onChange={e => {
+                        const imgs = [...(project.galleryImages || [])];
+                        imgs[idx] = { ...imgs[idx], category: e.target.value };
+                        setProject({ ...project, galleryImages: imgs });
+                      }}
+                      className="w-full text-xs p-1 border rounded"
+                    >
+                      <option value="all">Без категории</option>
+                      {(project.galleryCategories || []).map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                     <button
-                      onClick={() => setProject({ ...project, gallery: project.gallery.filter((_, i) => i !== idx) })}
-                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                      onClick={() => setProject({ ...project, galleryImages: (project.galleryImages || []).filter(i => i.id !== img.id) })}
+                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 pointer-events-auto"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
-                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                    #{idx + 1}
-                  </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Construction Updates Tab */}
+        {activeTab === 'construction' && (
+          <div className="space-y-6">
+            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 text-orange-800 text-sm">
+              <strong>Ход строительства:</strong> Добавляйте обновления с фотографиями и описанием. Каждое обновление отображается на странице проекта с датой.
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  const newUpdate: ConstructionUpdate = {
+                    id: Date.now().toString(),
+                    date: new Date().toISOString().split('T')[0],
+                    title: 'Обновление строительства',
+                    description: '',
+                    photos: []
+                  };
+                  setProject({ ...project, constructionUpdates: [...(project.constructionUpdates || []), newUpdate] });
+                }}
+                className="flex items-center gap-2 text-sm bg-accent text-white px-4 py-2 rounded-lg hover:bg-primary"
+              >
+                <Plus className="w-4 h-4" /> Добавить обновление
+              </button>
+            </div>
+
+            {(!project.constructionUpdates || project.constructionUpdates.length === 0) && (
+              <div className="text-center py-12 text-gray-400">
+                <Building className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Нет обновлений. Нажмите «Добавить обновление» чтобы начать.</p>
+              </div>
+            )}
+
+            {project.constructionUpdates?.map((update, idx) => (
+              <div key={update.id} className="border rounded-xl p-4 bg-white shadow-sm space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Дата</label>
+                    <input
+                      type="date"
+                      value={update.date}
+                      onChange={e => {
+                        const updated = [...(project.constructionUpdates || [])];
+                        updated[idx] = { ...updated[idx], date: e.target.value };
+                        setProject({ ...project, constructionUpdates: updated });
+                      }}
+                      className="w-full p-2 border rounded-lg"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Заголовок</label>
+                    <input
+                      value={update.title}
+                      onChange={e => {
+                        const updated = [...(project.constructionUpdates || [])];
+                        updated[idx] = { ...updated[idx], title: e.target.value };
+                        setProject({ ...project, constructionUpdates: updated });
+                      }}
+                      className="w-full p-2 border rounded-lg font-medium"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
+                  <textarea
+                    value={update.description}
+                    onChange={e => {
+                      const updated = [...(project.constructionUpdates || [])];
+                      updated[idx] = { ...updated[idx], description: e.target.value };
+                      setProject({ ...project, constructionUpdates: updated });
+                    }}
+                    placeholder="Описание хода работ..."
+                    className="w-full p-2 border rounded-lg text-sm h-20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Фотографии</label>
+                  <ImageUpload
+                    label="Добавить фото"
+                    value=""
+                    onChange={(url) => {
+                      const updated = [...(project.constructionUpdates || [])];
+                      updated[idx] = { ...updated[idx], photos: [...updated[idx].photos, url] };
+                      setProject({ ...project, constructionUpdates: updated });
+                    }}
+                  />
+                  {update.photos.length > 0 && (
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3">
+                      {update.photos.map((photo, pIdx) => (
+                        <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
+                          <img src={photo} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              onClick={() => {
+                                const updated = [...(project.constructionUpdates || [])];
+                                updated[idx] = { ...updated[idx], photos: updated[idx].photos.filter((_, i) => i !== pIdx) };
+                                setProject({ ...project, constructionUpdates: updated });
+                              }}
+                              className="p-1.5 bg-red-500 text-white rounded-full"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setProject({
+                      ...project,
+                      constructionUpdates: project.constructionUpdates?.filter(u => u.id !== update.id)
+                    })}
+                    className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" /> Удалить обновление
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

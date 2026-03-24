@@ -31,6 +31,18 @@ export interface PromoOffer {
   description: string;
   discount?: string;
   image: string;
+  popupImage?: string;
+}
+
+export interface GalleryImage {
+  id: string;
+  url: string;
+  category: string;
+}
+
+export interface GalleryCategory {
+  id: string;
+  name: string;
 }
 
 export interface Project {
@@ -43,6 +55,8 @@ export interface Project {
   tags: string[];
   heroImage: string;
   gallery: string[];
+  galleryImages?: GalleryImage[];
+  galleryCategories?: GalleryCategory[];
   features: ProjectFeature[];
   plans: ApartmentPlan[];
   promos: PromoOffer[];
@@ -50,6 +64,9 @@ export interface Project {
   colorTheme: string;
   totalFloors?: number;
   timeline?: ProjectTimelineItem[];
+  constructionUpdates?: ConstructionUpdate[];
+  streamUrl?: string;
+  yandexMapUrl?: string;
   // Card display fields
   cardPrice?: string;      // e.g. "от 3.9 млн ₽"
   cardPromo?: string;      // e.g. "Материнский капитал"
@@ -60,6 +77,14 @@ export interface ProjectTimelineItem {
   date: string;
   title: string;
   description: string;
+}
+
+export interface ConstructionUpdate {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  photos: string[];
 }
 
 // News

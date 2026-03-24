@@ -56,7 +56,6 @@ export const Footer: React.FC = () => {
             <h4 className="text-white/40 uppercase tracking-wider mb-4 text-xs font-bold">Компания</h4>
             <nav className="space-y-3">
               <Link to="/about" className="block text-white/80 hover:text-accent transition-colors">О компании</Link>
-              <Link to="/about/team" className="block text-white/80 hover:text-accent transition-colors">Команда</Link>
               <Link to="/about/vacancy" className="block text-white/80 hover:text-accent transition-colors">Вакансии</Link>
               <Link to="/news" className="block text-white/80 hover:text-accent transition-colors">Новости</Link>
               <Link to="/investors" className="block text-white/80 hover:text-accent transition-colors">Инвесторам</Link>

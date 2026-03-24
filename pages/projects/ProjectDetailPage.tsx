@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
-import { InfrastructureMap } from '../../components/InfrastructureMap';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn } from 'lucide-react';
-import { ApartmentPlan } from '../../types';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
+import { ApartmentPlan, PromoOffer } from '../../types';
 
 // ============================================================
 // Booking Modal
@@ -226,6 +225,43 @@ const PlanImagePopup: React.FC<{
 );
 
 // ============================================================
+// Promo Popup
+// ============================================================
+const PromoPopup: React.FC<{
+  promo: PromoOffer;
+  onClose: () => void;
+}> = ({ promo, onClose }) => (
+  <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="relative">
+        <img
+          src={promo.popupImage || promo.image}
+          alt={promo.title}
+          className="w-full h-64 object-cover rounded-t-2xl"
+        />
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-white/90 rounded-full p-2 hover:bg-white transition-colors shadow-lg"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        {promo.discount && (
+          <span className="absolute top-4 left-4 bg-accent text-white px-4 py-1 rounded-full text-sm font-bold shadow-sm">
+            {promo.discount}
+          </span>
+        )}
+      </div>
+      <div className="p-8">
+        <h3 className="text-2xl font-bold text-primary mb-4">{promo.title}</h3>
+        <div className="text-secondary font-light leading-relaxed whitespace-pre-line">
+          {promo.description}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// ============================================================
 // Apartment Card
 // ============================================================
 const ApartmentCard: React.FC<{
@@ -346,6 +382,9 @@ export const ProjectDetailPage: React.FC = () => {
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
   const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
+  const [selectedPromo, setSelectedPromo] = useState<PromoOffer | null>(null);
+  const [galleryFilter, setGalleryFilter] = useState<string>('all');
+  const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
     return (
@@ -364,7 +403,7 @@ export const ProjectDetailPage: React.FC = () => {
   // Collect all unique floors from all plans
   const allFloors = Array.from(
     new Set(project.plans.flatMap(p => parseFloors(p.floor || '')))
-  ).sort((a, b) => a - b);
+  ).sort((a: number, b: number) => a - b);
 
   const filteredPlans = project.plans.filter(p => {
     if (roomFilter !== null && p.rooms !== roomFilter) return false;
@@ -453,6 +492,69 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Construction Updates (Ход строительства) */}
+      {project.constructionUpdates && project.constructionUpdates.length > 0 && (
+        <section className="py-20 px-4 md:px-8 bg-white">
+          <div className="max-w-[1600px] mx-auto">
+            <Reveal>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-12">
+                <div>
+                  <h2 className="text-3xl md:text-5xl font-medium text-primary">Ход строительства</h2>
+                  <p className="text-secondary mt-2 font-light max-w-2xl">
+                    Следите за прогрессом строительства в реальном времени.
+                  </p>
+                </div>
+                {project.streamUrl && (
+                  <a
+                    href={project.streamUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg"
+                  >
+                    <Video className="w-5 h-5" />
+                    Трансляция со стройки
+                  </a>
+                )}
+              </div>
+            </Reveal>
+
+            <div className="space-y-12">
+              {project.constructionUpdates.map((update, idx) => {
+                const dateObj = new Date(update.date);
+                const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+                const formattedDate = `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+                return (
+                  <Reveal key={update.id} delay={idx * 100}>
+                    <div className="bg-beige rounded-2xl p-6 md:p-8 border border-sand">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="bg-accent text-white px-4 py-1 rounded-full text-sm font-bold">{formattedDate}</span>
+                        <h3 className="text-xl font-bold text-primary">{update.title}</h3>
+                      </div>
+                      {update.description && (
+                        <p className="text-secondary font-light mb-6 whitespace-pre-line">{update.description}</p>
+                      )}
+                      {update.photos.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {update.photos.map((photo, pIdx) => (
+                            <img
+                              key={pIdx}
+                              src={photo}
+                              alt={`${update.title} — фото ${pIdx + 1}`}
+                              className="w-full h-48 object-cover rounded-xl"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Timeline Section — only for projects with timeline */}
       {project.timeline && project.timeline.length > 0 && (
         <section className="py-20 px-4 md:px-8 bg-white">
@@ -502,7 +604,7 @@ export const ProjectDetailPage: React.FC = () => {
         </section>
       )}
 
-      {/* Infrastructure Map Section */}
+      {/* Infrastructure Section */}
       <section className="py-20 px-4 md:px-8 bg-beige/30">
         <div className="max-w-[1600px] mx-auto">
           <Reveal>
@@ -510,32 +612,109 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-secondary mb-8 font-light max-w-2xl">
               Всё необходимое для комфортной жизни — в шаговой доступности.
             </p>
-            <InfrastructureMap project={project} />
+            {project.yandexMapUrl ? (
+              <div className="rounded-2xl overflow-hidden shadow-lg border border-sand">
+                <iframe
+                  src={project.yandexMapUrl}
+                  width="100%"
+                  height="500"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  className="w-full"
+                />
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl p-12 text-center text-secondary border border-sand">
+                <MapPin className="w-12 h-12 mx-auto mb-4 opacity-40" />
+                <p>Карта инфраструктуры не настроена</p>
+              </div>
+            )}
           </Reveal>
         </div>
       </section>
 
       {/* Gallery */}
-      <section className="bg-white py-20">
-        <div className="px-4 md:px-8 mb-8">
-          <Reveal>
-            <h2 className="text-3xl md:text-5xl font-medium text-primary max-w-[1600px] mx-auto">Галерея</h2>
-          </Reveal>
-        </div>
-        <div className="overflow-x-auto pb-8 hide-scrollbar">
-          <div className="flex gap-4 px-4 md:px-8 w-max">
-            {project.gallery.map((img, idx) => (
-              <Reveal key={idx} delay={idx * 100} direction="right" className="w-[80vw] md:w-[600px] h-[400px] flex-shrink-0">
-                <img
-                  src={img}
-                  alt={`Gallery ${idx}`}
-                  className="w-full h-full object-cover rounded-xl shadow-lg"
-                />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {(() => {
+        const categories = project.galleryCategories || [];
+        const galleryImgs = project.galleryImages || project.gallery.map((url, i) => ({ id: String(i), url, category: 'all' }));
+        const filteredGallery = galleryFilter === 'all'
+          ? galleryImgs
+          : galleryImgs.filter(img => img.category === galleryFilter);
+        const scrollGallery = (dir: number) => {
+          if (galleryScrollRef.current) {
+            galleryScrollRef.current.scrollBy({ left: dir * 600, behavior: 'smooth' });
+          }
+        };
+        return (
+          <section className="bg-white py-20">
+            <div className="px-4 md:px-8 mb-8">
+              <div className="max-w-[1600px] mx-auto">
+                <Reveal>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <h2 className="text-3xl md:text-5xl font-medium text-primary">Галерея</h2>
+                    {categories.length > 0 && (
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => setGalleryFilter('all')}
+                          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                            galleryFilter === 'all' ? 'bg-primary text-white' : 'bg-beige text-secondary hover:bg-sand'
+                          }`}
+                        >
+                          Все
+                        </button>
+                        {categories.map(cat => (
+                          <button
+                            key={cat.id}
+                            onClick={() => setGalleryFilter(cat.id)}
+                            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                              galleryFilter === cat.id ? 'bg-primary text-white' : 'bg-beige text-secondary hover:bg-sand'
+                            }`}
+                          >
+                            {cat.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Reveal>
+              </div>
+            </div>
+            <div className="relative">
+              <button
+                onClick={() => scrollGallery(-1)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-colors hidden md:block"
+              >
+                <ChevronLeft className="w-6 h-6 text-primary" />
+              </button>
+              <button
+                onClick={() => scrollGallery(1)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-colors hidden md:block"
+              >
+                <ChevronRight className="w-6 h-6 text-primary" />
+              </button>
+              <div ref={galleryScrollRef} className="overflow-x-auto pb-8 hide-scrollbar scroll-smooth">
+                <div className="flex gap-4 px-4 md:px-8 w-max">
+                  {filteredGallery.map((img, idx) => (
+                    <div key={img.id || idx} className="w-[80vw] md:w-[600px] h-[400px] flex-shrink-0">
+                      <img
+                        src={typeof img === 'string' ? img : img.url}
+                        alt={`Gallery ${idx}`}
+                        className="w-full h-full object-cover rounded-xl shadow-lg"
+                      />
+                    </div>
+                  ))}
+                  {filteredGallery.length === 0 && (
+                    <div className="w-full text-center py-16 text-secondary">
+                      <Camera className="w-12 h-12 mx-auto mb-4 opacity-40" />
+                      <p>Нет фотографий в этой категории</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Apartments / Floor Plans — only show if project has plans */}
       {project.plans.length > 0 && (
@@ -619,17 +798,20 @@ export const ProjectDetailPage: React.FC = () => {
             <div className="grid md:grid-cols-2 gap-8">
               {project.promos.map((promo, idx) => (
                 <Reveal key={promo.id} delay={idx * 150} direction={idx % 2 === 0 ? 'right' : 'left'}>
-                  <div className="relative h-80 rounded-3xl overflow-hidden group shadow-lg">
+                  <div
+                    className="relative h-80 rounded-3xl overflow-hidden group shadow-lg cursor-pointer"
+                    onClick={() => setSelectedPromo(promo)}
+                  >
                     <img src={promo.image} alt={promo.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-8 w-full">
                       {promo.discount && (
                         <span className="bg-accent text-white px-4 py-1 rounded-full text-sm font-bold mb-4 inline-block shadow-sm">
                           {promo.discount}
                         </span>
                       )}
-                      <h3 className="text-3xl font-bold text-white mb-2">{promo.title}</h3>
-                      <p className="text-white/80 font-light">{promo.description}</p>
+                      <h3 className="text-3xl font-bold text-white">{promo.title}</h3>
+                      <span className="text-white/60 text-sm mt-2 inline-block">Нажмите, чтобы узнать подробнее</span>
                     </div>
                   </div>
                 </Reveal>
@@ -680,6 +862,14 @@ export const ProjectDetailPage: React.FC = () => {
           image={viewPlanImage.image}
           title={`${viewPlanImage.rooms}-комн., ${viewPlanImage.area} м²`}
           onClose={() => setViewPlanImage(null)}
+        />
+      )}
+
+      {/* Promo Popup */}
+      {selectedPromo && (
+        <PromoPopup
+          promo={selectedPromo}
+          onClose={() => setSelectedPromo(null)}
         />
       )}
 

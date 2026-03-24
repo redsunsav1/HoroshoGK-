@@ -25,16 +25,16 @@ export const AboutPage: React.FC = () => {
             </p>
             <div className="flex gap-4">
               <Link
-                to="/about/team"
+                to="/projects"
                 className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
               >
-                Наша команда
+                Наши проекты
               </Link>
               <Link
-                to="/about/achievements"
+                to="/about/vacancy"
                 className="border border-primary text-primary px-6 py-3 rounded-xl font-medium hover:bg-primary hover:text-white transition-colors"
               >
-                Достижения
+                Вакансии
               </Link>
             </div>
           </Reveal>

@@ -103,9 +103,17 @@
       }
     </style>
 </head>
-  <body class="bg-white text-primary selection:bg-accent selection:text-white">
+  <body class="bg-white text-primary selection:bg-accent selection:text-white" style="opacity:0;transition:opacity .15s">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <script>
+      // Show body once Tailwind is ready and DOM rendered
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { document.body.style.opacity = '1'; });
+      } else {
+        document.body.style.opacity = '1';
+      }
+    </script>
 
     <!-- Яндекс.Метрика — замените XXXXXXXX на ID вашего счётчика -->
     <!--

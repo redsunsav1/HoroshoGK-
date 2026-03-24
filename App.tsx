@@ -9,9 +9,9 @@ import { HomePage } from './pages/HomePage';
 import { ProjectsPage } from './pages/projects/ProjectsPage';
 import { ProjectDetailPage } from './pages/projects/ProjectDetailPage';
 import { AboutPage } from './pages/about/AboutPage';
-import { TeamPage } from './pages/about/TeamPage';
+
 import { VacancyPage } from './pages/about/VacancyPage';
-import { AchievementsPage } from './pages/about/AchievementsPage';
+
 import { BuyPage } from './pages/buy/BuyPage';
 import { IpotekaPage } from './pages/buy/IpotekaPage';
 import { RassrochkaPage } from './pages/buy/RassrochkaPage';
@@ -42,9 +42,7 @@ export default function App() {
 
           {/* About */}
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-          <Route path="/about/team" element={<Layout><TeamPage /></Layout>} />
           <Route path="/about/vacancy" element={<Layout><VacancyPage /></Layout>} />
-          <Route path="/about/achievements" element={<Layout><AchievementsPage /></Layout>} />
 
           {/* Buy */}
           <Route path="/buy" element={<Layout><BuyPage /></Layout>} />
