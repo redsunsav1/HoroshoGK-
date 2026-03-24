@@ -277,6 +277,64 @@ const ApartmentCard: React.FC<{
 };
 
 // ============================================================
+// Floor parsing helper: "2-5, 7" → [2,3,4,5,7]
+// ============================================================
+const parseFloors = (floorStr: string): number[] => {
+  const floors: number[] = [];
+  if (!floorStr) return floors;
+  const parts = floorStr.split(',').map(s => s.trim());
+  for (const part of parts) {
+    if (part.includes('-')) {
+      const [start, end] = part.split('-').map(Number);
+      if (!isNaN(start) && !isNaN(end)) {
+        for (let i = start; i <= end; i++) floors.push(i);
+      }
+    } else {
+      const n = Number(part);
+      if (!isNaN(n)) floors.push(n);
+    }
+  }
+  return floors;
+};
+
+// ============================================================
+// Floor Selector
+// ============================================================
+const FloorSelector: React.FC<{
+  floors: number[];
+  selectedFloor: number | null;
+  onSelect: (floor: number | null) => void;
+}> = ({ floors, selectedFloor, onSelect }) => {
+  if (floors.length === 0) return null;
+  return (
+    <div className="mb-8">
+      <h3 className="text-lg font-medium text-primary mb-4">Выберите этаж</h3>
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => onSelect(null)}
+          className={`w-12 h-12 rounded-xl text-sm font-medium transition-all ${
+            selectedFloor === null ? 'bg-primary text-white shadow-md' : 'bg-beige text-secondary hover:bg-sand'
+          }`}
+        >
+          Все
+        </button>
+        {floors.map(floor => (
+          <button
+            key={floor}
+            onClick={() => onSelect(floor === selectedFloor ? null : floor)}
+            className={`w-12 h-12 rounded-xl text-sm font-medium transition-all ${
+              selectedFloor === floor ? 'bg-primary text-white shadow-md' : 'bg-beige text-secondary hover:bg-sand'
+            }`}
+          >
+            {floor}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
 // Main Page
 // ============================================================
 export const ProjectDetailPage: React.FC = () => {
@@ -285,6 +343,7 @@ export const ProjectDetailPage: React.FC = () => {
   const project = projects.find(p => p.slug === slug);
 
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
+  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
   const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
 
@@ -302,8 +361,17 @@ export const ProjectDetailPage: React.FC = () => {
 
   const availableRoomTypes = Array.from(new Set(project.plans.map(p => p.rooms))).sort((a: number, b: number) => a - b);
 
+  // Collect all unique floors from all plans
+  const allFloors = Array.from(
+    new Set(project.plans.flatMap(p => parseFloors(p.floor || '')))
+  ).sort((a, b) => a - b);
+
   const filteredPlans = project.plans.filter(p => {
     if (roomFilter !== null && p.rooms !== roomFilter) return false;
+    if (selectedFloor !== null) {
+      const planFloors = parseFloors(p.floor || '');
+      if (!planFloors.includes(selectedFloor)) return false;
+    }
     return true;
   });
 
@@ -500,6 +568,17 @@ export const ProjectDetailPage: React.FC = () => {
               </div>
             </Reveal>
 
+            {/* Floor Selector */}
+            {allFloors.length > 0 && (
+              <Reveal>
+                <FloorSelector
+                  floors={allFloors}
+                  selectedFloor={selectedFloor}
+                  onSelect={setSelectedFloor}
+                />
+              </Reveal>
+            )}
+
             {/* Apartment Cards */}
             {filteredPlans.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -518,7 +597,7 @@ export const ProjectDetailPage: React.FC = () => {
               <div className="text-center py-16 text-secondary">
                 <p className="text-lg">Квартир по выбранным параметрам не найдено.</p>
                 <button
-                  onClick={() => setRoomFilter(null)}
+                  onClick={() => { setRoomFilter(null); setSelectedFloor(null); }}
                   className="mt-4 text-accent hover:underline"
                 >
                   Сбросить фильтры
