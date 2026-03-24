@@ -14,7 +14,22 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
   const { addProject, updateProject } = useData();
   const isNew = !initialProject;
 
-  const [project, setProject] = useState<Project>(initialProject || {
+  // Migrate old gallery[] format to galleryImages[] if needed
+  const migrateProject = (p: Project): Project => {
+    if (p.gallery?.length > 0 && (!p.galleryImages || p.galleryImages.length === 0)) {
+      return {
+        ...p,
+        galleryImages: p.gallery.map((url, i) => ({
+          id: `migrated-${i}-${Date.now()}`,
+          url,
+          category: 'all',
+        })),
+      };
+    }
+    return p;
+  };
+
+  const [project, setProject] = useState<Project>(initialProject ? migrateProject(initialProject) : {
     id: Date.now().toString(),
     slug: 'new-project',
     name: 'Новый ЖК',
