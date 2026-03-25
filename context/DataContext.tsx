@@ -142,6 +142,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         { url: `${API_URL}/buy-methods`, setter: setBuyMethods, initial: INITIAL_BUY_METHODS },
       ];
 
+      // Migrate old gallery[] to galleryImages[] for projects
+      const migrateGallery = (projects: Project[]): Project[] =>
+        projects.map(p => {
+          if (p.gallery?.length > 0 && (!p.galleryImages || p.galleryImages.length === 0)) {
+            return {
+              ...p,
+              galleryImages: p.gallery.map((url: string, i: number) => ({
+                id: `migrated-${i}-${Date.now()}`,
+                url,
+                category: 'all',
+              })),
+            };
+          }
+          return p;
+        });
+
       await Promise.all(endpoints.map(async ({ url, setter, initial }) => {
         try {
           const response = await fetch(url);
@@ -149,7 +165,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = await response.json();
             // Only use API data if it's not empty/null
             if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
-              setter(data);
+              // Auto-migrate gallery format for projects
+              if (url.endsWith('/projects') && Array.isArray(data)) {
+                setter(migrateGallery(data));
+              } else {
+                setter(data);
+              }
             }
           }
         } catch (err) {

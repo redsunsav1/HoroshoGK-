@@ -19,7 +19,6 @@ import { TradeInPage } from './pages/buy/TradeInPage';
 import { MatkapitalPage } from './pages/buy/MatkapitalPage';
 import { SocialSupportPage } from './pages/buy/SocialSupportPage';
 import { AkciiPage } from './pages/buy/AkciiPage';
-import { SvoPage } from './pages/buy/SvoPage';
 import { NewsPage } from './pages/news/NewsPage';
 import { NewsDetailPage } from './pages/news/NewsDetailPage';
 import { ContactsPage } from './pages/ContactsPage';
@@ -51,7 +50,6 @@ export default function App() {
           <Route path="/buy/materinskiy-kapital" element={<Layout><MatkapitalPage /></Layout>} />
           <Route path="/buy/social-support" element={<Layout><SocialSupportPage /></Layout>} />
           <Route path="/buy/akcii" element={<Layout><AkciiPage /></Layout>} />
-          <Route path="/buy/svo" element={<Layout><SvoPage /></Layout>} />
 
           {/* News */}
           <Route path="/news" element={<Layout><NewsPage /></Layout>} />

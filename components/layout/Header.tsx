@@ -40,7 +40,7 @@ const navigation: NavItem[] = [
     href: '/contacts',
   },
   {
-    label: 'FAQ',
+    label: 'Частые вопросы',
     href: '/faq',
   },
 ];

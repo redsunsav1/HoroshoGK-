@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
               <Link to="/projects" className="block text-white/80 hover:text-accent transition-colors">Проекты</Link>
               <Link to="/buy" className="block text-white/80 hover:text-accent transition-colors">Способы покупки</Link>
               <Link to="/buy/ipoteka" className="block text-white/80 hover:text-accent transition-colors">Ипотечный калькулятор</Link>
-              <Link to="/faq" className="block text-white/80 hover:text-accent transition-colors">FAQ</Link>
+              <Link to="/faq" className="block text-white/80 hover:text-accent transition-colors">Частые вопросы</Link>
               <Link to="/contacts" className="block text-white/80 hover:text-accent transition-colors">Контакты</Link>
             </nav>
           </div>

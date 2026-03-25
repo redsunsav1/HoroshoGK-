@@ -198,6 +198,7 @@ export interface Promotion {
   description: string;
   discount?: string;
   image: string;
+  popupImage?: string;
   showOnMain: boolean;
   showInHeader: boolean;
   active: boolean;

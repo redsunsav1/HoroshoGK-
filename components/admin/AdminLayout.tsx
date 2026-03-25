@@ -26,9 +26,7 @@ const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'about', label: 'О компании', icon: <Building className="w-5 h-5" /> },
   { id: 'investors', label: 'Инвесторам', icon: <TrendingUp className="w-5 h-5" /> },
   { id: 'contacts', label: 'Контакты', icon: <Phone className="w-5 h-5" /> },
-  { id: 'faq', label: 'FAQ', icon: <HelpCircle className="w-5 h-5" /> },
-  { id: 'team', label: 'Команда', icon: <Users className="w-5 h-5" /> },
-  { id: 'vacancies', label: 'Вакансии', icon: <Briefcase className="w-5 h-5" /> },
+  { id: 'faq', label: 'Частые вопросы', icon: <HelpCircle className="w-5 h-5" /> },
   { id: 'pages', label: 'SEO страниц', icon: <FileText className="w-5 h-5" /> },
   { id: 'settings', label: 'Настройки сайта', icon: <Settings className="w-5 h-5" /> },
 ];
@@ -928,7 +926,7 @@ const FaqSection: React.FC = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">FAQ</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Частые вопросы</h1>
         <div className="flex gap-3">
           <button onClick={addCategory} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-200">
             <Plus className="w-4 h-4" /> Категория
@@ -1229,11 +1227,11 @@ const PromotionsSection: React.FC = () => {
                     className="p-2 border rounded-lg text-center"
                   />
                 </div>
-                <input
+                <textarea
                   value={promo.description}
                   onChange={e => updatePromo(promo.id, 'description', e.target.value)}
-                  placeholder="Описание"
-                  className="w-full p-2 border rounded-lg text-sm"
+                  placeholder="Описание (поддерживает абзацы — используйте Enter)"
+                  className="w-full p-2 border rounded-lg text-sm h-20"
                 />
                 <div className="flex gap-6 items-center">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1264,11 +1262,24 @@ const PromotionsSection: React.FC = () => {
                     <span className="text-sm">Активна</span>
                   </label>
                 </div>
-                <ImageUpload
-                  label="Изображение"
-                  value={promo.image}
-                  onChange={(url) => updatePromo(promo.id, 'image', url)}
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <ImageUpload
+                      label="Обложка (заставка)"
+                      value={promo.image}
+                      onChange={(url) => updatePromo(promo.id, 'image', url)}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 600×400 px</p>
+                  </div>
+                  <div>
+                    <ImageUpload
+                      label="Картинка в pop-up"
+                      value={promo.popupImage || ''}
+                      onChange={(url) => updatePromo(promo.id, 'popupImage', url)}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×600 px</p>
+                  </div>
+                </div>
               </div>
               <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0 self-start">
                 <Trash2 className="w-5 h-5" />

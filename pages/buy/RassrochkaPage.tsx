@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
+import { useData } from '../../context/DataContext';
 import { ArrowLeft, CheckCircle, Calendar, Percent } from 'lucide-react';
 
+const featureIcons: Record<string, React.FC<{ className?: string }>> = { Percent, Calendar, CheckCircle };
+
 export const RassrochkaPage: React.FC = () => {
+  const { buyMethods } = useData();
+  const method = buyMethods.find(m => m.slug === 'rassrochka');
   const [showContactModal, setShowContactModal] = useState(false);
 
   return (
@@ -17,7 +22,7 @@ export const RassrochkaPage: React.FC = () => {
             <span className="text-secondary">/</span>
             <Link to="/buy" className="text-secondary hover:text-primary">Способы покупки</Link>
             <span className="text-secondary">/</span>
-            <span className="text-primary font-medium">Рассрочка</span>
+            <span className="text-primary font-medium">{method?.title || 'Рассрочка'}</span>
           </div>
         </div>
       </section>
@@ -27,68 +32,62 @@ export const RassrochkaPage: React.FC = () => {
         <div className="max-w-[1600px] mx-auto">
           <Reveal>
             <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-primary mb-4">
-              Рассрочка от застройщика
+              {method?.heroTitle || 'Рассрочка от застройщика'}
             </h1>
             <p className="text-xl text-secondary font-light max-w-2xl">
-              Покупайте квартиру без переплат. Рассрочка до окончания строительства
-              с первоначальным взносом от 10%.
+              {method?.heroSubtitle || ''}
             </p>
           </Reveal>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="py-12 px-4 md:px-8 bg-white">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Percent, title: '0% переплаты', desc: 'Никаких процентов до конца строительства' },
-              { icon: Calendar, title: 'До 24 месяцев', desc: 'Комфортный срок погашения' },
-              { icon: CheckCircle, title: 'От 10% взнос', desc: 'Минимальный первоначальный взнос' },
-            ].map((item, idx) => (
-              <Reveal key={idx} delay={idx * 100}>
-                <div className="text-center p-8 bg-beige rounded-2xl">
-                  <item.icon className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-primary mb-2">{item.title}</h3>
-                  <p className="text-secondary">{item.desc}</p>
-                </div>
-              </Reveal>
-            ))}
+      {method && method.features.length > 0 && (
+        <section className="py-12 px-4 md:px-8 bg-white">
+          <div className="max-w-[1600px] mx-auto">
+            <div className={`grid md:grid-cols-${Math.min(method.features.length, 3)} gap-8`}>
+              {method.features.map((f, idx) => (
+                <Reveal key={idx} delay={idx * 100}>
+                  <div className="text-center p-8 bg-beige rounded-2xl">
+                    <CheckCircle className="w-12 h-12 text-accent mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-primary mb-2">{f.title}</h3>
+                    <p className="text-secondary">{f.description}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* How it works */}
-      <section className="py-12 px-4 md:px-8 bg-beige">
-        <div className="max-w-[1600px] mx-auto">
-          <Reveal>
-            <h2 className="text-2xl md:text-3xl font-medium text-primary mb-8">Как это работает</h2>
-          </Reveal>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { step: '01', title: 'Выберите квартиру', desc: 'Подберите подходящий вариант' },
-              { step: '02', title: 'Внесите взнос', desc: 'От 10% стоимости квартиры' },
-              { step: '03', title: 'Платите частями', desc: 'Равными платежами до сдачи дома' },
-              { step: '04', title: 'Получите ключи', desc: 'Оформите собственность' },
-            ].map((item, idx) => (
-              <Reveal key={idx} delay={idx * 100}>
-                <div className="bg-white p-6 rounded-2xl">
-                  <div className="text-4xl font-bold text-accent/20 mb-4">{item.step}</div>
-                  <h3 className="text-lg font-bold text-primary mb-2">{item.title}</h3>
-                  <p className="text-secondary text-sm">{item.desc}</p>
-                </div>
-              </Reveal>
-            ))}
+      {method && method.howItWorks.length > 0 && (
+        <section className="py-12 px-4 md:px-8 bg-beige">
+          <div className="max-w-[1600px] mx-auto">
+            <Reveal>
+              <h2 className="text-2xl md:text-3xl font-medium text-primary mb-8">Как это работает</h2>
+            </Reveal>
+            <div className={`grid md:grid-cols-${Math.min(method.howItWorks.length, 4)} gap-6`}>
+              {method.howItWorks.map((step, idx) => (
+                <Reveal key={idx} delay={idx * 100}>
+                  <div className="bg-white p-6 rounded-2xl">
+                    <div className="text-4xl font-bold text-accent/20 mb-4">{String(step.step).padStart(2, '0')}</div>
+                    <h3 className="text-lg font-bold text-primary mb-2">{step.title}</h3>
+                    <p className="text-secondary text-sm">{step.description}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-12 px-4 md:px-8 bg-white">
         <div className="max-w-[1600px] mx-auto text-center">
           <Reveal>
-            <h2 className="text-2xl md:text-3xl font-medium text-primary mb-4">Оформить рассрочку</h2>
-            <p className="text-secondary mb-8">Оставьте заявку, и мы подберем оптимальные условия</p>
+            <h2 className="text-2xl md:text-3xl font-medium text-primary mb-4">{method?.ctaTitle || 'Оформить рассрочку'}</h2>
+            <p className="text-secondary mb-8">{method?.ctaText || ''}</p>
             <button
               onClick={() => setShowContactModal(true)}
               className="bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent transition-colors"

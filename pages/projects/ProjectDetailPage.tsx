@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
+import { ContactModal } from '../../components/ui/ContactModal';
 import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
 
@@ -230,7 +231,8 @@ const PlanImagePopup: React.FC<{
 const PromoPopup: React.FC<{
   promo: PromoOffer;
   onClose: () => void;
-}> = ({ promo, onClose }) => (
+  onCallback: () => void;
+}> = ({ promo, onClose, onCallback }) => (
   <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
     <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
       <div className="relative">
@@ -253,9 +255,15 @@ const PromoPopup: React.FC<{
       </div>
       <div className="p-8">
         <h3 className="text-2xl font-bold text-primary mb-4">{promo.title}</h3>
-        <div className="text-secondary font-light leading-relaxed whitespace-pre-line">
+        <div className="text-secondary font-light leading-relaxed whitespace-pre-line mb-6">
           {promo.description}
         </div>
+        <button
+          onClick={onCallback}
+          className="w-full flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+        >
+          <Phone className="w-5 h-5" /> Запросить обратный звонок
+        </button>
       </div>
     </div>
   </div>
@@ -383,6 +391,8 @@ export const ProjectDetailPage: React.FC = () => {
   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
   const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
   const [selectedPromo, setSelectedPromo] = useState<PromoOffer | null>(null);
+  const [showPromoCallback, setShowPromoCallback] = useState(false);
+  const [promoCallbackContext, setPromoCallbackContext] = useState('');
   const [galleryFilter, setGalleryFilter] = useState<string>('all');
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
@@ -870,6 +880,19 @@ export const ProjectDetailPage: React.FC = () => {
         <PromoPopup
           promo={selectedPromo}
           onClose={() => setSelectedPromo(null)}
+          onCallback={() => {
+            setPromoCallbackContext(`Акция: ${selectedPromo.title} — ${project.name}`);
+            setSelectedPromo(null);
+            setShowPromoCallback(true);
+          }}
+        />
+      )}
+
+      {showPromoCallback && (
+        <ContactModal
+          onClose={() => setShowPromoCallback(false)}
+          title="Обратный звонок"
+          context={promoCallbackContext}
         />
       )}
 
