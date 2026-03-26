@@ -510,6 +510,9 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                   }
                   setProject({...project, yandexMapUrl: val});
                 }}
+                autoComplete="off"
+                data-lpignore="true"
+                data-form-type="other"
                 className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm h-24"
                 placeholder='Вставьте <iframe src="https://yandex.ru/map-widget/v1/..."></iframe> или URL'
               />

@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
       href: '/buy',
       children: [
         { label: 'Все способы', href: '/buy' },
-        ...buyMethods.filter(m => m.slug !== 'svo').map(m => ({ label: m.title, href: `/buy/${m.slug}` })),
+        ...buyMethods.filter(m => m.slug !== 'svo' && !m.title.toLowerCase().includes('сво')).map(m => ({ label: m.title, href: `/buy/${m.slug}` })),
         { label: 'Акции', href: '/buy/akcii' },
       ],
     },

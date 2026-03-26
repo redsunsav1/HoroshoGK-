@@ -2119,7 +2119,7 @@ const BuyMethodsSection: React.FC = () => {
             </div>
 
             {/* Mortgage Programs (only for ipoteka) — placed prominently */}
-            {editingMethod.slug === 'ipoteka' && (
+            {(editingMethod.slug === 'ipoteka' || editingMethod.title.toLowerCase().includes('ипотечн')) && (
             <div className="border-t pt-4">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
                 <p className="text-blue-800 text-sm"><strong>Ипотечные программы</strong> — эти программы отображаются на странице ипотечного калькулятора. Если список пуст, используются значения по умолчанию.</p>
