@@ -513,6 +513,68 @@ app.get('/api/bookings', (req, res) => {
   res.json(readBookings());
 });
 
+// --- Contact / Callback API ---
+
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, phone, message, context } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'Name and phone are required' });
+    }
+
+    const contact = {
+      id: Date.now().toString(),
+      name,
+      phone,
+      message: message || '',
+      context: context || '',
+      date: new Date().toISOString(),
+    };
+
+    // Save to bookings file as well (unified storage)
+    const bookings = readBookings();
+    bookings.push({ ...contact, type: 'contact' });
+    writeBookings(bookings);
+
+    // Send email notification
+    if (mailTransporter && BOOKING_EMAIL) {
+      const contextStr = context || message || 'Обратный звонок';
+      const subject = `📞 Заявка с сайта: ${contextStr}`;
+      const htmlBody = `
+        <h2>Новая заявка с сайта</h2>
+        <table style="border-collapse: collapse; font-size: 16px;">
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>ФИО:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${name}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Телефон:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="tel:${phone}">${phone}</a></td></tr>
+          ${message ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Вопрос:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${message}</td></tr>` : ''}
+          ${context ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Раздел:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${context}</td></tr>` : ''}
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Дата:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}</td></tr>
+        </table>
+        <p style="color: #666; margin-top: 20px;">Заявка сохранена в системе. ID: ${contact.id}</p>
+      `;
+
+      try {
+        await mailTransporter.sendMail({
+          from: emailConfig.auth.user,
+          to: BOOKING_EMAIL,
+          subject,
+          html: htmlBody,
+        });
+        console.log('Contact email sent to', BOOKING_EMAIL);
+      } catch (emailErr) {
+        console.error('Failed to send contact email:', emailErr.message);
+      }
+    } else {
+      console.log('New contact received (email not configured):', contact);
+    }
+
+    res.json({ ok: true, contactId: contact.id });
+  } catch (err) {
+    console.error('Contact error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- Health check ---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

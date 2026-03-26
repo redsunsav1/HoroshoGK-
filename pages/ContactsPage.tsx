@@ -1,133 +1,17 @@
 import React, { useState } from 'react';
 import { Reveal } from '../components/ui/Reveal';
-import { Phone, Mail, MapPin, Clock, Send, MessageCircle, CheckCircle, X } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, MessageCircle, CheckCircle } from 'lucide-react';
 import { useData } from '../context/DataContext';
-
-// Contact Form Modal (same as on main page)
-const ContactModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      setError('Заполните обязательные поля');
-      return;
-    }
-    if (!agreed) {
-      setError('Необходимо согласие на обработку персональных данных');
-      return;
-    }
-    setError('');
-    setSending(true);
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), message: message.trim() }),
-      });
-      if (res.ok) {
-        setSent(true);
-      } else {
-        setError('Ошибка отправки. Попробуйте позже.');
-      }
-    } catch {
-      setError('Ошибка сети. Попробуйте позже.');
-    } finally {
-      setSending(false);
-    }
-  };
-
-  if (sent) {
-    return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-        <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center" onClick={e => e.stopPropagation()}>
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <h4 className="text-lg font-bold text-primary mb-2">Заявка отправлена!</h4>
-          <p className="text-secondary text-sm mb-6">Мы свяжемся с вами в ближайшее время.</p>
-          <button onClick={onClose} className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors">
-            Закрыть
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl max-w-md w-full p-8" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-primary">Оставить заявку</h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">Ваше имя *</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Иван Иванов"
-              className="w-full px-4 py-3 bg-beige border border-sand rounded-xl focus:outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">Телефон *</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              placeholder="+7 (___) ___-__-__"
-              className="w-full px-4 py-3 bg-beige border border-sand rounded-xl focus:outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">Сообщение</label>
-            <textarea
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Ваш вопрос..."
-              rows={3}
-              className="w-full px-4 py-3 bg-beige border border-sand rounded-xl focus:outline-none focus:border-accent resize-none"
-            />
-          </div>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={e => setAgreed(e.target.checked)}
-              className="mt-1 w-4 h-4 accent-accent"
-            />
-            <span className="text-sm text-secondary">
-              Я согласен(а) на обработку персональных данных
-            </span>
-          </label>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={sending}
-            className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-accent transition-colors disabled:opacity-50"
-          >
-            {sending ? 'Отправка...' : 'Отправить заявку'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
 
 export const ContactsPage: React.FC = () => {
   const { contactsContent } = useData();
-  const [showModal, setShowModal] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+  const [formAgreed, setFormAgreed] = useState(false);
+  const [formSending, setFormSending] = useState(false);
+  const [formSent, setFormSent] = useState(false);
+  const [formError, setFormError] = useState('');
 
   return (
     <>
@@ -245,12 +129,44 @@ export const ContactsPage: React.FC = () => {
                 <h2 className="text-2xl md:text-3xl font-medium text-primary mb-8">Написать нам</h2>
               </Reveal>
               <Reveal delay={100}>
-                <form className="bg-beige rounded-2xl p-8" onSubmit={(e) => { e.preventDefault(); setShowModal(true); }}>
+                {formSent ? (
+                  <div className="bg-beige rounded-2xl p-8 text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h4 className="text-lg font-bold text-primary mb-2">Сообщение отправлено!</h4>
+                    <p className="text-secondary text-sm mb-6">Мы свяжемся с вами в ближайшее время.</p>
+                    <button
+                      onClick={() => { setFormSent(false); setFormName(''); setFormPhone(''); setFormMessage(''); setFormAgreed(false); }}
+                      className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors"
+                    >
+                      Отправить ещё
+                    </button>
+                  </div>
+                ) : (
+                <form className="bg-beige rounded-2xl p-8" onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formName.trim() || !formPhone.trim()) { setFormError('Заполните обязательные поля'); return; }
+                  if (!formAgreed) { setFormError('Необходимо согласие на обработку персональных данных'); return; }
+                  setFormError('');
+                  setFormSending(true);
+                  try {
+                    const res = await fetch('/api/contact', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: formName.trim(), phone: formPhone.trim(), message: formMessage.trim(), context: 'Контакты: Написать нам' }),
+                    });
+                    if (res.ok) { setFormSent(true); } else { setFormError('Ошибка отправки. Попробуйте позже.'); }
+                  } catch { setFormError('Ошибка сети. Попробуйте позже.'); }
+                  finally { setFormSending(false); }
+                }}>
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-primary mb-2">Имя *</label>
                       <input
                         type="text"
+                        value={formName}
+                        onChange={e => setFormName(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-sand rounded-xl focus:outline-none focus:border-accent transition-colors"
                         placeholder="Ваше имя"
                         required
@@ -260,42 +176,41 @@ export const ContactsPage: React.FC = () => {
                       <label className="block text-sm font-medium text-primary mb-2">Телефон *</label>
                       <input
                         type="tel"
+                        value={formPhone}
+                        onChange={e => setFormPhone(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-sand rounded-xl focus:outline-none focus:border-accent transition-colors"
                         placeholder="+7 (___) ___-__-__"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-primary mb-2">Email</label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-3 bg-white border border-sand rounded-xl focus:outline-none focus:border-accent transition-colors"
-                        placeholder="email@example.com"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-primary mb-2">Сообщение</label>
+                      <label className="block text-sm font-medium text-primary mb-2">Ваш вопрос</label>
                       <textarea
                         rows={4}
+                        value={formMessage}
+                        onChange={e => setFormMessage(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-sand rounded-xl focus:outline-none focus:border-accent transition-colors resize-none"
-                        placeholder="Ваш вопрос или комментарий..."
+                        placeholder="Напишите ваш вопрос..."
                       />
                     </div>
                     <div className="flex items-start gap-3">
-                      <input type="checkbox" id="privacy" className="mt-1" required />
+                      <input type="checkbox" id="privacy" className="mt-1" checked={formAgreed} onChange={e => setFormAgreed(e.target.checked)} required />
                       <label htmlFor="privacy" className="text-sm text-secondary">
                         Я согласен на обработку персональных данных и принимаю{' '}
                         <a href="#" className="text-accent hover:underline">политику конфиденциальности</a>
                       </label>
                     </div>
+                    {formError && <p className="text-red-500 text-sm">{formError}</p>}
                     <button
                       type="submit"
-                      className="w-full bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors flex items-center justify-center gap-2"
+                      disabled={formSending}
+                      className="w-full bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <Send className="w-5 h-5" /> Отправить сообщение
+                      <Send className="w-5 h-5" /> {formSending ? 'Отправка...' : 'Отправить сообщение'}
                     </button>
                   </div>
                 </form>
+                )}
               </Reveal>
             </div>
           </div>
@@ -329,7 +244,6 @@ export const ContactsPage: React.FC = () => {
         </div>
       </section>
 
-      {showModal && <ContactModal onClose={() => setShowModal(false)} />}
     </>
   );
 };

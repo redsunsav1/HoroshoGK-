@@ -510,9 +510,12 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                   }
                   setProject({...project, yandexMapUrl: val});
                 }}
-                autoComplete="off"
+                name="yandex_map_code"
+                autoComplete="new-password"
                 data-lpignore="true"
+                data-1p-ignore="true"
                 data-form-type="other"
+                spellCheck={false}
                 className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm h-24"
                 placeholder='Вставьте <iframe src="https://yandex.ru/map-widget/v1/..."></iframe> или URL'
               />
@@ -826,7 +829,22 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                       {update.photos.map((photo, pIdx) => (
                         <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
                           <img src={photo} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                            {pIdx > 0 && (
+                              <button
+                                onClick={() => {
+                                  const updated = [...(project.constructionUpdates || [])];
+                                  const photos = [...updated[idx].photos];
+                                  [photos[pIdx - 1], photos[pIdx]] = [photos[pIdx], photos[pIdx - 1]];
+                                  updated[idx] = { ...updated[idx], photos };
+                                  setProject({ ...project, constructionUpdates: updated });
+                                }}
+                                className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                title="Переместить влево"
+                              >
+                                ←
+                              </button>
+                            )}
                             <button
                               onClick={() => {
                                 const updated = [...(project.constructionUpdates || [])];
@@ -837,6 +855,21 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
+                            {pIdx < update.photos.length - 1 && (
+                              <button
+                                onClick={() => {
+                                  const updated = [...(project.constructionUpdates || [])];
+                                  const photos = [...updated[idx].photos];
+                                  [photos[pIdx], photos[pIdx + 1]] = [photos[pIdx + 1], photos[pIdx]];
+                                  updated[idx] = { ...updated[idx], photos };
+                                  setProject({ ...project, constructionUpdates: updated });
+                                }}
+                                className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                title="Переместить вправо"
+                              >
+                                →
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}

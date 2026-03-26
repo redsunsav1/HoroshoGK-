@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
 
 // ============================================================
@@ -395,6 +395,9 @@ export const ProjectDetailPage: React.FC = () => {
   const [promoCallbackContext, setPromoCallbackContext] = useState('');
   const [galleryFilter, setGalleryFilter] = useState<string>('all');
   const [galleryLightbox, setGalleryLightbox] = useState<{ images: { url: string }[]; index: number } | null>(null);
+  const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(
+    project?.constructionUpdates?.[0]?.id || null
+  );
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -503,8 +506,10 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Construction Updates (Ход строительства) */}
-      {project.constructionUpdates && project.constructionUpdates.length > 0 && (
+      {/* Construction Updates (Ход строительства) — Accordion Timeline */}
+      {project.constructionUpdates && project.constructionUpdates.length > 0 && (() => {
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        return (
         <section className="py-20 px-4 md:px-8 bg-white">
           <div className="max-w-[1600px] mx-auto">
             <Reveal>
@@ -529,43 +534,113 @@ export const ProjectDetailPage: React.FC = () => {
               </div>
             </Reveal>
 
-            <div className="space-y-12">
-              {project.constructionUpdates.map((update, idx) => {
-                const dateObj = new Date(update.date);
-                const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-                const formattedDate = `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+            {/* Timeline */}
+            <div className="relative">
+              {/* Vertical line */}
+              <div className="absolute left-[18px] md:left-[22px] top-0 bottom-0 w-0.5 bg-sand" />
 
-                return (
-                  <Reveal key={update.id} delay={idx * 100}>
-                    <div className="bg-beige rounded-2xl p-6 md:p-8 border border-sand">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="bg-accent text-white px-4 py-1 rounded-full text-sm font-bold">{formattedDate}</span>
-                        <h3 className="text-xl font-bold text-primary">{update.title}</h3>
-                      </div>
-                      {update.description && (
-                        <p className="text-secondary font-light mb-6 whitespace-pre-line">{update.description}</p>
-                      )}
-                      {update.photos.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {update.photos.map((photo, pIdx) => (
-                            <img
-                              key={pIdx}
-                              src={photo}
-                              alt={`${update.title} — фото ${pIdx + 1}`}
-                              loading="lazy"
-                              className="w-full h-48 object-cover rounded-xl"
-                            />
-                          ))}
+              <div className="space-y-3">
+                {project.constructionUpdates.map((update, idx) => {
+                  const dateObj = new Date(update.date);
+                  const formattedDate = `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+                  const isOpen = openConstructionMonth === update.id;
+
+                  return (
+                    <Reveal key={update.id} delay={idx * 50}>
+                      <div className="relative pl-12 md:pl-14">
+                        {/* Timeline dot */}
+                        <div className={`absolute left-[10px] md:left-[14px] top-4 w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+                          isOpen ? 'bg-accent border-accent scale-125' : 'bg-white border-sand'
+                        }`} />
+
+                        {/* Accordion header */}
+                        <button
+                          onClick={() => setOpenConstructionMonth(isOpen ? null : update.id)}
+                          className={`w-full text-left p-4 md:p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-4 ${
+                            isOpen
+                              ? 'bg-beige border-accent/30 shadow-md'
+                              : 'bg-beige/50 border-sand hover:bg-beige hover:border-accent/20 hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className={`text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap transition-colors ${
+                              isOpen ? 'bg-accent text-white' : 'bg-sand text-secondary'
+                            }`}>
+                              {formattedDate}
+                            </span>
+                            <span className="text-primary font-medium truncate">{update.title}</span>
+                            {update.photos.length > 0 && (
+                              <span className="text-xs text-secondary whitespace-nowrap hidden sm:inline">
+                                {update.photos.length} фото
+                              </span>
+                            )}
+                          </div>
+                          <ChevronDown className={`w-5 h-5 text-secondary shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Accordion content */}
+                        <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
+                          isOpen ? 'max-h-[2000px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+                        }`}>
+                          <div className="bg-white rounded-2xl border border-sand p-4 md:p-6">
+                            {update.description && (
+                              <p className="text-secondary font-light mb-4 whitespace-pre-line">{update.description}</p>
+                            )}
+                            {update.photos.length > 0 && (
+                              <div className="relative">
+                                <div className="overflow-x-auto hide-scrollbar scroll-smooth pb-2" id={`construction-carousel-${update.id}`}>
+                                  <div className="flex gap-3 w-max">
+                                    {update.photos.map((photo, pIdx) => (
+                                      <img
+                                        key={pIdx}
+                                        src={photo}
+                                        alt={`${update.title} — фото ${pIdx + 1}`}
+                                        loading="lazy"
+                                        className="h-56 md:h-72 w-auto max-w-[80vw] object-cover rounded-xl cursor-pointer hover:shadow-lg transition-shadow"
+                                        onClick={() => setGalleryLightbox({
+                                          images: update.photos.map(p => ({ url: p })),
+                                          index: pIdx,
+                                        })}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                {update.photos.length > 2 && (
+                                  <div className="flex justify-center gap-2 mt-3">
+                                    <button
+                                      onClick={() => {
+                                        const el = document.getElementById(`construction-carousel-${update.id}`);
+                                        el?.scrollBy({ left: -300, behavior: 'smooth' });
+                                      }}
+                                      className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
+                                    >
+                                      <ChevronLeft className="w-4 h-4 text-primary" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const el = document.getElementById(`construction-carousel-${update.id}`);
+                                        el?.scrollBy({ left: 300, behavior: 'smooth' });
+                                      }}
+                                      className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
+                                    >
+                                      <ChevronRight className="w-4 h-4 text-primary" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </Reveal>
-                );
-              })}
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
-      )}
+        );
+      })()}
 
       {/* Timeline Section — only for projects with timeline */}
       {project.timeline && project.timeline.length > 0 && (
