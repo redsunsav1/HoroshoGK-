@@ -2118,6 +2118,138 @@ const BuyMethodsSection: React.FC = () => {
               </div>
             </div>
 
+            {/* Mortgage Programs (only for ipoteka) — placed prominently */}
+            {editingMethod.slug === 'ipoteka' && (
+            <div className="border-t pt-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+                <p className="text-blue-800 text-sm"><strong>Ипотечные программы</strong> — эти программы отображаются на странице ипотечного калькулятора. Если список пуст, используются значения по умолчанию.</p>
+              </div>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-bold text-gray-700">Ипотечные программы</h3>
+                <button
+                  onClick={() => {
+                    const progs = editingMethod.mortgagePrograms || [];
+                    const newProg = { id: Date.now().toString(), name: 'Новая программа', description: '', rate: 6, minDownPayment: 20.1, maxTerm: 30, maxAmount: 10000000 };
+                    updateMethod(editingId, 'mortgagePrograms', [...progs, newProg]);
+                  }}
+                  className="bg-accent text-white px-3 py-1.5 rounded-lg text-sm hover:bg-opacity-90 flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Добавить программу
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(editingMethod.mortgagePrograms || []).map((prog: any, idx: number) => (
+                  <div key={prog.id || idx} className="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        value={prog.name}
+                        onChange={e => {
+                          const progs = [...(editingMethod.mortgagePrograms || [])];
+                          progs[idx] = { ...progs[idx], name: e.target.value };
+                          updateMethod(editingId, 'mortgagePrograms', progs);
+                        }}
+                        className="p-2 border rounded-lg font-medium"
+                        placeholder="Название"
+                      />
+                      <input
+                        value={prog.description}
+                        onChange={e => {
+                          const progs = [...(editingMethod.mortgagePrograms || [])];
+                          progs[idx] = { ...progs[idx], description: e.target.value };
+                          updateMethod(editingId, 'mortgagePrograms', progs);
+                        }}
+                        className="p-2 border rounded-lg"
+                        placeholder="Описание"
+                      />
+                    </div>
+                    <div className="grid grid-cols-5 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Ставка %</label>
+                        <input
+                          type="number" step="0.1"
+                          value={prog.rate}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], rate: parseFloat(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Взнос от %</label>
+                        <input
+                          type="number" step="0.1"
+                          value={prog.minDownPayment}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], minDownPayment: parseFloat(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Срок лет</label>
+                        <input
+                          type="number"
+                          value={prog.maxTerm}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], maxTerm: parseInt(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Макс. сумма</label>
+                        <input
+                          type="number" step="100000"
+                          value={prog.maxAmount}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], maxAmount: parseInt(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Бейдж</label>
+                        <input
+                          value={prog.badge || ''}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], badge: e.target.value };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                          placeholder="Популярная"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const progs = [...(editingMethod.mortgagePrograms || [])];
+                        progs.splice(idx, 1);
+                        updateMethod(editingId, 'mortgagePrograms', progs);
+                      }}
+                      className="text-red-400 hover:text-red-600 text-sm flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3 h-3" /> Удалить программу
+                    </button>
+                  </div>
+                ))}
+                {(!editingMethod.mortgagePrograms || editingMethod.mortgagePrograms.length === 0) && (
+                  <p className="text-gray-400 text-sm py-4 text-center bg-gray-50 rounded-lg">
+                    Нет программ. Нажмите «Добавить программу». Пока список пуст, используются значения по умолчанию.
+                  </p>
+                )}
+              </div>
+            </div>
+            )}
+
             {/* Features */}
             <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-3">
@@ -2187,118 +2319,6 @@ const BuyMethodsSection: React.FC = () => {
                     <button onClick={() => removeHowItWorks(editingId, idx)} className="p-1 text-red-400 hover:text-red-600">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-            )}
-
-            {/* Mortgage Programs (only for ipoteka) */}
-            {editingMethod.slug === 'ipoteka' && (
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-gray-700">Ипотечные программы</h3>
-                <button
-                  onClick={() => {
-                    const progs = editingMethod.mortgagePrograms || [];
-                    const newProg = { id: Date.now().toString(), name: 'Новая программа', description: '', rate: 6, minDownPayment: 20.1, maxTerm: 30, maxAmount: 10000000 };
-                    updateMethod(editingId, 'mortgagePrograms', [...progs, newProg]);
-                  }}
-                  className="text-sm text-accent hover:underline flex items-center gap-1"
-                >
-                  <Plus className="w-3 h-3" /> Добавить программу
-                </button>
-              </div>
-              <div className="space-y-3">
-                {(editingMethod.mortgagePrograms || []).map((prog: any, idx: number) => (
-                  <div key={prog.id || idx} className="bg-gray-50 p-4 rounded-lg space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        value={prog.name}
-                        onChange={e => {
-                          const progs = [...(editingMethod.mortgagePrograms || [])];
-                          progs[idx] = { ...progs[idx], name: e.target.value };
-                          updateMethod(editingId, 'mortgagePrograms', progs);
-                        }}
-                        className="p-2 border rounded-lg font-medium"
-                        placeholder="Название"
-                      />
-                      <input
-                        value={prog.description}
-                        onChange={e => {
-                          const progs = [...(editingMethod.mortgagePrograms || [])];
-                          progs[idx] = { ...progs[idx], description: e.target.value };
-                          updateMethod(editingId, 'mortgagePrograms', progs);
-                        }}
-                        className="p-2 border rounded-lg"
-                        placeholder="Описание"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 gap-3">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Ставка %</label>
-                        <input
-                          type="number" step="0.1"
-                          value={prog.rate}
-                          onChange={e => {
-                            const progs = [...(editingMethod.mortgagePrograms || [])];
-                            progs[idx] = { ...progs[idx], rate: parseFloat(e.target.value) || 0 };
-                            updateMethod(editingId, 'mortgagePrograms', progs);
-                          }}
-                          className="w-full p-2 border rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Взнос от %</label>
-                        <input
-                          type="number" step="0.1"
-                          value={prog.minDownPayment}
-                          onChange={e => {
-                            const progs = [...(editingMethod.mortgagePrograms || [])];
-                            progs[idx] = { ...progs[idx], minDownPayment: parseFloat(e.target.value) || 0 };
-                            updateMethod(editingId, 'mortgagePrograms', progs);
-                          }}
-                          className="w-full p-2 border rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Срок лет</label>
-                        <input
-                          type="number"
-                          value={prog.maxTerm}
-                          onChange={e => {
-                            const progs = [...(editingMethod.mortgagePrograms || [])];
-                            progs[idx] = { ...progs[idx], maxTerm: parseInt(e.target.value) || 0 };
-                            updateMethod(editingId, 'mortgagePrograms', progs);
-                          }}
-                          className="w-full p-2 border rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Бейдж</label>
-                        <input
-                          value={prog.badge || ''}
-                          onChange={e => {
-                            const progs = [...(editingMethod.mortgagePrograms || [])];
-                            progs[idx] = { ...progs[idx], badge: e.target.value };
-                            updateMethod(editingId, 'mortgagePrograms', progs);
-                          }}
-                          className="w-full p-2 border rounded-lg"
-                          placeholder="напр. Популярная"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => {
-                          const progs = (editingMethod.mortgagePrograms || []).filter((_: any, i: number) => i !== idx);
-                          updateMethod(editingId, 'mortgagePrograms', progs);
-                        }}
-                        className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
-                      >
-                        <Trash2 className="w-4 h-4" /> Удалить
-                      </button>
-                    </div>
                   </div>
                 ))}
               </div>
