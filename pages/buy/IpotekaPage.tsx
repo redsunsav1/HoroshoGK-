@@ -27,6 +27,10 @@ export const IpotekaPage: React.FC = () => {
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [years, setYears] = useState(20);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [priceInput, setPriceInput] = useState('');
+  const [priceEditing, setPriceEditing] = useState(false);
+  const [dpInput, setDpInput] = useState('');
+  const [dpEditing, setDpEditing] = useState(false);
 
   const downPayment = Math.round(price * downPaymentPercent / 100);
   const rate = selectedProgram.rate;
@@ -173,7 +177,35 @@ export const IpotekaPage: React.FC = () => {
                   <label className="block text-sm font-medium text-primary mb-2">
                     Стоимость квартиры
                   </label>
-                  <div className="text-2xl font-bold text-primary mb-3">{formatNumber(price)} ₽</div>
+                  <div className="flex items-baseline gap-1 mb-3">
+                    {priceEditing ? (
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoFocus
+                        value={priceInput}
+                        onChange={e => setPriceInput(e.target.value.replace(/[^\d]/g, ''))}
+                        onBlur={() => {
+                          const val = parseInt(priceInput) || 0;
+                          const clamped = Math.max(2000000, Math.min(30000000, val));
+                          setPrice(clamped);
+                          setPriceEditing(false);
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                        }}
+                        className="text-2xl font-bold text-primary bg-transparent border-b-2 border-accent outline-none w-48"
+                      />
+                    ) : (
+                      <span
+                        className="text-2xl font-bold text-primary cursor-text hover:text-accent transition-colors"
+                        onClick={() => { setPriceInput(String(price)); setPriceEditing(true); }}
+                      >
+                        {formatNumber(price)}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-primary">₽</span>
+                  </div>
                   <input
                     type="range"
                     min={2000000}
@@ -193,7 +225,38 @@ export const IpotekaPage: React.FC = () => {
                   <label className="block text-sm font-medium text-primary mb-2">
                     Первоначальный взнос
                   </label>
-                  <div className="text-2xl font-bold text-primary mb-1">{formatNumber(downPayment)} ₽</div>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    {dpEditing ? (
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoFocus
+                        value={dpInput}
+                        onChange={e => setDpInput(e.target.value.replace(/[^\d]/g, ''))}
+                        onBlur={() => {
+                          const val = parseInt(dpInput) || 0;
+                          const minDp = Math.round(price * selectedProgram.minDownPayment / 100);
+                          const maxDp = Math.round(price * 0.9);
+                          const clamped = Math.max(minDp, Math.min(maxDp, val));
+                          const newPercent = Math.round(clamped / price * 100);
+                          setDownPaymentPercent(Math.max(Math.ceil(selectedProgram.minDownPayment), Math.min(90, newPercent)));
+                          setDpEditing(false);
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                        }}
+                        className="text-2xl font-bold text-primary bg-transparent border-b-2 border-accent outline-none w-48"
+                      />
+                    ) : (
+                      <span
+                        className="text-2xl font-bold text-primary cursor-text hover:text-accent transition-colors"
+                        onClick={() => { setDpInput(String(downPayment)); setDpEditing(true); }}
+                      >
+                        {formatNumber(downPayment)}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-primary">₽</span>
+                  </div>
                   <div className="text-sm text-secondary mb-3">{downPaymentPercent}% от стоимости</div>
                   <input
                     type="range"
