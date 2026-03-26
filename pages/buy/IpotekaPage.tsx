@@ -37,16 +37,15 @@ export const IpotekaPage: React.FC = () => {
 
   const handleProgramSelect = (program: MortgageProgram) => {
     setSelectedProgram(program);
-    if (downPaymentPercent < program.minDownPayment) {
-      setDownPaymentPercent(program.minDownPayment);
+    // Only adjust values that exceed the new program's limits
+    const newDpPercent = Math.max(downPaymentPercent, Math.ceil(program.minDownPayment));
+    if (newDpPercent !== downPaymentPercent) {
+      setDownPaymentPercent(newDpPercent);
     }
     if (years > program.maxTerm) {
       setYears(program.maxTerm);
     }
-    if (price - downPayment > program.maxAmount) {
-      const newPrice = Math.min(price, Math.round(program.maxAmount / (1 - downPaymentPercent / 100)));
-      setPrice(newPrice);
-    }
+    // Don't reset price — just keep it as is; the calculator will recalculate
   };
 
   const monthlyPayment = useMemo(() => {
@@ -326,6 +325,9 @@ export const IpotekaPage: React.FC = () => {
                   </div>
                 </div>
 
+                <p className="text-center text-sm mb-4 shimmer-text">
+                  Не нашли подходящий вариант? Свяжитесь с нами — мы подберём для вас комфортные условия.
+                </p>
                 <button
                   onClick={() => setShowContactModal(true)}
                   className="w-full bg-accent text-white py-4 rounded-xl font-medium hover:bg-accent/90 transition-colors text-lg"
@@ -335,6 +337,28 @@ export const IpotekaPage: React.FC = () => {
                 <p className="text-center text-white/30 text-xs mt-3">
                   Расчёт является предварительным и не является публичной офертой
                 </p>
+                <style>{`
+                  .shimmer-text {
+                    color: rgba(255,255,255,0.6);
+                    background: linear-gradient(
+                      90deg,
+                      rgba(255,255,255,0.6) 0%,
+                      rgba(255,255,255,0.6) 40%,
+                      rgba(181,147,90,1) 50%,
+                      rgba(255,255,255,0.6) 60%,
+                      rgba(255,255,255,0.6) 100%
+                    );
+                    background-size: 200% 100%;
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: shimmer 4s ease-in-out infinite;
+                  }
+                  @keyframes shimmer {
+                    0%, 100% { background-position: 200% center; }
+                    50% { background-position: -200% center; }
+                  }
+                `}</style>
               </div>
             </Reveal>
           </div>
