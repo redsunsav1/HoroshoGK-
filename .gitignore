@@ -26,3 +26,8 @@ dist-ssr
 assets/
 uploads/
 dist/
+
+# Server data (live data, must not be overwritten by git)
+server/data/
+server/.env
+.env

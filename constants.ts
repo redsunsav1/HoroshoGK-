@@ -128,45 +128,6 @@ export const PROJECTS: Project[] = [
     cardPrice: 'от 6.5 млн ₽',
     cardPromo: 'Ипотека 1.9%',
   },
-  {
-    id: '4',
-    slug: 'charisma',
-    name: 'ЖК Харизма',
-    shortDescription: 'Яркая архитектура для яркой жизни.',
-    fullDescription: 'ЖК «Харизма» выделяется на фоне городской застройки. Необычные цветовые решения фасадов, дизайнерское благоустройство двора и продуманные сценарии жизни. Это дом, который вдохновляет творить и любить.',
-    location: 'Новый район',
-    tags: ['Дизайн', 'Молодежный', 'Спорт'],
-    heroImage: '/images/placeholder-hero.svg',
-    colorTheme: '#9333ea',
-    gallery: [
-      '/images/placeholder-card.svg',
-      '/images/placeholder-card.svg',
-    ],
-    features: [
-      { title: 'Спорт', description: 'Воркаут зоны и беговые дорожки', icon: 'Activity' },
-      { title: 'Дизайн', description: 'Авторские входные группы', icon: 'PenTool' },
-    ],
-    infrastructure: [
-      { id: 'i14', type: 'gym', name: 'CrossFit Box', x: 35, y: 35 },
-      { id: 'i15', type: 'shop', name: 'Супермаркет 24', x: 70, y: 60 },
-      { id: 'i16', type: 'school', name: 'Лицей искусств', x: 15, y: 80 },
-    ],
-    totalFloors: 12,
-    plans: [
-      { id: 'c-1-2', rooms: 1, area: 40.0, price: 'от 4.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '2', number: '6' },
-      { id: 'c-1-5', rooms: 1, area: 40.0, price: 'от 4.7 млн ₽', image: '/images/placeholder-plan.svg', floor: '5', number: '18' },
-      { id: 'c-1-8', rooms: 1, area: 41.0, price: 'от 5.0 млн ₽', image: '/images/placeholder-plan.svg', floor: '8', number: '30' },
-      { id: 'c-2-3', rooms: 2, area: 62.0, price: 'от 6.2 млн ₽', image: '/images/placeholder-plan.svg', floor: '3', number: '10' },
-      { id: 'c-2-7', rooms: 2, area: 62.0, price: 'от 6.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '7', number: '26' },
-      { id: 'c-3-4', rooms: 3, area: 88.0, price: 'от 8.5 млн ₽', image: '/images/placeholder-plan.svg', floor: '4', number: '14' },
-      { id: 'c-3-11', rooms: 3, area: 90.0, price: 'от 9.2 млн ₽', image: '/images/placeholder-plan.svg', floor: '11', number: '42' },
-    ],
-    promos: [
-      { id: 'p5', title: 'Отделка в подарок', description: 'При бронировании до конца месяца.', image: '/images/placeholder-card.svg' },
-    ],
-    cardPrice: 'от 4.5 млн ₽',
-    cardPromo: 'Отделка в подарок',
-  },
 ];
 
 export const NEWS: NewsItem[] = [
