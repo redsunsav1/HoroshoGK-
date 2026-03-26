@@ -394,6 +394,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [showPromoCallback, setShowPromoCallback] = useState(false);
   const [promoCallbackContext, setPromoCallbackContext] = useState('');
   const [galleryFilter, setGalleryFilter] = useState<string>('all');
+  const [galleryLightbox, setGalleryLightbox] = useState<{ images: { url: string }[]; index: number } | null>(null);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -551,6 +552,7 @@ export const ProjectDetailPage: React.FC = () => {
                               key={pIdx}
                               src={photo}
                               alt={`${update.title} — фото ${pIdx + 1}`}
+                              loading="lazy"
                               className="w-full h-48 object-cover rounded-xl"
                             />
                           ))}
@@ -705,11 +707,16 @@ export const ProjectDetailPage: React.FC = () => {
               <div ref={galleryScrollRef} className="overflow-x-auto pb-8 hide-scrollbar scroll-smooth">
                 <div className="flex gap-4 px-4 md:px-8 w-max">
                   {filteredGallery.map((img, idx) => (
-                    <div key={img.id || idx} className="w-[80vw] md:w-[600px] h-[400px] flex-shrink-0">
+                    <div
+                      key={img.id || idx}
+                      className="w-[80vw] md:w-[600px] h-[400px] flex-shrink-0 cursor-pointer group"
+                      onClick={() => setGalleryLightbox({ images: filteredGallery, index: idx })}
+                    >
                       <img
                         src={typeof img === 'string' ? img : img.url}
                         alt={`Gallery ${idx}`}
-                        className="w-full h-full object-cover rounded-xl shadow-lg"
+                        loading="lazy"
+                        className="w-full h-full object-cover rounded-xl shadow-lg group-hover:shadow-2xl transition-shadow duration-300"
                       />
                     </div>
                   ))}
@@ -817,7 +824,7 @@ export const ProjectDetailPage: React.FC = () => {
                     className="relative h-80 rounded-3xl overflow-hidden group shadow-lg cursor-pointer"
                     onClick={() => setSelectedPromo(promo)}
                   >
-                    <img src={promo.image} alt={promo.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={promo.image} alt={promo.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-8 w-full">
                       {promo.discount && (
@@ -909,6 +916,58 @@ export const ProjectDetailPage: React.FC = () => {
           projectName={project.name}
           onClose={() => setBookingApartment(null)}
         />
+      )}
+
+      {/* Gallery Lightbox */}
+      {galleryLightbox && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+          onClick={() => setGalleryLightbox(null)}
+        >
+          <button
+            onClick={() => setGalleryLightbox(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors p-2 z-10"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/50 text-sm">
+            {galleryLightbox.index + 1} / {galleryLightbox.images.length}
+          </div>
+          {galleryLightbox.images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setGalleryLightbox(prev => prev ? {
+                    ...prev,
+                    index: (prev.index - 1 + prev.images.length) % prev.images.length
+                  } : null);
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors z-10"
+              >
+                <ChevronLeft className="w-8 h-8 text-white" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setGalleryLightbox(prev => prev ? {
+                    ...prev,
+                    index: (prev.index + 1) % prev.images.length
+                  } : null);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors z-10"
+              >
+                <ChevronRight className="w-8 h-8 text-white" />
+              </button>
+            </>
+          )}
+          <img
+            src={galleryLightbox.images[galleryLightbox.index]?.url}
+            alt=""
+            className="max-w-[90vw] max-h-[85vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </>
   );
