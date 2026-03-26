@@ -202,6 +202,7 @@ export interface Promotion {
   showOnMain: boolean;
   showInHeader: boolean;
   active: boolean;
+  projectIds?: string[];
 }
 
 // Investors page content
@@ -259,6 +260,17 @@ export interface ContactsContent {
 }
 
 // Buy methods content
+export interface MortgageProgram {
+  id: string;
+  name: string;
+  description: string;
+  rate: number;
+  minDownPayment: number;
+  maxTerm: number;
+  maxAmount: number;
+  badge?: string;
+}
+
 export interface BuyMethodContent {
   id: string;
   slug: string;
@@ -272,4 +284,5 @@ export interface BuyMethodContent {
   howItWorks: { step: number; title: string; description: string }[];
   ctaTitle: string;
   ctaText: string;
+  mortgagePrograms?: MortgageProgram[];
 }

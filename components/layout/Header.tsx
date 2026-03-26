@@ -9,47 +9,28 @@ interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-const navigation: NavItem[] = [
-  {
-    label: 'О компании',
-    href: '/about',
-  },
-  {
-    label: 'Проекты',
-    href: '/projects',
-  },
-  {
-    label: 'Способы покупки',
-    href: '/buy',
-    children: [
-      { label: 'Все способы', href: '/buy' },
-      { label: 'Ипотечный калькулятор', href: '/buy/ipoteka' },
-      { label: 'Рассрочка', href: '/buy/rassrochka' },
-      { label: 'Trade-in', href: '/buy/trade-in' },
-      { label: 'Материнский капитал', href: '/buy/materinskiy-kapital' },
-      { label: 'Соц. поддержка', href: '/buy/social-support' },
-      { label: 'Акции', href: '/buy/akcii' },
-    ],
-  },
-  {
-    label: 'Новости',
-    href: '/news',
-  },
-  {
-    label: 'Контакты',
-    href: '/contacts',
-  },
-  {
-    label: 'Частые вопросы',
-    href: '/faq',
-  },
-];
-
 export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
-  const { siteSettings } = useData();
+  const { siteSettings, buyMethods } = useData();
+
+  const navigation: NavItem[] = [
+    { label: 'О компании', href: '/about' },
+    { label: 'Проекты', href: '/projects' },
+    {
+      label: 'Способы покупки',
+      href: '/buy',
+      children: [
+        { label: 'Все способы', href: '/buy' },
+        ...buyMethods.map(m => ({ label: m.title, href: `/buy/${m.slug}` })),
+        { label: 'Акции', href: '/buy/akcii' },
+      ],
+    },
+    { label: 'Новости', href: '/news' },
+    { label: 'Контакты', href: '/contacts' },
+    { label: 'Частые вопросы', href: '/faq' },
+  ];
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';

@@ -2,77 +2,26 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
+import { useData } from '../../context/DataContext';
 import { Calculator, ArrowLeft, Check } from 'lucide-react';
+import { MortgageProgram } from '../../types';
 
-interface MortgageProgram {
-  id: string;
-  name: string;
-  description: string;
-  rate: number;
-  maxRate: number;
-  minDownPayment: number;
-  maxTerm: number;
-  maxAmount: number;
-  badge?: string;
+interface MortgageProgramLocal extends MortgageProgram {
+  maxRate?: number;
 }
 
-const programs: MortgageProgram[] = [
-  {
-    id: 'family',
-    name: 'Семейная ипотека',
-    description: 'Для семей с детьми, рождёнными с 2019 года',
-    rate: 3.5,
-    maxRate: 6,
-    minDownPayment: 20.1,
-    maxTerm: 30,
-    maxAmount: 12000000,
-    badge: 'Популярная',
-  },
-  {
-    id: 'it',
-    name: 'IT-ипотека',
-    description: 'Для сотрудников аккредитованных IT-компаний',
-    rate: 6,
-    maxRate: 6,
-    minDownPayment: 20.1,
-    maxTerm: 30,
-    maxAmount: 9000000,
-    badge: 'Выгодная',
-  },
-  {
-    id: 'military',
-    name: 'Военная ипотека',
-    description: 'Для участников накопительно-ипотечной системы',
-    rate: 6,
-    maxRate: 6,
-    minDownPayment: 20.1,
-    maxTerm: 30,
-    maxAmount: 4100000,
-  },
-  {
-    id: 'standard',
-    name: 'Базовая ипотека',
-    description: 'Базовая программа для всех категорий заёмщиков',
-    rate: 13.9,
-    maxRate: 18,
-    minDownPayment: 20.1,
-    maxTerm: 30,
-    maxAmount: 30000000,
-  },
-  {
-    id: 'combo',
-    name: 'Комбо-ипотека',
-    description: 'Сниженная ставка на первые годы + стандартная далее',
-    rate: 7.17,
-    maxRate: 12,
-    minDownPayment: 20.1,
-    maxTerm: 30,
-    maxAmount: 15000000,
-    badge: 'Новая',
-  },
+const defaultPrograms: MortgageProgram[] = [
+  { id: 'family', name: 'Семейная ипотека', description: 'Для семей с детьми, рождёнными с 2019 года', rate: 3.5, minDownPayment: 20.1, maxTerm: 30, maxAmount: 12000000, badge: 'Популярная' },
+  { id: 'it', name: 'IT-ипотека', description: 'Для сотрудников аккредитованных IT-компаний', rate: 6, minDownPayment: 20.1, maxTerm: 30, maxAmount: 9000000, badge: 'Выгодная' },
+  { id: 'military', name: 'Военная ипотека', description: 'Для участников накопительно-ипотечной системы', rate: 6, minDownPayment: 20.1, maxTerm: 30, maxAmount: 4100000 },
+  { id: 'standard', name: 'Базовая ипотека', description: 'Базовая программа для всех категорий заёмщиков', rate: 13.9, minDownPayment: 20.1, maxTerm: 30, maxAmount: 30000000 },
+  { id: 'combo', name: 'Комбо-ипотека', description: 'Сниженная ставка на первые годы + стандартная далее', rate: 7.17, minDownPayment: 20.1, maxTerm: 30, maxAmount: 15000000, badge: 'Новая' },
 ];
 
 export const IpotekaPage: React.FC = () => {
+  const { buyMethods } = useData();
+  const ipotekaMethod = buyMethods.find(m => m.slug === 'ipoteka');
+  const programs = ipotekaMethod?.mortgagePrograms?.length ? ipotekaMethod.mortgagePrograms : defaultPrograms;
   const [selectedProgram, setSelectedProgram] = useState<MortgageProgram>(programs[0]);
   const [price, setPrice] = useState(5000000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);

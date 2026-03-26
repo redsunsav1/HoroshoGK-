@@ -490,20 +490,28 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
         {activeTab === 'infra' && (
           <div className="space-y-6">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm">
-              <strong>Инфраструктура через Яндекс Карты:</strong> Вставьте ссылку на карту из Яндекс Карт.
-              Для этого откройте <a href="https://yandex.ru/maps" target="_blank" rel="noopener noreferrer" className="underline">Яндекс Карты</a>, найдите нужное место,
-              нажмите «Поделиться» → «Встроить карту» и скопируйте URL из параметра src iframe.
+              <strong>Инфраструктура через Яндекс Карты:</strong> Вставьте код карты из Яндекс Карт.
+              Откройте <a href="https://yandex.ru/maps" target="_blank" rel="noopener noreferrer" className="underline">Яндекс Карты</a>, найдите нужное место,
+              нажмите «Поделиться» → «Встроить карту» и скопируйте <strong>весь код iframe</strong> или только URL из src.
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 <Map className="w-4 h-4 inline mr-1" />
-                URL Яндекс Карты (iframe src)
+                Код Яндекс Карты (iframe или URL)
               </label>
-              <input
+              <textarea
                 value={project.yandexMapUrl || ''}
-                onChange={e => setProject({...project, yandexMapUrl: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm"
-                placeholder="https://yandex.ru/map-widget/v1/?..."
+                onChange={e => {
+                  let val = e.target.value.trim();
+                  // Extract src from iframe tag if pasted
+                  const srcMatch = val.match(/src=["']([^"']+)["']/);
+                  if (srcMatch) {
+                    val = srcMatch[1];
+                  }
+                  setProject({...project, yandexMapUrl: val});
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm h-24"
+                placeholder='Вставьте <iframe src="https://yandex.ru/map-widget/v1/..."></iframe> или URL'
               />
             </div>
             {project.yandexMapUrl && (
@@ -514,6 +522,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                   height="400"
                   style={{ border: 0 }}
                   allowFullScreen
+                  loading="lazy"
                 />
               </div>
             )}

@@ -383,7 +383,7 @@ const FloorSelector: React.FC<{
 // ============================================================
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { projects } = useData();
+  const { projects, promotions } = useData();
   const project = projects.find(p => p.slug === slug);
 
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
@@ -798,7 +798,12 @@ export const ProjectDetailPage: React.FC = () => {
       )}
 
       {/* Promos */}
-      {project.promos.length > 0 && (
+      {(() => {
+        const globalPromos: PromoOffer[] = promotions
+          .filter(p => p.active && p.projectIds?.includes(project.id))
+          .map(p => ({ id: p.id, title: p.title, description: p.description, discount: p.discount, image: p.image, popupImage: p.popupImage }));
+        const allPromos = [...project.promos, ...globalPromos];
+        return allPromos.length > 0 ? (
         <section className="py-20 px-4 md:px-8 bg-beige">
           <div className="max-w-[1600px] mx-auto">
             <Reveal>
@@ -806,7 +811,7 @@ export const ProjectDetailPage: React.FC = () => {
             </Reveal>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {project.promos.map((promo, idx) => (
+              {allPromos.map((promo, idx) => (
                 <Reveal key={promo.id} delay={idx * 150} direction={idx % 2 === 0 ? 'right' : 'left'}>
                   <div
                     className="relative h-80 rounded-3xl overflow-hidden group shadow-lg cursor-pointer"
@@ -829,7 +834,8 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
           </div>
         </section>
-      )}
+        ) : null;
+      })()}
 
       {/* CTA Footer — only show if project has apartments for sale */}
       {project.plans.length > 0 && (

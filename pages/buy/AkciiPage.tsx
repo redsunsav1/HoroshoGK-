@@ -141,6 +141,18 @@ export const AkciiPage: React.FC = () => {
                   {selectedPromo.project.name} →
                 </Link>
               )}
+              {!selectedPromo.project && selectedPromo.projectIds?.length > 0 && (
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {selectedPromo.projectIds.map((pid: string) => {
+                    const proj = projects.find((p: any) => p.id === pid);
+                    return proj ? (
+                      <Link key={pid} to={`/projects/${proj.slug}`} className="text-accent font-medium hover:underline">
+                        {proj.name} →
+                      </Link>
+                    ) : null;
+                  })}
+                </div>
+              )}
               <button
                 onClick={() => openCallback(selectedPromo.title)}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors"

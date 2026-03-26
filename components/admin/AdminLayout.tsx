@@ -1143,7 +1143,7 @@ const VacancySection: React.FC = () => {
 // Promotions Section (Акции)
 // ============================================================
 const PromotionsSection: React.FC = () => {
-  const { promotions, updatePromotions } = useData();
+  const { promotions, updatePromotions, projects } = useData();
   const [promos, setPromos] = useState<Promotion[]>(promotions);
   const [saved, setSaved] = useState(true);
 
@@ -1157,14 +1157,25 @@ const PromotionsSection: React.FC = () => {
       showOnMain: true,
       showInHeader: false,
       active: true,
+      projectIds: [],
     };
     setPromos([...promos, newPromo]);
     setSaved(false);
   };
 
-  const updatePromo = (id: string, field: keyof Promotion, value: string | boolean) => {
+  const updatePromo = (id: string, field: keyof Promotion, value: string | boolean | string[]) => {
     setPromos(promos.map(p => p.id === id ? { ...p, [field]: value } : p));
     setSaved(false);
+  };
+
+  const toggleProjectId = (promoId: string, projectId: string) => {
+    const promo = promos.find(p => p.id === promoId);
+    if (!promo) return;
+    const ids = promo.projectIds || [];
+    const newIds = ids.includes(projectId)
+      ? ids.filter(id => id !== projectId)
+      : [...ids, projectId];
+    updatePromo(promoId, 'projectIds', newIds);
   };
 
   const removePromo = (id: string) => {
@@ -1202,6 +1213,7 @@ const PromotionsSection: React.FC = () => {
           <li>«Показать на главной» — акция появится в слайдере внизу главной страницы</li>
           <li>«Показать в хедере» — акция появится в выпадающем меню «Способы покупки» → «Акции»</li>
           <li>Страница «/buy/akcii» — отображает все активные акции</li>
+          <li>«Привязка к ЖК» — акция будет отображаться на странице выбранных жилых комплексов</li>
         </ul>
       </div>
 
@@ -1233,7 +1245,7 @@ const PromotionsSection: React.FC = () => {
                   placeholder="Описание (поддерживает абзацы — используйте Enter)"
                   className="w-full p-2 border rounded-lg text-sm h-20"
                 />
-                <div className="flex gap-6 items-center">
+                <div className="flex gap-6 items-center flex-wrap">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -1262,14 +1274,40 @@ const PromotionsSection: React.FC = () => {
                     <span className="text-sm">Активна</span>
                   </label>
                 </div>
+                {/* Project selector */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Привязка к ЖК:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {projects.map(proj => {
+                      const isLinked = (promo.projectIds || []).includes(proj.id);
+                      return (
+                        <button
+                          key={proj.id}
+                          type="button"
+                          onClick={() => toggleProjectId(promo.id, proj.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                            isLinked
+                              ? 'bg-accent text-white border-accent'
+                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-accent hover:text-accent'
+                          }`}
+                        >
+                          {proj.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {(!promo.projectIds || promo.projectIds.length === 0) && (
+                    <p className="text-xs text-gray-400 mt-1">Не привязана ни к одному ЖК (отображается только на общей странице акций)</p>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <ImageUpload
-                      label="Обложка (заставка)"
+                      label="Обложка (карточка)"
                       value={promo.image}
                       onChange={(url) => updatePromo(promo.id, 'image', url)}
                     />
-                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 600×400 px</p>
+                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×500 px</p>
                   </div>
                   <div>
                     <ImageUpload
@@ -1277,7 +1315,7 @@ const PromotionsSection: React.FC = () => {
                       value={promo.popupImage || ''}
                       onChange={(url) => updatePromo(promo.id, 'popupImage', url)}
                     />
-                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×600 px</p>
+                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 1200×800 px</p>
                   </div>
                 </div>
               </div>
@@ -2113,12 +2151,15 @@ const BuyMethodsSection: React.FC = () => {
               </div>
             </div>
 
-            {/* How It Works */}
+            {/* How It Works / Documents — hidden for social-support */}
+            {editingMethod.slug !== 'social-support' && (
             <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-gray-700">Как это работает</h3>
+                <h3 className="font-bold text-gray-700">
+                  {editingMethod.slug === 'materinskiy-kapital' ? 'Необходимые документы' : 'Как это работает'}
+                </h3>
                 <button onClick={() => addHowItWorks(editingId)} className="text-sm text-accent hover:underline flex items-center gap-1">
-                  <Plus className="w-3 h-3" /> Добавить шаг
+                  <Plus className="w-3 h-3" /> {editingMethod.slug === 'materinskiy-kapital' ? 'Добавить документ' : 'Добавить шаг'}
                 </button>
               </div>
               <div className="space-y-3">
@@ -2132,14 +2173,16 @@ const BuyMethodsSection: React.FC = () => {
                         value={step.title}
                         onChange={e => updateHowItWorks(editingId, idx, 'title', e.target.value)}
                         className="w-full p-2 border rounded-lg font-medium"
-                        placeholder="Заголовок шага"
+                        placeholder={editingMethod.slug === 'materinskiy-kapital' ? 'Название документа' : 'Заголовок шага'}
                       />
+                      {editingMethod.slug !== 'materinskiy-kapital' && (
                       <input
                         value={step.description}
                         onChange={e => updateHowItWorks(editingId, idx, 'description', e.target.value)}
                         className="w-full p-2 border rounded-lg text-sm"
                         placeholder="Описание шага"
                       />
+                      )}
                     </div>
                     <button onClick={() => removeHowItWorks(editingId, idx)} className="p-1 text-red-400 hover:text-red-600">
                       <Trash2 className="w-4 h-4" />
@@ -2148,6 +2191,119 @@ const BuyMethodsSection: React.FC = () => {
                 ))}
               </div>
             </div>
+            )}
+
+            {/* Mortgage Programs (only for ipoteka) */}
+            {editingMethod.slug === 'ipoteka' && (
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-gray-700">Ипотечные программы</h3>
+                <button
+                  onClick={() => {
+                    const progs = editingMethod.mortgagePrograms || [];
+                    const newProg = { id: Date.now().toString(), name: 'Новая программа', description: '', rate: 6, minDownPayment: 20.1, maxTerm: 30, maxAmount: 10000000 };
+                    updateMethod(editingId, 'mortgagePrograms', [...progs, newProg]);
+                  }}
+                  className="text-sm text-accent hover:underline flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Добавить программу
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(editingMethod.mortgagePrograms || []).map((prog: any, idx: number) => (
+                  <div key={prog.id || idx} className="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        value={prog.name}
+                        onChange={e => {
+                          const progs = [...(editingMethod.mortgagePrograms || [])];
+                          progs[idx] = { ...progs[idx], name: e.target.value };
+                          updateMethod(editingId, 'mortgagePrograms', progs);
+                        }}
+                        className="p-2 border rounded-lg font-medium"
+                        placeholder="Название"
+                      />
+                      <input
+                        value={prog.description}
+                        onChange={e => {
+                          const progs = [...(editingMethod.mortgagePrograms || [])];
+                          progs[idx] = { ...progs[idx], description: e.target.value };
+                          updateMethod(editingId, 'mortgagePrograms', progs);
+                        }}
+                        className="p-2 border rounded-lg"
+                        placeholder="Описание"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Ставка %</label>
+                        <input
+                          type="number" step="0.1"
+                          value={prog.rate}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], rate: parseFloat(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Взнос от %</label>
+                        <input
+                          type="number" step="0.1"
+                          value={prog.minDownPayment}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], minDownPayment: parseFloat(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Срок лет</label>
+                        <input
+                          type="number"
+                          value={prog.maxTerm}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], maxTerm: parseInt(e.target.value) || 0 };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Бейдж</label>
+                        <input
+                          value={prog.badge || ''}
+                          onChange={e => {
+                            const progs = [...(editingMethod.mortgagePrograms || [])];
+                            progs[idx] = { ...progs[idx], badge: e.target.value };
+                            updateMethod(editingId, 'mortgagePrograms', progs);
+                          }}
+                          className="w-full p-2 border rounded-lg"
+                          placeholder="напр. Популярная"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => {
+                          const progs = (editingMethod.mortgagePrograms || []).filter((_: any, i: number) => i !== idx);
+                          updateMethod(editingId, 'mortgagePrograms', progs);
+                        }}
+                        className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+                      >
+                        <Trash2 className="w-4 h-4" /> Удалить
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            )}
 
             {/* CTA */}
             <div className="border-t pt-4">
