@@ -50,17 +50,14 @@ export const SocialSupportPage: React.FC = () => {
               <h2 className="text-2xl md:text-3xl font-medium text-primary mb-8">Льготные категории</h2>
             </Reveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {method.features.map((cat, idx) => {
-                const isSvo = cat.title.toLowerCase().includes('сво') || cat.title.toLowerCase().includes('ветеран');
-                return (
+              {method.features.map((cat, idx) => (
                   <Reveal key={idx} delay={idx * 100}>
-                    <div className={`p-6 rounded-2xl h-full ${isSvo ? 'bg-gray-100 opacity-60 pointer-events-none select-none' : 'bg-beige'}`}>
+                    <div className="bg-beige p-6 rounded-2xl h-full">
                       <h3 className="text-xl font-bold text-primary mb-2">{cat.title}</h3>
                       <p className="text-secondary">{cat.description}</p>
                     </div>
                   </Reveal>
-                );
-              })}
+              ))}
             </div>
           </div>
         </section>

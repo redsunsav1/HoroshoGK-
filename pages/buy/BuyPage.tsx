@@ -34,23 +34,34 @@ export const BuyPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {buyMethods.map((method, idx) => {
               const Icon = iconMap[method.icon] || CreditCard;
-              return (
-                <Reveal key={method.slug} delay={idx * 100} className="h-full">
-                  <Link
-                    to={`/buy/${method.slug}`}
-                    className="flex flex-col p-8 bg-beige rounded-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
-                  >
-                    <div className={`w-14 h-14 ${method.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform shrink-0`}>
-                      <Icon className="w-7 h-7" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-primary mb-3 group-hover:text-accent transition-colors">
-                      {method.title}
-                    </h3>
-                    <p className="text-secondary mb-4 flex-1">{method.description}</p>
+              const isStatic = method.slug === 'social-support';
+              const cardClass = "flex flex-col p-8 bg-beige rounded-2xl transition-all duration-300 group h-full" +
+                (isStatic ? '' : ' hover:shadow-xl hover:-translate-y-1 cursor-pointer');
+
+              const cardContent = (
+                <>
+                  <div className={`w-14 h-14 ${method.color} rounded-2xl flex items-center justify-center mb-6 text-white ${isStatic ? '' : 'group-hover:scale-110'} transition-transform shrink-0`}>
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <h3 className={`text-2xl font-bold text-primary mb-3 ${isStatic ? '' : 'group-hover:text-accent'} transition-colors`}>
+                    {method.title}
+                  </h3>
+                  <p className="text-secondary mb-4 flex-1">{method.description}</p>
+                  {!isStatic && (
                     <span className="inline-flex items-center text-accent font-medium mt-auto">
                       Подробнее <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </span>
-                  </Link>
+                  )}
+                </>
+              );
+
+              return (
+                <Reveal key={method.slug} delay={idx * 100} className="h-full">
+                  {isStatic ? (
+                    <div className={cardClass}>{cardContent}</div>
+                  ) : (
+                    <Link to={`/buy/${method.slug}`} className={cardClass}>{cardContent}</Link>
+                  )}
                 </Reveal>
               );
             })}
