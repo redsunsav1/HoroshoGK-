@@ -515,15 +515,12 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
               />
             </div>
             {project.yandexMapUrl && (
-              <div className="rounded-xl overflow-hidden border border-gray-200">
-                <iframe
-                  src={project.yandexMapUrl}
-                  width="100%"
-                  height="400"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                />
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-green-800 text-sm">
+                Карта сохранена. Она отобразится на странице проекта после сохранения.
+                <br />
+                <a href={project.yandexMapUrl} target="_blank" rel="noopener noreferrer" className="underline mt-1 inline-block">
+                  Открыть карту в новой вкладке →
+                </a>
               </div>
             )}
           </div>
