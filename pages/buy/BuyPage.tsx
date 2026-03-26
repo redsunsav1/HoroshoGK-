@@ -34,7 +34,7 @@ export const BuyPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {buyMethods.map((method, idx) => {
               const Icon = iconMap[method.icon] || CreditCard;
-              const isStatic = method.slug === 'social-support';
+              const isStatic = method.slug === 'svo';
               const cardClass = "flex flex-col p-8 bg-beige rounded-2xl transition-all duration-300 group h-full" +
                 (isStatic ? '' : ' hover:shadow-xl hover:-translate-y-1 cursor-pointer');
 
