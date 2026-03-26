@@ -65,6 +65,7 @@ export interface Project {
   totalFloors?: number;
   timeline?: ProjectTimelineItem[];
   constructionUpdates?: ConstructionUpdate[];
+  constructionProgress?: ConstructionYear[];
   streamUrl?: string;
   yandexMapUrl?: string;
   // Card display fields
@@ -85,6 +86,19 @@ export interface ConstructionUpdate {
   title: string;
   description: string;
   photos: string[];
+}
+
+// New hierarchical construction progress (Year → Month → Photos)
+export interface ConstructionMonth {
+  id: string;
+  month: number; // 0-11 (0=Январь, 11=Декабрь)
+  photos: string[];
+}
+
+export interface ConstructionYear {
+  id: string;
+  year: number;
+  months: ConstructionMonth[];
 }
 
 // News

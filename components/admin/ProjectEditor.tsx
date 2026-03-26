@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, GalleryImage, GalleryCategory } from '../../types';
+import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, ConstructionYear, ConstructionMonth, GalleryImage, GalleryCategory } from '../../types';
 import { ImageUpload } from './ImageUpload';
 import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +47,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     totalFloors: 19,
     timeline: [],
     constructionUpdates: [],
+    constructionProgress: [],
     galleryImages: [],
     galleryCategories: [],
     streamUrl: '',
@@ -739,157 +740,189 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
           </div>
         )}
 
-        {/* Construction Updates Tab */}
+        {/* Construction Progress Tab — Year/Month hierarchy */}
         {activeTab === 'construction' && (
           <div className="space-y-6">
             <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 text-orange-800 text-sm">
-              <strong>Ход строительства:</strong> Добавляйте обновления с фотографиями и описанием. Каждое обновление отображается на странице проекта с датой.
+              <strong>Ход строительства:</strong> Добавляйте годы, внутри каждого года — месяцы с фотографиями. На сайте отображается как вертикальный таймлайн с аккордеоном.
             </div>
+
+            {/* Add year button */}
             <div className="flex justify-end">
               <button
                 onClick={() => {
-                  const newUpdate: ConstructionUpdate = {
-                    id: Date.now().toString(),
-                    date: new Date().toISOString().split('T')[0],
-                    title: 'Обновление строительства',
-                    description: '',
-                    photos: []
+                  const currentYear = new Date().getFullYear();
+                  const existingYears = (project.constructionProgress || []).map(y => y.year);
+                  let newYear = currentYear;
+                  while (existingYears.includes(newYear)) newYear++;
+                  const newYearData: ConstructionYear = {
+                    id: `cy-${Date.now()}`,
+                    year: newYear,
+                    months: []
                   };
-                  setProject({ ...project, constructionUpdates: [...(project.constructionUpdates || []), newUpdate] });
+                  setProject({ ...project, constructionProgress: [...(project.constructionProgress || []), newYearData] });
                 }}
                 className="flex items-center gap-2 text-sm bg-accent text-white px-4 py-2 rounded-lg hover:bg-primary"
               >
-                <Plus className="w-4 h-4" /> Добавить обновление
+                <Plus className="w-4 h-4" /> Добавить год
               </button>
             </div>
 
-            {(!project.constructionUpdates || project.constructionUpdates.length === 0) && (
+            {(!project.constructionProgress || project.constructionProgress.length === 0) && (
               <div className="text-center py-12 text-gray-400">
                 <Building className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Нет обновлений. Нажмите «Добавить обновление» чтобы начать.</p>
+                <p>Нет данных о ходе строительства. Нажмите «Добавить год» чтобы начать.</p>
               </div>
             )}
 
-            {project.constructionUpdates?.map((update, idx) => (
-              <div key={update.id} className="border rounded-xl p-4 bg-white shadow-sm space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Дата</label>
-                    <input
-                      type="date"
-                      value={update.date}
-                      onChange={e => {
-                        const updated = [...(project.constructionUpdates || [])];
-                        updated[idx] = { ...updated[idx], date: e.target.value };
-                        setProject({ ...project, constructionUpdates: updated });
-                      }}
-                      className="w-full p-2 border rounded-lg"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Заголовок</label>
-                    <input
-                      value={update.title}
-                      onChange={e => {
-                        const updated = [...(project.constructionUpdates || [])];
-                        updated[idx] = { ...updated[idx], title: e.target.value };
-                        setProject({ ...project, constructionUpdates: updated });
-                      }}
-                      className="w-full p-2 border rounded-lg font-medium"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
-                  <textarea
-                    value={update.description}
-                    onChange={e => {
-                      const updated = [...(project.constructionUpdates || [])];
-                      updated[idx] = { ...updated[idx], description: e.target.value };
-                      setProject({ ...project, constructionUpdates: updated });
-                    }}
-                    placeholder="Описание хода работ..."
-                    className="w-full p-2 border rounded-lg text-sm h-20"
-                  />
-                </div>
+            {/* Years list */}
+            {[...(project.constructionProgress || [])].sort((a, b) => b.year - a.year).map((yearData) => {
+              const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-2">Фотографии</label>
-                  <ImageUpload
-                    label="Добавить фото"
-                    value=""
-                    onChange={(url) => {
-                      const updated = [...(project.constructionUpdates || [])];
-                      updated[idx] = { ...updated[idx], photos: [...updated[idx].photos, url] };
-                      setProject({ ...project, constructionUpdates: updated });
-                    }}
-                  />
-                  {update.photos.length > 0 && (
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3">
-                      {update.photos.map((photo, pIdx) => (
-                        <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
-                          <img src={photo} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                            {pIdx > 0 && (
-                              <button
-                                onClick={() => {
-                                  const updated = [...(project.constructionUpdates || [])];
-                                  const photos = [...updated[idx].photos];
-                                  [photos[pIdx - 1], photos[pIdx]] = [photos[pIdx], photos[pIdx - 1]];
-                                  updated[idx] = { ...updated[idx], photos };
-                                  setProject({ ...project, constructionUpdates: updated });
-                                }}
-                                className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
-                                title="Переместить влево"
-                              >
-                                ←
-                              </button>
-                            )}
-                            <button
-                              onClick={() => {
-                                const updated = [...(project.constructionUpdates || [])];
-                                updated[idx] = { ...updated[idx], photos: updated[idx].photos.filter((_, i) => i !== pIdx) };
-                                setProject({ ...project, constructionUpdates: updated });
-                              }}
-                              className="p-1.5 bg-red-500 text-white rounded-full"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                            {pIdx < update.photos.length - 1 && (
-                              <button
-                                onClick={() => {
-                                  const updated = [...(project.constructionUpdates || [])];
-                                  const photos = [...updated[idx].photos];
-                                  [photos[pIdx], photos[pIdx + 1]] = [photos[pIdx + 1], photos[pIdx]];
-                                  updated[idx] = { ...updated[idx], photos };
-                                  setProject({ ...project, constructionUpdates: updated });
-                                }}
-                                className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
-                                title="Переместить вправо"
-                              >
-                                →
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+              const updateYear = (updated: ConstructionYear) => {
+                setProject({
+                  ...project,
+                  constructionProgress: (project.constructionProgress || []).map(y => y.id === yearData.id ? updated : y)
+                });
+              };
+
+              return (
+                <div key={yearData.id} className="border-2 rounded-xl overflow-hidden bg-white shadow-sm">
+                  {/* Year header */}
+                  <div className="bg-gray-50 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <label className="text-xs font-medium text-gray-500">Год:</label>
+                      <input
+                        type="number"
+                        value={yearData.year}
+                        onChange={e => updateYear({ ...yearData, year: parseInt(e.target.value) || yearData.year })}
+                        className="w-24 p-2 border rounded-lg font-bold text-lg text-center"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const usedMonths = yearData.months.map(m => m.month);
+                          let nextMonth = 0;
+                          while (usedMonths.includes(nextMonth) && nextMonth < 12) nextMonth++;
+                          if (nextMonth >= 12) return;
+                          const newMonth: ConstructionMonth = {
+                            id: `cm-${Date.now()}`,
+                            month: nextMonth,
+                            photos: []
+                          };
+                          updateYear({ ...yearData, months: [...yearData.months, newMonth] });
+                        }}
+                        className="flex items-center gap-1 text-sm bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-primary"
+                      >
+                        <Plus className="w-3 h-3" /> Месяц
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Удалить ${yearData.year} год и все фото?`)) {
+                            setProject({
+                              ...project,
+                              constructionProgress: (project.constructionProgress || []).filter(y => y.id !== yearData.id)
+                            });
+                          }
+                        }}
+                        className="text-sm text-red-500 hover:text-red-700 p-1.5"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Months within year */}
+                  {yearData.months.length === 0 && (
+                    <div className="p-4 text-center text-gray-400 text-sm">
+                      Нет месяцев. Нажмите «+ Месяц» чтобы добавить.
                     </div>
                   )}
-                </div>
 
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => setProject({
-                      ...project,
-                      constructionUpdates: project.constructionUpdates?.filter(u => u.id !== update.id)
-                    })}
-                    className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
-                  >
-                    <Trash2 className="w-4 h-4" /> Удалить обновление
-                  </button>
+                  {[...yearData.months].sort((a, b) => a.month - b.month).map((monthData) => {
+                    const updateMonth = (updated: ConstructionMonth) => {
+                      updateYear({ ...yearData, months: yearData.months.map(m => m.id === monthData.id ? updated : m) });
+                    };
+
+                    return (
+                      <div key={monthData.id} className="border-t p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <select
+                              value={monthData.month}
+                              onChange={e => updateMonth({ ...monthData, month: parseInt(e.target.value) })}
+                              className="p-2 border rounded-lg font-medium"
+                            >
+                              {monthNames.map((name, i) => (
+                                <option key={i} value={i}>{name}</option>
+                              ))}
+                            </select>
+                            <span className="text-xs text-gray-400">{monthData.photos.length} фото</span>
+                          </div>
+                          <button
+                            onClick={() => updateYear({ ...yearData, months: yearData.months.filter(m => m.id !== monthData.id) })}
+                            className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1"
+                          >
+                            <Trash2 className="w-3 h-3" /> Удалить
+                          </button>
+                        </div>
+
+                        {/* Photo upload */}
+                        <ImageUpload
+                          label="Добавить фото"
+                          value=""
+                          onChange={(url) => updateMonth({ ...monthData, photos: [...monthData.photos, url] })}
+                        />
+
+                        {/* Photo grid */}
+                        {monthData.photos.length > 0 && (
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                            {monthData.photos.map((photo, pIdx) => (
+                              <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
+                                <img src={photo} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                  {pIdx > 0 && (
+                                    <button
+                                      onClick={() => {
+                                        const photos = [...monthData.photos];
+                                        [photos[pIdx - 1], photos[pIdx]] = [photos[pIdx], photos[pIdx - 1]];
+                                        updateMonth({ ...monthData, photos });
+                                      }}
+                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                    >
+                                      ←
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => updateMonth({ ...monthData, photos: monthData.photos.filter((_, i) => i !== pIdx) })}
+                                    className="p-1.5 bg-red-500 text-white rounded-full"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  {pIdx < monthData.photos.length - 1 && (
+                                    <button
+                                      onClick={() => {
+                                        const photos = [...monthData.photos];
+                                        [photos[pIdx], photos[pIdx + 1]] = [photos[pIdx + 1], photos[pIdx]];
+                                        updateMonth({ ...monthData, photos });
+                                      }}
+                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                    >
+                                      →
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

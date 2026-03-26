@@ -395,9 +395,10 @@ export const ProjectDetailPage: React.FC = () => {
   const [promoCallbackContext, setPromoCallbackContext] = useState('');
   const [galleryFilter, setGalleryFilter] = useState<string>('all');
   const [galleryLightbox, setGalleryLightbox] = useState<{ images: { url: string }[]; index: number } | null>(null);
-  const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(
-    project?.constructionUpdates?.[0]?.id || null
+  const [openConstructionYear, setOpenConstructionYear] = useState<string | null>(
+    project?.constructionProgress?.[project.constructionProgress.length - 1]?.id || null
   );
+  const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(null);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -506,9 +507,11 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Construction Updates (Ход строительства) — Accordion Timeline */}
-      {project.constructionUpdates && project.constructionUpdates.length > 0 && (() => {
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+      {/* Construction Progress (Ход строительства) — Year/Month Accordion Timeline */}
+      {project.constructionProgress && project.constructionProgress.length > 0 && (() => {
+        const monthNamesShort = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+        const monthNamesFull = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        const sortedYears = [...project.constructionProgress].sort((a, b) => b.year - a.year);
         return (
         <section className="py-20 px-4 md:px-8 bg-white">
           <div className="max-w-[1600px] mx-auto">
@@ -521,114 +524,137 @@ export const ProjectDetailPage: React.FC = () => {
                   </p>
                 </div>
                 {project.streamUrl && (
-                  <a
-                    href={project.streamUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg"
-                  >
-                    <Video className="w-5 h-5" />
-                    Трансляция со стройки
+                  <a href={project.streamUrl} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg">
+                    <Video className="w-5 h-5" /> Трансляция со стройки
                   </a>
                 )}
               </div>
             </Reveal>
 
-            {/* Timeline */}
+            {/* Year/Month Timeline */}
             <div className="relative">
               {/* Vertical line */}
               <div className="absolute left-[18px] md:left-[22px] top-0 bottom-0 w-0.5 bg-sand" />
 
-              <div className="space-y-3">
-                {project.constructionUpdates.map((update, idx) => {
-                  const dateObj = new Date(update.date);
-                  const formattedDate = `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-                  const isOpen = openConstructionMonth === update.id;
+              <div className="space-y-4">
+                {sortedYears.map((yearData, yIdx) => {
+                  const isYearOpen = openConstructionYear === yearData.id;
+                  const sortedMonths = [...yearData.months].sort((a, b) => a.month - b.month);
+                  const totalPhotos = sortedMonths.reduce((sum, m) => sum + m.photos.length, 0);
 
                   return (
-                    <Reveal key={update.id} delay={idx * 50}>
+                    <Reveal key={yearData.id} delay={yIdx * 80}>
                       <div className="relative pl-12 md:pl-14">
-                        {/* Timeline dot */}
-                        <div className={`absolute left-[10px] md:left-[14px] top-4 w-4 h-4 rounded-full border-2 transition-all duration-300 ${
-                          isOpen ? 'bg-accent border-accent scale-125' : 'bg-white border-sand'
+                        {/* Year dot */}
+                        <div className={`absolute left-[10px] md:left-[14px] top-5 w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+                          isYearOpen ? 'bg-accent border-accent scale-125' : 'bg-white border-sand'
                         }`} />
 
-                        {/* Accordion header */}
+                        {/* Year header */}
                         <button
-                          onClick={() => setOpenConstructionMonth(isOpen ? null : update.id)}
+                          onClick={() => {
+                            setOpenConstructionYear(isYearOpen ? null : yearData.id);
+                            setOpenConstructionMonth(null);
+                          }}
                           className={`w-full text-left p-4 md:p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-4 ${
-                            isOpen
+                            isYearOpen
                               ? 'bg-beige border-accent/30 shadow-md'
                               : 'bg-beige/50 border-sand hover:bg-beige hover:border-accent/20 hover:shadow-sm'
                           }`}
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className={`text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap transition-colors ${
-                              isOpen ? 'bg-accent text-white' : 'bg-sand text-secondary'
+                          <div className="flex items-center gap-4">
+                            <span className={`text-xl md:text-2xl font-bold transition-colors ${
+                              isYearOpen ? 'text-accent' : 'text-primary'
                             }`}>
-                              {formattedDate}
+                              {yearData.year}
                             </span>
-                            <span className="text-primary font-medium truncate">{update.title}</span>
-                            {update.photos.length > 0 && (
-                              <span className="text-xs text-secondary whitespace-nowrap hidden sm:inline">
-                                {update.photos.length} фото
-                              </span>
-                            )}
+                            <span className="text-sm text-secondary">
+                              {sortedMonths.map(m => monthNamesShort[m.month]).join(', ')}
+                            </span>
+                            <span className="text-xs text-secondary/60 hidden sm:inline">
+                              {totalPhotos} фото
+                            </span>
                           </div>
-                          <ChevronDown className={`w-5 h-5 text-secondary shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-5 h-5 text-secondary shrink-0 transition-transform duration-300 ${isYearOpen ? 'rotate-180' : ''}`} />
                         </button>
 
-                        {/* Accordion content */}
-                        <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
-                          isOpen ? 'max-h-[2000px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+                        {/* Year content — months */}
+                        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                          isYearOpen ? 'max-h-[5000px] opacity-100 mt-3' : 'max-h-0 opacity-0'
                         }`}>
-                          <div className="bg-white rounded-2xl border border-sand p-4 md:p-6">
-                            {update.description && (
-                              <p className="text-secondary font-light mb-4 whitespace-pre-line">{update.description}</p>
-                            )}
-                            {update.photos.length > 0 && (
-                              <div className="relative">
-                                <div className="overflow-x-auto hide-scrollbar scroll-smooth pb-2" id={`construction-carousel-${update.id}`}>
-                                  <div className="flex gap-3 w-max">
-                                    {update.photos.map((photo, pIdx) => (
-                                      <img
-                                        key={pIdx}
-                                        src={photo}
-                                        alt={`${update.title} — фото ${pIdx + 1}`}
-                                        loading="lazy"
-                                        className="h-56 md:h-72 w-auto max-w-[80vw] object-cover rounded-xl cursor-pointer hover:shadow-lg transition-shadow"
-                                        onClick={() => setGalleryLightbox({
-                                          images: update.photos.map(p => ({ url: p })),
-                                          index: pIdx,
-                                        })}
-                                      />
-                                    ))}
+                          <div className="space-y-2 pl-2">
+                            {sortedMonths.map((monthData) => {
+                              const isMonthOpen = openConstructionMonth === monthData.id;
+                              return (
+                                <div key={monthData.id}>
+                                  {/* Month header */}
+                                  <button
+                                    onClick={() => setOpenConstructionMonth(isMonthOpen ? null : monthData.id)}
+                                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-300 flex items-center justify-between gap-3 ${
+                                      isMonthOpen
+                                        ? 'bg-white border-accent/30 shadow-sm'
+                                        : 'bg-beige/30 border-transparent hover:bg-beige/60 hover:border-sand'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className={`text-sm font-semibold px-3 py-1 rounded-full transition-colors ${
+                                        isMonthOpen ? 'bg-accent text-white' : 'bg-sand/80 text-secondary'
+                                      }`}>
+                                        {monthNamesFull[monthData.month]}
+                                      </span>
+                                      <span className="text-xs text-secondary">
+                                        {monthData.photos.length} фото
+                                      </span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 text-secondary shrink-0 transition-transform duration-300 ${isMonthOpen ? 'rotate-180' : ''}`} />
+                                  </button>
+
+                                  {/* Month photos carousel */}
+                                  <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
+                                    isMonthOpen ? 'max-h-[1000px] opacity-100 mt-2 mb-2' : 'max-h-0 opacity-0'
+                                  }`}>
+                                    {monthData.photos.length > 0 && (
+                                      <div className="relative bg-white rounded-xl border border-sand p-3">
+                                        <div className="overflow-x-auto hide-scrollbar scroll-smooth" id={`cp-carousel-${monthData.id}`}>
+                                          <div className="flex gap-3 w-max">
+                                            {monthData.photos.map((photo, pIdx) => (
+                                              <img
+                                                key={pIdx}
+                                                src={photo}
+                                                alt={`${monthNamesFull[monthData.month]} ${yearData.year} — фото ${pIdx + 1}`}
+                                                loading="lazy"
+                                                className="h-48 md:h-64 w-auto max-w-[75vw] object-cover rounded-lg cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]"
+                                                onClick={() => setGalleryLightbox({
+                                                  images: monthData.photos.map(p => ({ url: p })),
+                                                  index: pIdx,
+                                                })}
+                                              />
+                                            ))}
+                                          </div>
+                                        </div>
+                                        {monthData.photos.length > 2 && (
+                                          <div className="flex justify-center gap-2 mt-3">
+                                            <button
+                                              onClick={() => document.getElementById(`cp-carousel-${monthData.id}`)?.scrollBy({ left: -300, behavior: 'smooth' })}
+                                              className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
+                                            >
+                                              <ChevronLeft className="w-4 h-4 text-primary" />
+                                            </button>
+                                            <button
+                                              onClick={() => document.getElementById(`cp-carousel-${monthData.id}`)?.scrollBy({ left: 300, behavior: 'smooth' })}
+                                              className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
+                                            >
+                                              <ChevronRight className="w-4 h-4 text-primary" />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                                {update.photos.length > 2 && (
-                                  <div className="flex justify-center gap-2 mt-3">
-                                    <button
-                                      onClick={() => {
-                                        const el = document.getElementById(`construction-carousel-${update.id}`);
-                                        el?.scrollBy({ left: -300, behavior: 'smooth' });
-                                      }}
-                                      className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
-                                    >
-                                      <ChevronLeft className="w-4 h-4 text-primary" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        const el = document.getElementById(`construction-carousel-${update.id}`);
-                                        el?.scrollBy({ left: 300, behavior: 'smooth' });
-                                      }}
-                                      className="p-2 bg-beige rounded-full hover:bg-sand transition-colors"
-                                    >
-                                      <ChevronRight className="w-4 h-4 text-primary" />
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
