@@ -590,9 +590,37 @@ app.get('*', (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`API: http://localhost:${PORT}/api/projects`);
-  console.log(`Health: http://localhost:${PORT}/api/health`);
-});
+// Start server with EADDRINUSE auto-recovery
+const startServer = () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`API: http://localhost:${PORT}/api/projects`);
+    console.log(`Health: http://localhost:${PORT}/api/health`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`Port ${PORT} is busy. Killing old process and retrying in 2s...`);
+      import('child_process').then(({ execSync }) => {
+        try {
+          execSync(`fuser -k ${PORT}/tcp`, { stdio: 'ignore' });
+        } catch (e) { /* ignore */ }
+        setTimeout(() => startServer(), 2000);
+      });
+    } else {
+      console.error('Server error:', err);
+      process.exit(1);
+    }
+  });
+
+  // Graceful shutdown
+  const shutdown = () => {
+    console.log('Shutting down gracefully...');
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 3000);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+};
+
+startServer();
