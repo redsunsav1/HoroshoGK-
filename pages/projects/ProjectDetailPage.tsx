@@ -239,7 +239,7 @@ const PromoPopup: React.FC<{
         <img
           src={promo.popupImage || promo.image}
           alt={promo.title}
-          className="w-full max-h-[50vh] object-contain rounded-t-2xl bg-gray-100"
+          className="w-full rounded-t-2xl"
         />
         <button
           onClick={onClose}
@@ -920,10 +920,10 @@ export const ProjectDetailPage: React.FC = () => {
               {allPromos.map((promo, idx) => (
                 <Reveal key={promo.id} delay={idx * 150} direction={idx % 2 === 0 ? 'right' : 'left'}>
                   <div
-                    className="relative rounded-3xl overflow-hidden group shadow-lg cursor-pointer"
+                    className="relative max-h-96 rounded-3xl overflow-hidden group shadow-lg cursor-pointer"
                     onClick={() => setSelectedPromo(promo)}
                   >
-                    <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-auto block transition-transform duration-700 group-hover:scale-110" />
+                    <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-8 w-full">
                       {promo.discount && (
