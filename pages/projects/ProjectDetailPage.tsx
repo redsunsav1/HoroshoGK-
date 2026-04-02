@@ -239,7 +239,7 @@ const PromoPopup: React.FC<{
         <img
           src={promo.popupImage || promo.image}
           alt={promo.title}
-          className="w-full h-64 object-cover rounded-t-2xl"
+          className="w-full max-h-[50vh] object-contain rounded-t-2xl bg-gray-100"
         />
         <button
           onClick={onClose}

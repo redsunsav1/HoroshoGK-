@@ -122,7 +122,7 @@ export const AkciiPage: React.FC = () => {
               <img
                 src={selectedPromo.popupImage || selectedPromo.image}
                 alt={selectedPromo.title}
-                className="w-full h-64 object-cover rounded-t-3xl"
+                className="w-full max-h-[50vh] object-contain rounded-t-3xl bg-gray-100"
               />
             )}
             <div className="p-8">
