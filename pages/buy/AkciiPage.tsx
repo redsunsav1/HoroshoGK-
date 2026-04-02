@@ -132,7 +132,7 @@ export const AkciiPage: React.FC = () => {
                 </span>
               )}
               <h2 className="text-2xl font-bold text-primary mb-4">{selectedPromo.title}</h2>
-              <div className="text-secondary mb-6 whitespace-pre-line">{selectedPromo.description}</div>
+              <div className="text-secondary mb-6 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: selectedPromo.description }} />
               {selectedPromo.project && (
                 <Link
                   to={`/projects/${selectedPromo.project.slug}`}

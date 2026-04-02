@@ -220,6 +220,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                  label="Главное изображение (Hero Image)"
                  value={project.heroImage}
                  onChange={(url) => setProject({...project, heroImage: url})}
+                 sizeHint="1920×800 px (баннер проекта)"
                />
             </div>
 
@@ -391,6 +392,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                       label="Планировка"
                       value={plan.image}
                       onChange={(url) => updatePlan(idx, 'image', url)}
+                      sizeHint="800×600 px (изображение планировки)"
                     />
                   </div>
                 </div>
@@ -459,8 +461,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                            newPromos[idx].image = url;
                            setProject({...project, promos: newPromos});
                          }}
+                         sizeHint="600×400 px (карточка акции)"
                        />
-                       <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 600×400 px</p>
                      </div>
                      <div className="flex-1">
                        <ImageUpload
@@ -471,8 +473,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                            newPromos[idx].popupImage = url;
                            setProject({...project, promos: newPromos});
                          }}
+                         sizeHint="800×600 px (попап акции)"
                        />
-                       <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×600 px</p>
                      </div>
                    </div>
                 </div>
@@ -661,6 +663,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                     const newImg: GalleryImage = { id: Date.now().toString(), url, category: 'all' };
                     setProject({ ...project, galleryImages: [...(project.galleryImages || []), newImg] });
                   }}
+                  sizeHint="1200×800 px (фото галереи)"
                 />
               </div>
             </div>
@@ -873,6 +876,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                           label="Добавить фото"
                           value=""
                           onChange={(url) => updateMonth({ ...monthData, photos: [...monthData.photos, url] })}
+                          sizeHint="1200×800 px (фото хода строительства)"
                         />
 
                         {/* Photo grid */}

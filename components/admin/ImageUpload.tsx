@@ -7,6 +7,7 @@ interface ImageUploadProps {
   label?: string;
   placeholder?: string;
   className?: string;
+  sizeHint?: string;
 }
 
 // API base URL - определяется автоматически
@@ -19,7 +20,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   onChange,
   label,
   placeholder = 'Выберите файл или введите URL',
-  className = ''
+  className = '',
+  sizeHint,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -200,7 +202,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       {/* Подсказка */}
       <p className="text-xs text-gray-400">
-        JPG, PNG, WebP, SVG до 10 МБ. Рекомендуемый размер: 1200×800px
+        JPG, PNG, WebP, SVG до 10 МБ. {sizeHint ? `Рекомендуемый размер: ${sizeHint}` : 'Рекомендуемый размер: 1200×800px'}
       </p>
     </div>
   );

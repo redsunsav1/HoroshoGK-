@@ -255,9 +255,7 @@ const PromoPopup: React.FC<{
       </div>
       <div className="p-8">
         <h3 className="text-2xl font-bold text-primary mb-4">{promo.title}</h3>
-        <div className="text-secondary font-light leading-relaxed whitespace-pre-line mb-6">
-          {promo.description}
-        </div>
+        <div className="text-secondary font-light leading-relaxed mb-6 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: promo.description }} />
         <button
           onClick={onCallback}
           className="w-full flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors"

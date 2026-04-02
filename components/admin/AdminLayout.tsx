@@ -4,6 +4,7 @@ import { Project, NewsItem, TeamMember, Vacancy, FaqCategory, FaqQuestion, PageS
 import { Link, useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { ProjectEditor } from './ProjectEditor';
 import { ImageUpload } from './ImageUpload';
+import { RichTextEditor } from './RichTextEditor';
 import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
@@ -193,6 +194,7 @@ const HomePageSection: React.FC = () => {
               label="Фоновое изображение"
               value={content.heroImage}
               onChange={(url) => updateField('heroImage', url)}
+              sizeHint="1920×1080 px (full-width баннер)"
             />
           </div>
         </div>
@@ -277,6 +279,7 @@ const HomePageSection: React.FC = () => {
               label="Изображение раздела"
               value={content.aboutImage || ''}
               onChange={(url) => updateField('aboutImage', url)}
+              sizeHint="800×600 px"
             />
           </div>
         </div>
@@ -319,8 +322,8 @@ const HomePageSection: React.FC = () => {
                     label="Картинка акции"
                     value={promo.image}
                     onChange={(url) => updatePromo(promo.id, 'image', url)}
+                    sizeHint="400×300 px (карточка виджета)"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 400×300 px (карточка виджета)</p>
                 </div>
                 <button onClick={() => removePromo(promo.id)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
                   <Trash2 className="w-5 h-5" />
@@ -474,6 +477,7 @@ const SiteSettingsSection: React.FC = () => {
               label="Логотип (PNG/SVG с прозрачным фоном)"
               value={settings.logoUrl}
               onChange={(url) => updateField('logoUrl', url)}
+              sizeHint="высота 60-80px, PNG/SVG с прозрачным фоном"
               placeholder="Перетащите логотип или введите URL"
             />
             <p className="text-xs text-gray-500 mt-1">Рекомендуемый размер: высота 60-80px. Логотип будет отображаться в шапке и подвале сайта.</p>
@@ -492,6 +496,7 @@ const SiteSettingsSection: React.FC = () => {
               label="Фавикон"
               value={settings.faviconUrl}
               onChange={(url) => updateField('faviconUrl', url)}
+              sizeHint="32×32 px или 16×16 px, ICO/PNG/SVG"
               placeholder="Перетащите фавикон или введите URL"
             />
             <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
@@ -852,6 +857,7 @@ const NewsEditor: React.FC<{ initialItem?: NewsItem }> = ({ initialItem }) => {
             label="Изображение новости"
             value={item.image}
             onChange={(url) => setItem({...item, image: url})}
+            sizeHint="1200×630 px (превью новости)"
           />
         </div>
         <div>
@@ -859,8 +865,13 @@ const NewsEditor: React.FC<{ initialItem?: NewsItem }> = ({ initialItem }) => {
           <input value={item.excerpt} onChange={e => setItem({...item, excerpt: e.target.value})} className="w-full p-3 border border-gray-300 rounded-lg" />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Полный текст (HTML)</label>
-          <textarea value={item.content} onChange={e => setItem({...item, content: e.target.value})} className="w-full p-3 border border-gray-300 rounded-lg h-48 font-mono text-sm" />
+          <label className="block text-sm font-bold text-gray-700 mb-2">Полный текст</label>
+          <RichTextEditor
+            value={item.content}
+            onChange={(html) => setItem({...item, content: html})}
+            placeholder="Введите текст новости..."
+            minHeight="200px"
+          />
         </div>
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">URL-слаг (оставьте пустым для автогенерации)</label>
@@ -1031,6 +1042,7 @@ const TeamSection: React.FC = () => {
               label="Фото сотрудника"
               value={form.image}
               onChange={(url) => setForm({...form, image: url})}
+              sizeHint="400×400 px (квадрат)"
             />
           </div>
           <div className="flex gap-3 mt-4">
@@ -1239,11 +1251,11 @@ const PromotionsSection: React.FC = () => {
                     className="p-2 border rounded-lg text-center"
                   />
                 </div>
-                <textarea
+                <RichTextEditor
                   value={promo.description}
-                  onChange={e => updatePromo(promo.id, 'description', e.target.value)}
-                  placeholder="Описание (поддерживает абзацы — используйте Enter)"
-                  className="w-full p-2 border rounded-lg text-sm h-20"
+                  onChange={(html) => updatePromo(promo.id, 'description', html)}
+                  placeholder="Описание акции..."
+                  minHeight="80px"
                 />
                 <div className="flex gap-6 items-center flex-wrap">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1306,16 +1318,16 @@ const PromotionsSection: React.FC = () => {
                       label="Обложка (карточка)"
                       value={promo.image}
                       onChange={(url) => updatePromo(promo.id, 'image', url)}
+                      sizeHint="800×500 px (карточка акции)"
                     />
-                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 800×500 px</p>
                   </div>
                   <div>
                     <ImageUpload
                       label="Картинка в pop-up"
                       value={promo.popupImage || ''}
                       onChange={(url) => updatePromo(promo.id, 'popupImage', url)}
+                      sizeHint="1200×800 px (попап акции)"
                     />
-                    <p className="text-xs text-gray-400 mt-1">Рекомендуемый размер: 1200×800 px</p>
                   </div>
                 </div>
               </div>
@@ -1471,6 +1483,7 @@ const InvestorsSection: React.FC = () => {
             label="Изображение"
             value={content.aboutImage}
             onChange={(url) => updateField('aboutImage', url)}
+            sizeHint="800×600 px"
           />
         </div>
       </div>
@@ -1616,6 +1629,7 @@ const AboutSection: React.FC = () => {
             label="Изображение hero"
             value={content.heroImage}
             onChange={(url) => updateField('heroImage', url)}
+            sizeHint="1920×600 px (широкий баннер)"
           />
         </div>
       </div>
@@ -1687,6 +1701,7 @@ const AboutSection: React.FC = () => {
             label="Изображение миссии"
             value={content.missionImage}
             onChange={(url) => updateField('missionImage', url)}
+            sizeHint="800×600 px"
           />
         </div>
       </div>
