@@ -67,7 +67,7 @@ export const AkciiPage: React.FC = () => {
               {allPromos.map((promo, idx) => (
                 <Reveal key={promo.id} delay={idx * 100}>
                   <div
-                    className="relative h-80 rounded-3xl overflow-hidden group cursor-pointer"
+                    className="relative aspect-[16/9] rounded-3xl overflow-hidden group cursor-pointer"
                     onClick={() => setSelectedPromo(promo)}
                   >
                     <img
