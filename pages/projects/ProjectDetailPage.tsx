@@ -282,7 +282,7 @@ const ApartmentCard: React.FC<{
         className="p-8 bg-beige/30 flex items-center justify-center h-56 relative cursor-pointer group"
         onClick={() => onViewPlan(plan)}
       >
-        <img src={plan.image} alt="Plan" className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+        <img src={plan.image} alt="Plan" loading="lazy" className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-3 shadow-lg">
             <ZoomIn className="w-6 h-6 text-primary" />
