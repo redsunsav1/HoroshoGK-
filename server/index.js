@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
+import sharp from 'sharp';
 import nodemailer from 'nodemailer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -165,22 +166,13 @@ app.use(express.static(path.join(__dirname, '../dist')));
 // Serve uploaded files
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// --- Image Upload ---
-
-const storage = multer.diskStorage({
-  destination: UPLOADS_DIR,
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = Date.now() + '-' + Math.round(Math.random() * 1000) + ext;
-    cb(null, name);
-  },
-});
+// --- Image Upload with auto-optimization ---
 
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB input
   fileFilter: (req, file, cb) => {
-    const allowed = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    const allowed = /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i;
     if (allowed.test(path.extname(file.originalname))) {
       cb(null, true);
     } else {
@@ -189,11 +181,37 @@ const upload = multer({
   },
 });
 
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post('/api/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  res.json({ url: '/uploads/' + req.file.filename });
+  try {
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const baseName = Date.now() + '-' + Math.round(Math.random() * 1000);
+
+    // SVG/ICO/GIF — save as-is without processing
+    if (ext === '.svg' || ext === '.ico' || ext === '.gif') {
+      const filename = baseName + ext;
+      fs.writeFileSync(path.join(UPLOADS_DIR, filename), req.file.buffer);
+      return res.json({ url: '/uploads/' + filename });
+    }
+
+    // All other images — optimize with sharp → WebP
+    const filename = baseName + '.webp';
+    await sharp(req.file.buffer)
+      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toFile(path.join(UPLOADS_DIR, filename));
+
+    res.json({ url: '/uploads/' + filename });
+  } catch (err) {
+    console.error('Image optimization error:', err);
+    // Fallback: save original file
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const filename = Date.now() + '-' + Math.round(Math.random() * 1000) + ext;
+    fs.writeFileSync(path.join(UPLOADS_DIR, filename), req.file.buffer);
+    res.json({ url: '/uploads/' + filename });
+  }
 });
 
 // --- Projects API (for DataContext.tsx) ---
