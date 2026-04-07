@@ -614,10 +614,9 @@ export const ProjectDetailPage: React.FC = () => {
                                     <ChevronDown className={`w-4 h-4 text-secondary shrink-0 transition-transform duration-300 ${isMonthOpen ? 'rotate-180' : ''}`} />
                                   </button>
 
-                                  {/* Month photos carousel */}
-                                  <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
-                                    isMonthOpen ? 'max-h-[1000px] opacity-100 mt-2 mb-2' : 'max-h-0 opacity-0'
-                                  }`}>
+                                  {/* Month photos carousel — only render when open */}
+                                  {isMonthOpen && (
+                                  <div className="mt-2 mb-2">
                                     {monthData.photos.length > 0 && (
                                       <div className="relative bg-white rounded-xl border border-sand p-3">
                                         <div className="overflow-x-auto hide-scrollbar scroll-smooth" id={`cp-carousel-${monthData.id}`}>
@@ -656,6 +655,7 @@ export const ProjectDetailPage: React.FC = () => {
                                       </div>
                                     )}
                                   </div>
+                                  )}
                                 </div>
                               );
                             })}
