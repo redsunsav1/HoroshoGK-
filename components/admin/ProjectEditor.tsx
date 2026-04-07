@@ -286,7 +286,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                   value={project.streamUrl || ''}
                   onChange={e => setProject({...project, streamUrl: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg"
-                  placeholder="https://youtube.com/..."
+                  placeholder="https://rtsp.ru/embed/... или YouTube embed ссылка"
                 />
               </div>
             </div>

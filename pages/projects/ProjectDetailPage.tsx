@@ -397,6 +397,7 @@ export const ProjectDetailPage: React.FC = () => {
     project?.constructionProgress?.[project.constructionProgress.length - 1]?.id || null
   );
   const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(null);
+  const [showStream, setShowStream] = useState(false);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -522,10 +523,15 @@ export const ProjectDetailPage: React.FC = () => {
                   </p>
                 </div>
                 {project.streamUrl && (
-                  <a href={project.streamUrl} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg">
-                    <Video className="w-5 h-5" /> Трансляция со стройки
-                  </a>
+                  <button
+                    onClick={() => setShowStream(true)}
+                    className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg animate-pulse hover:animate-none">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+                    </span>
+                    Трансляция со стройки
+                  </button>
                 )}
               </div>
             </Reveal>
@@ -1006,6 +1012,27 @@ export const ProjectDetailPage: React.FC = () => {
           title="Обратный звонок"
           context={promoCallbackContext}
         />
+      )}
+
+      {/* Stream Popup */}
+      {showStream && project.streamUrl && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowStream(false)}>
+          <div className="relative w-full max-w-4xl aspect-video" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setShowStream(false)}
+              className="absolute -top-12 right-0 text-white/80 hover:text-white text-sm flex items-center gap-1 transition-colors"
+            >
+              Закрыть ✕
+            </button>
+            <iframe
+              src={project.streamUrl}
+              className="w-full h-full rounded-2xl"
+              frameBorder="0"
+              allowFullScreen
+              title="Трансляция со стройки"
+            />
+          </div>
+        </div>
       )}
 
       {/* Booking Modal */}
