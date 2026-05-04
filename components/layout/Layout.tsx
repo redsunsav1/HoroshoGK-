@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { SEO } from '../SEO';
+import { KeyHandoverButton } from '../ui/KeyHandoverButton';
 import { useData } from '../../context/DataContext';
 
 interface LayoutProps {
@@ -40,6 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
       <Footer />
+      <KeyHandoverButton />
     </div>
   );
 };

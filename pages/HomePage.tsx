@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
-import { ArrowUpRight, ArrowRight, ArrowDown, Percent, MessageSquare } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, ArrowDown, Percent } from 'lucide-react';
 import { HomePagePromo } from '../types';
 
 const PROMO_INTERVAL = 6000;
@@ -193,10 +193,6 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Chat button */}
-        <button className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-accent transition-colors">
-          <MessageSquare className="w-6 h-6" />
-        </button>
       </section>
 
       {/* Mobile Promo Widget */}
