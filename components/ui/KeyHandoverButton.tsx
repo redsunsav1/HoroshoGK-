@@ -138,7 +138,11 @@ export const KeyHandoverButton: React.FC = () => {
   return (
     <div
       data-key-handover-button
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2"
+      // На мобильных нижний toolbar браузера перекрывает fixed-контент при скролле,
+      // поэтому отступ снизу больше (bottom-24 ≈ 96px) и учитываем env(safe-area-inset-bottom) для iOS.
+      // На десктопе остаётся компактный bottom-6 (24px).
+      className="fixed right-6 z-[60] flex flex-col items-end gap-2 bottom-24 md:bottom-6"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Caption above button */}
       <div
