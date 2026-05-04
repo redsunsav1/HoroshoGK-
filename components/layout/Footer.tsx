@@ -1,7 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, ChevronDown, FileText } from 'lucide-react';
 import { useData } from '../../context/DataContext';
+
+// Реквизиты юр. лиц + документы
+const LEGAL_ENTITIES: { name: string; folder: string }[] = [
+  { name: 'ООО СЗ "Правда"', folder: 'pravda' },
+  { name: 'ООО СЗ "Хорошо"', folder: 'horosho' },
+  { name: 'ООО СЗ "ХорошоЗдесь"', folder: 'horosho-zdes' },
+  { name: 'ООО СЗ "ХорошоАльянс"', folder: 'horosho-allyans' },
+];
+
+const ENTITY_DOCS: { file: string; label: string }[] = [
+  { file: 'privacy-policy.pdf',       label: 'Политика обработки персональных данных' },
+  { file: 'consent-pd.pdf',           label: 'Согласие на обработку персональных данных' },
+  { file: 'consent-marketing.pdf',    label: 'Согласие на рассылку рекламной информации' },
+  { file: 'anticorruption-policy.pdf', label: 'Антикоррупционная политика' },
+  { file: 'ethics-code.pdf',          label: 'Кодекс деловой этики' },
+];
 
 const VkIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12.785 16.241s.288-.032.436-.194c.136-.148.132-.427.132-.427s-.02-1.304.587-1.496c.596-.19 1.362 1.26 2.174 1.817.613.42 1.08.328 1.08.328l2.172-.03s1.136-.07.598-.964c-.044-.073-.314-.661-1.618-1.869-1.366-1.264-1.183-1.06.462-3.246.998-1.33 1.398-2.142 1.273-2.49-.119-.332-.856-.244-.856-.244l-2.454.015s-.182-.025-.317.056c-.133.08-.218.264-.218.264s-.392 1.044-.915 1.932c-1.104 1.872-1.545 1.972-1.725 1.856-.42-.272-.315-1.09-.315-1.67 0-1.813.275-2.57-.536-2.766-.269-.065-.467-.108-1.155-.115-.882-.009-1.628.003-2.05.21-.28.137-.497.443-.365.46.163.022.533.1.729.365.253.343.244 1.113.244 1.113s.145 2.133-.34 2.397c-.332.182-.788-.189-1.767-1.888-.502-.87-.88-1.832-.88-1.832s-.073-.18-.203-.276c-.158-.117-.378-.154-.378-.154l-2.332.015s-.35.01-.479.163c-.114.135-.01.414-.01.414s1.839 4.304 3.924 6.471c1.912 1.988 4.085 1.857 4.085 1.857h.985z"/></svg>
@@ -92,12 +108,40 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* Документы по юр. лицам */}
+        <div className="border-t border-white/10 pt-8 mb-8">
+          <h4 className="text-white/40 uppercase tracking-wider mb-4 text-xs font-bold">Юридические документы</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {LEGAL_ENTITIES.map(entity => (
+              <details key={entity.folder} className="group bg-white/5 rounded-xl overflow-hidden">
+                <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-colors text-sm font-medium text-white/90">
+                  <span>{entity.name}</span>
+                  <ChevronDown className="w-4 h-4 text-white/50 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="px-4 pb-4 pt-1 space-y-2 border-t border-white/5">
+                  {ENTITY_DOCS.map(doc => (
+                    <a
+                      key={doc.file}
+                      href={`/uploads/documents/${entity.folder}/${doc.file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-2 text-white/70 hover:text-accent transition-colors text-xs leading-snug"
+                    >
+                      <FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      <span>{doc.label}</span>
+                    </a>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between text-white/40 text-sm">
           <p>&copy; {new Date().getFullYear()} ГК «{siteSettings.companyName}». Все права защищены.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition-colors">Политика конфиденциальности</a>
-            <a href="#" className="hover:text-white transition-colors">Проектные декларации</a>
+            <a href="/uploads/documents/pravda/privacy-policy.pdf" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Политика конфиденциальности</a>
           </div>
         </div>
       </div>
