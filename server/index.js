@@ -317,27 +317,39 @@ app.get('/api/site-settings', (req, res) => {
   res.json(readSiteSettings());
 });
 
-app.put('/api/site-settings', (req, res) => {
-  writeJsonFile(SITE_SETTINGS_FILE, req.body);
-  // Sync favicon files to dist/ so browsers always get the latest favicon
-  // (index.html references /favicon.svg statically — we keep that file in sync)
+// Динамический favicon — отдаёт текущий файл из site-settings с правильным MIME
+app.get('/api/favicon', (req, res) => {
   try {
-    const faviconUrl = req.body && req.body.faviconUrl;
-    if (faviconUrl && typeof faviconUrl === 'string' && faviconUrl.startsWith('/uploads/')) {
-      const sourcePath = path.join(UPLOADS_DIR, path.basename(faviconUrl));
-      if (fs.existsSync(sourcePath)) {
-        const distDir = path.join(__dirname, '../dist');
-        if (fs.existsSync(distDir)) {
-          // Copy to common favicon names so any browser request hits the right file
-          ['favicon.svg', 'favicon.ico', 'favicon.png'].forEach(name => {
-            try { fs.copyFileSync(sourcePath, path.join(distDir, name)); } catch (e) { /* ignore */ }
-          });
-        }
+    const settings = readSiteSettings();
+    const url = settings && settings.faviconUrl;
+    if (url && typeof url === 'string' && url.startsWith('/uploads/')) {
+      const filePath = path.join(UPLOADS_DIR, path.basename(url));
+      if (fs.existsSync(filePath)) {
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeMap = {
+          '.svg': 'image/svg+xml',
+          '.png': 'image/png',
+          '.webp': 'image/webp',
+          '.ico': 'image/x-icon',
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.gif': 'image/gif',
+        };
+        const mime = mimeMap[ext] || 'application/octet-stream';
+        res.setHeader('Content-Type', mime);
+        res.setHeader('Cache-Control', 'public, max-age=300'); // 5 минут
+        return res.sendFile(filePath);
       }
     }
   } catch (err) {
-    console.error('Favicon sync error:', err);
+    console.error('Favicon endpoint error:', err);
   }
+  res.status(404).send('Not found');
+});
+
+app.put('/api/site-settings', (req, res) => {
+  writeJsonFile(SITE_SETTINGS_FILE, req.body);
+  // Favicon отдаётся через GET /api/favicon (динамически), копировать в dist не нужно
   res.json(req.body);
 });
 

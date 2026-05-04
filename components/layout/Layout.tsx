@@ -20,37 +20,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     description: settings?.description || 'Группа Компаний «Хорошо» — застройщик в Астрахани.',
   };
 
-  // Динамическое обновление фавикона
+  // Если фавикон в настройках изменился — пересоздаём <link>'и с cache-busting'ом,
+  // чтобы браузер запросил его заново. Серверный endpoint /api/favicon отдаёт актуальный файл.
   useEffect(() => {
     if (!siteSettings.faviconUrl) return;
-    // Удаляем все старые link[rel*='icon'] и создаём свежие, чтобы браузер не использовал кешированный фавикон
     const oldLinks = document.querySelectorAll("link[rel*='icon']");
     oldLinks.forEach(l => l.parentNode?.removeChild(l));
 
-    // Определяем mime-type по расширению файла
-    const url = siteSettings.faviconUrl;
-    const ext = url.split('.').pop()?.toLowerCase() || '';
-    const mimeMap: Record<string, string> = {
-      svg: 'image/svg+xml',
-      png: 'image/png',
-      ico: 'image/x-icon',
-      webp: 'image/webp',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      gif: 'image/gif',
-    };
-    const mime = mimeMap[ext] || 'image/png';
+    // Cache-busting: используем хеш URL фавикона как версию
+    const versionTag = encodeURIComponent(siteSettings.faviconUrl).slice(-12);
+    const href = `/api/favicon?v=${versionTag}`;
 
     const link = document.createElement('link');
     link.rel = 'icon';
-    link.type = mime;
-    link.href = url;
+    link.href = href;
     document.head.appendChild(link);
 
     const shortcut = document.createElement('link');
     shortcut.rel = 'shortcut icon';
-    shortcut.type = mime;
-    shortcut.href = url;
+    shortcut.href = href;
     document.head.appendChild(shortcut);
   }, [siteSettings.faviconUrl]);
 
