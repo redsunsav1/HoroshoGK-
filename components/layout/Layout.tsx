@@ -22,15 +22,36 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Динамическое обновление фавикона
   useEffect(() => {
-    if (siteSettings.faviconUrl) {
-      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.head.appendChild(link);
-      }
-      link.href = siteSettings.faviconUrl;
-    }
+    if (!siteSettings.faviconUrl) return;
+    // Удаляем все старые link[rel*='icon'] и создаём свежие, чтобы браузер не использовал кешированный фавикон
+    const oldLinks = document.querySelectorAll("link[rel*='icon']");
+    oldLinks.forEach(l => l.parentNode?.removeChild(l));
+
+    // Определяем mime-type по расширению файла
+    const url = siteSettings.faviconUrl;
+    const ext = url.split('.').pop()?.toLowerCase() || '';
+    const mimeMap: Record<string, string> = {
+      svg: 'image/svg+xml',
+      png: 'image/png',
+      ico: 'image/x-icon',
+      webp: 'image/webp',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+    };
+    const mime = mimeMap[ext] || 'image/png';
+
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = mime;
+    link.href = url;
+    document.head.appendChild(link);
+
+    const shortcut = document.createElement('link');
+    shortcut.rel = 'shortcut icon';
+    shortcut.type = mime;
+    shortcut.href = url;
+    document.head.appendChild(shortcut);
   }, [siteSettings.faviconUrl]);
 
   return (

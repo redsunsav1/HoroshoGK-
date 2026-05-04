@@ -319,6 +319,25 @@ app.get('/api/site-settings', (req, res) => {
 
 app.put('/api/site-settings', (req, res) => {
   writeJsonFile(SITE_SETTINGS_FILE, req.body);
+  // Sync favicon files to dist/ so browsers always get the latest favicon
+  // (index.html references /favicon.svg statically — we keep that file in sync)
+  try {
+    const faviconUrl = req.body && req.body.faviconUrl;
+    if (faviconUrl && typeof faviconUrl === 'string' && faviconUrl.startsWith('/uploads/')) {
+      const sourcePath = path.join(UPLOADS_DIR, path.basename(faviconUrl));
+      if (fs.existsSync(sourcePath)) {
+        const distDir = path.join(__dirname, '../dist');
+        if (fs.existsSync(distDir)) {
+          // Copy to common favicon names so any browser request hits the right file
+          ['favicon.svg', 'favicon.ico', 'favicon.png'].forEach(name => {
+            try { fs.copyFileSync(sourcePath, path.join(distDir, name)); } catch (e) { /* ignore */ }
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Favicon sync error:', err);
+  }
   res.json(req.body);
 });
 
