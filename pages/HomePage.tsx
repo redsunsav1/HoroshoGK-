@@ -35,8 +35,10 @@ const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
   if (promos.length === 0) return null;
   const offer = promos[current];
 
-  return (
-    <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-sand/50">
+  // Clickable area: image + title + description. Progress + dots stay outside.
+  const isExternal = offer.link && /^https?:\/\//.test(offer.link);
+  const clickableContent = (
+    <>
       {/* Image area */}
       <div className="relative h-[260px] overflow-hidden bg-beige">
         {/* % badge */}
@@ -58,11 +60,32 @@ const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
         />
       </div>
 
-      {/* Content */}
-      <div className="p-6">
+      {/* Title + description */}
+      <div className="px-6 pt-6">
         <h3 className="text-2xl font-bold text-primary mb-2">{offer.title}</h3>
         <p className="text-secondary">{offer.description}</p>
+      </div>
+    </>
+  );
 
+  return (
+    <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-sand/50">
+      {offer.link ? (
+        isExternal ? (
+          <a href={offer.link} target="_blank" rel="noopener noreferrer" className="block cursor-pointer hover:opacity-95 transition-opacity">
+            {clickableContent}
+          </a>
+        ) : (
+          <Link to={offer.link} className="block cursor-pointer hover:opacity-95 transition-opacity">
+            {clickableContent}
+          </Link>
+        )
+      ) : (
+        <div>{clickableContent}</div>
+      )}
+
+      {/* Progress + dots (outside link to remain interactive) */}
+      <div className="px-6 pb-6">
         {/* Progress bar */}
         <div className="mt-6 h-1 bg-sand rounded-full overflow-hidden">
           <div

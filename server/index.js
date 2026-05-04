@@ -181,6 +181,40 @@ const upload = multer({
   },
 });
 
+// --- Document Upload (PDF/DOC/etc, no compression) ---
+const uploadDocument = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf|zip)$/i;
+    if (allowed.test(path.extname(file.originalname))) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only documents allowed: PDF, DOC, XLS, PPT, TXT, RTF, ZIP'));
+    }
+  },
+});
+
+app.post('/api/upload-document', uploadDocument.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  try {
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    // Sanitize original filename: keep only safe chars + add timestamp
+    const safeName = req.file.originalname
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^a-zA-Z0-9а-яА-ЯёЁ_-]/g, '_')
+      .slice(0, 60);
+    const filename = Date.now() + '-' + safeName + ext;
+    fs.writeFileSync(path.join(UPLOADS_DIR, filename), req.file.buffer);
+    res.json({ url: '/uploads/' + filename, originalName: req.file.originalname });
+  } catch (err) {
+    console.error('Document upload error:', err);
+    res.status(500).json({ error: 'Failed to save document' });
+  }
+});
+
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -197,8 +231,10 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     }
 
     // All other images — optimize with sharp → WebP
+    // .rotate() (no args) auto-rotates based on EXIF orientation, then strips EXIF
     const filename = baseName + '.webp';
     await sharp(req.file.buffer)
+      .rotate()
       .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 82 })
       .toFile(path.join(UPLOADS_DIR, filename));

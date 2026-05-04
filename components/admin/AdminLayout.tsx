@@ -318,6 +318,12 @@ const HomePageSection: React.FC = () => {
                     placeholder="Описание"
                     className="w-full p-2 border rounded-lg text-sm"
                   />
+                  <input
+                    value={promo.link || ''}
+                    onChange={e => updatePromo(promo.id, 'link' as any, e.target.value)}
+                    placeholder="Ссылка при клике (например /news/zk-brooklin или /akcii). Оставьте пустым, если кликабельность не нужна."
+                    className="w-full p-2 border rounded-lg text-sm"
+                  />
                   <ImageUpload
                     label="Картинка акции"
                     value={promo.image}

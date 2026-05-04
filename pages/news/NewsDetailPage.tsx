@@ -47,9 +47,9 @@ export const NewsDetailPage: React.FC = () => {
 
       {/* Article */}
       <section className="py-12 px-4 md:px-8 bg-white -mt-24 relative z-10">
-        <div className="max-w-[800px] mx-auto">
+        <div className="max-w-[1100px] mx-auto">
           <Reveal>
-            <div className="bg-white rounded-2xl p-8 shadow-xl">
+            <div className="bg-white rounded-2xl p-6 md:p-10 shadow-xl">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <span className="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
@@ -74,9 +74,18 @@ export const NewsDetailPage: React.FC = () => {
               </h1>
 
               <div
-                className="prose prose-lg max-w-none text-secondary"
+                className="news-content prose prose-lg max-w-none text-secondary"
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
+              <style>{`
+                .news-content img {
+                  width: 100%;
+                  height: auto;
+                  border-radius: 12px;
+                  margin: 24px 0;
+                  display: block;
+                }
+              `}</style>
             </div>
           </Reveal>
         </div>
@@ -84,7 +93,7 @@ export const NewsDetailPage: React.FC = () => {
 
       {/* Back */}
       <section className="py-8 px-4 md:px-8 bg-beige">
-        <div className="max-w-[800px] mx-auto">
+        <div className="max-w-[1100px] mx-auto">
           <Link to="/news" className="inline-flex items-center text-secondary hover:text-primary transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" /> Все новости
           </Link>

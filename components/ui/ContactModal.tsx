@@ -5,12 +5,18 @@ interface ContactModalProps {
   onClose: () => void;
   title?: string;
   context?: string;
+  onSuccess?: () => void;
+  successText?: string;
+  successDescription?: string;
 }
 
 export const ContactModal: React.FC<ContactModalProps> = ({
   onClose,
   title = 'Оставить заявку',
-  context
+  context,
+  onSuccess,
+  successText = 'Заявка отправлена!',
+  successDescription = 'Мы свяжемся с вами в ближайшее время.',
 }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -44,6 +50,10 @@ export const ContactModal: React.FC<ContactModalProps> = ({
       });
       if (res.ok) {
         setSent(true);
+        if (onSuccess) {
+          // Slight delay so user sees the success state
+          setTimeout(() => onSuccess(), 300);
+        }
       } else {
         setError('Ошибка отправки. Попробуйте позже.');
       }
@@ -112,8 +122,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h4 className="text-lg font-bold text-primary mb-2">Заявка отправлена!</h4>
-            <p className="text-secondary text-sm mb-6">Мы свяжемся с вами в ближайшее время.</p>
+            <h4 className="text-lg font-bold text-primary mb-2">{successText}</h4>
+            <p className="text-secondary text-sm mb-6">{successDescription}</p>
             <button onClick={onClose} className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors">
               Закрыть
             </button>

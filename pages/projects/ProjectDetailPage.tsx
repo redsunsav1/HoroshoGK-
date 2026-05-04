@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera } from 'lucide-react';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, FileDown } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
 
 // ============================================================
@@ -381,7 +381,7 @@ const FloorSelector: React.FC<{
 // ============================================================
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { projects, promotions } = useData();
+  const { projects, promotions, siteSettings } = useData();
   const project = projects.find(p => p.slug === slug);
 
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
@@ -398,6 +398,7 @@ export const ProjectDetailPage: React.FC = () => {
   );
   const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(null);
   const [showStream, setShowStream] = useState(false);
+  const [showPresentationForm, setShowPresentationForm] = useState(false);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -483,6 +484,15 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-lg text-secondary leading-relaxed mb-8 font-light">
               {project.fullDescription}
             </p>
+            {project.presentationFile && (
+              <button
+                onClick={() => setShowPresentationForm(true)}
+                className="inline-flex items-center gap-3 bg-primary text-white px-6 py-4 rounded-xl font-medium hover:bg-accent hover:shadow-lg transition-all duration-300 mb-6 group"
+              >
+                <FileDown className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+                {project.presentationButtonText || 'Ознакомиться с проектом'}
+              </button>
+            )}
             <div className="flex items-center text-primary font-medium p-4 bg-beige rounded-xl w-fit">
               <MapPin className="w-5 h-5 mr-3 text-accent" />
               {project.location}
@@ -962,8 +972,8 @@ export const ProjectDetailPage: React.FC = () => {
               </p>
               <div className="flex items-center justify-center gap-3">
                 <Phone className="w-5 h-5 text-accent" />
-                <a href="tel:+78512000000" className="text-xl font-bold text-primary hover:text-accent transition-colors">
-                  +7 (8512) 00-00-00
+                <a href={`tel:${(siteSettings.phone || '+7 8512 43 22 22').replace(/[^\d+]/g, '')}`} className="text-xl font-bold text-primary hover:text-accent transition-colors">
+                  {siteSettings.phone || '+7 8512 43 22 22'}
                 </a>
               </div>
             </Reveal>
@@ -1011,6 +1021,27 @@ export const ProjectDetailPage: React.FC = () => {
           onClose={() => setShowPromoCallback(false)}
           title="Обратный звонок"
           context={promoCallbackContext}
+        />
+      )}
+
+      {/* Presentation download form */}
+      {showPresentationForm && project.presentationFile && (
+        <ContactModal
+          onClose={() => setShowPresentationForm(false)}
+          title={`Скачать презентацию — ${project.name}`}
+          context={`Запрос презентации: ${project.name}`}
+          successText="Спасибо!"
+          successDescription="Скачивание начнётся автоматически. Мы свяжемся с вами в ближайшее время."
+          onSuccess={() => {
+            // Trigger download of the presentation file
+            const link = document.createElement('a');
+            link.href = project.presentationFile!;
+            link.download = `Презентация-${project.name}.pdf`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
         />
       )}
 

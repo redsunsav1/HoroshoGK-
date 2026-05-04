@@ -71,6 +71,9 @@ export interface Project {
   // Card display fields
   cardPrice?: string;      // e.g. "от 3.9 млн ₽"
   cardPromo?: string;      // e.g. "Материнский капитал"
+  // Presentation download (с формой контактов перед скачиванием)
+  presentationButtonText?: string; // Текст кнопки, по умолчанию "Ознакомиться с проектом"
+  presentationFile?: string;       // URL файла презентации (например /uploads/...pdf)
 }
 
 export interface ProjectTimelineItem {
@@ -159,6 +162,7 @@ export interface HomePagePromo {
   description: string;
   discount: string;
   image: string;
+  link?: string; // Опциональная ссылка на новость/акцию (например /news/slug или /akcii)
 }
 
 export interface HomePageContent {

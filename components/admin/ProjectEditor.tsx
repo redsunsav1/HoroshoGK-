@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, ConstructionYear, ConstructionMonth, GalleryImage, GalleryCategory } from '../../types';
 import { ImageUpload } from './ImageUpload';
+import { DocumentUpload } from './DocumentUpload';
 import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -272,6 +273,31 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                     placeholder="Материнский капитал"
                   />
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-bold text-gray-700 mb-4">Презентация проекта (скачивание после заявки)</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Если файл загружен, на странице проекта над адресом появится кнопка. По клику посетитель оставит контакты — после отправки автоматически скачается презентация.
+                Если файл не загружен, кнопка не отображается.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Текст кнопки</label>
+                  <input
+                    value={project.presentationButtonText || ''}
+                    onChange={e => setProject({...project, presentationButtonText: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    placeholder="Ознакомиться с проектом"
+                  />
+                </div>
+                <DocumentUpload
+                  label="Файл презентации (PDF)"
+                  value={project.presentationFile || ''}
+                  onChange={(url) => setProject({...project, presentationFile: url})}
+                  hint="Скачается после отправки контактов посетителем"
+                />
               </div>
             </div>
 

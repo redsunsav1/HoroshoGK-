@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Host: https://horoshogk.ru
+Sitemap: https://horoshogk.ru/sitemap.xml
