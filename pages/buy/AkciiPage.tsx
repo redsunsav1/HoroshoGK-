@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
@@ -7,6 +7,7 @@ import { ArrowLeft, Tag, X, Phone } from 'lucide-react';
 
 export const AkciiPage: React.FC = () => {
   const { projects, promotions } = useData();
+  const location = useLocation();
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [showContactModal, setShowContactModal] = useState(false);
   const [callbackContext, setCallbackContext] = useState('');
@@ -20,6 +21,16 @@ export const AkciiPage: React.FC = () => {
   const projectPromos = projects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
 
   const allPromos = [...globalPromos, ...projectPromos];
+
+  // Если в URL есть ?promo=ID — открыть конкретную акцию popup'ом
+  // Используется hero-баннером главной страницы для перехода прямо на акцию
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const promoId = params.get('promo');
+    if (!promoId) return;
+    const found = allPromos.find(p => p.id === promoId);
+    if (found) setSelectedPromo(found);
+  }, [location.search, projects, promotions]);
 
   const openCallback = (title: string) => {
     setCallbackContext(`Акция: ${title}`);

@@ -215,6 +215,40 @@ app.post('/api/upload-document', uploadDocument.single('file'), (req, res) => {
   }
 });
 
+// --- Rotate existing image in /uploads/ ---
+// POST /api/rotate-image  body: { url: "/uploads/...", angle: 90 | -90 | 180 }
+// Поворачивает картинку in-place. Используется в админке для исправления ориентации старых фото.
+app.post('/api/rotate-image', express.json(), async (req, res) => {
+  try {
+    const { url, angle } = req.body || {};
+    if (!url || typeof url !== 'string' || !url.startsWith('/uploads/')) {
+      return res.status(400).json({ error: 'Invalid url' });
+    }
+    if (![90, -90, 180].includes(Number(angle))) {
+      return res.status(400).json({ error: 'angle must be 90, -90 or 180' });
+    }
+    const filePath = path.join(UPLOADS_DIR, path.basename(url));
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    if (['.svg', '.ico', '.gif'].includes(ext)) {
+      return res.status(400).json({ error: 'Cannot rotate this format' });
+    }
+    // Sharp читает файл в буфер, поворачивает, записывает обратно с теми же параметрами WebP
+    const buffer = fs.readFileSync(filePath);
+    const rotated = await sharp(buffer)
+      .rotate(Number(angle))
+      .webp({ quality: 82 })
+      .toBuffer();
+    fs.writeFileSync(filePath, rotated);
+    res.json({ url, rotated: true });
+  } catch (err) {
+    console.error('Rotate error:', err);
+    res.status(500).json({ error: 'Rotate failed' });
+  }
+});
+
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });

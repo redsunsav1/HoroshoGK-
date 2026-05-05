@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, ConstructionYear, ConstructionMonth, GalleryImage, GalleryCategory } from '../../types';
 import { ImageUpload } from './ImageUpload';
 import { DocumentUpload } from './DocumentUpload';
-import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map, RotateCw, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
@@ -56,6 +56,36 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
   });
 
   const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline' | 'features' | 'gallery' | 'construction'>('general');
+
+  // Cache-busting для фото после поворота — браузер увидит обновлённую картинку без F5
+  const [cacheBust, setCacheBust] = useState<Record<string, number>>({});
+  const [rotating, setRotating] = useState<string | null>(null);
+
+  const cachedSrc = (url: string) => {
+    const ts = cacheBust[url];
+    if (!ts || !url) return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}t=${ts}`;
+  };
+
+  const rotatePhoto = async (url: string, angle: 90 | -90) => {
+    if (!url || !url.startsWith('/uploads/')) return;
+    setRotating(url);
+    try {
+      const res = await fetch('/api/rotate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, angle }),
+      });
+      if (!res.ok) throw new Error('rotate failed');
+      setCacheBust(prev => ({ ...prev, [url]: Date.now() }));
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось повернуть фото');
+    } finally {
+      setRotating(null);
+    }
+  };
 
   const handleSave = () => {
     if (isNew) {
@@ -910,38 +940,60 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                           <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                             {monthData.photos.map((photo, pIdx) => (
                               <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
-                                <img src={photo} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                                  {pIdx > 0 && (
+                                <img src={cachedSrc(photo)} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
+                                  {/* Верхний ряд: повороты */}
+                                  <div className="flex items-center gap-1">
                                     <button
-                                      onClick={() => {
-                                        const photos = [...monthData.photos];
-                                        [photos[pIdx - 1], photos[pIdx]] = [photos[pIdx], photos[pIdx - 1]];
-                                        updateMonth({ ...monthData, photos });
-                                      }}
-                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                      onClick={() => rotatePhoto(photo, -90)}
+                                      disabled={rotating === photo}
+                                      title="Повернуть против часовой стрелки"
+                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs disabled:opacity-50 hover:bg-blue-50"
                                     >
-                                      ←
+                                      <RotateCcw className="w-3.5 h-3.5" />
                                     </button>
-                                  )}
-                                  <button
-                                    onClick={() => updateMonth({ ...monthData, photos: monthData.photos.filter((_, i) => i !== pIdx) })}
-                                    className="p-1.5 bg-red-500 text-white rounded-full"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                  {pIdx < monthData.photos.length - 1 && (
                                     <button
-                                      onClick={() => {
-                                        const photos = [...monthData.photos];
-                                        [photos[pIdx], photos[pIdx + 1]] = [photos[pIdx + 1], photos[pIdx]];
-                                        updateMonth({ ...monthData, photos });
-                                      }}
-                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                      onClick={() => rotatePhoto(photo, 90)}
+                                      disabled={rotating === photo}
+                                      title="Повернуть по часовой стрелке"
+                                      className="p-1.5 bg-white text-gray-700 rounded-full text-xs disabled:opacity-50 hover:bg-blue-50"
                                     >
-                                      →
+                                      <RotateCw className="w-3.5 h-3.5" />
                                     </button>
-                                  )}
+                                  </div>
+                                  {/* Нижний ряд: порядок + удаление */}
+                                  <div className="flex items-center gap-1">
+                                    {pIdx > 0 && (
+                                      <button
+                                        onClick={() => {
+                                          const photos = [...monthData.photos];
+                                          [photos[pIdx - 1], photos[pIdx]] = [photos[pIdx], photos[pIdx - 1]];
+                                          updateMonth({ ...monthData, photos });
+                                        }}
+                                        className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                      >
+                                        ←
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => updateMonth({ ...monthData, photos: monthData.photos.filter((_, i) => i !== pIdx) })}
+                                      className="p-1.5 bg-red-500 text-white rounded-full"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                    {pIdx < monthData.photos.length - 1 && (
+                                      <button
+                                        onClick={() => {
+                                          const photos = [...monthData.photos];
+                                          [photos[pIdx], photos[pIdx + 1]] = [photos[pIdx + 1], photos[pIdx]];
+                                          updateMonth({ ...monthData, photos });
+                                        }}
+                                        className="p-1.5 bg-white text-gray-700 rounded-full text-xs"
+                                      >
+                                        →
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             ))}

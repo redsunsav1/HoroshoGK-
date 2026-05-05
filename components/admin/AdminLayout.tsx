@@ -72,7 +72,7 @@ const Sidebar: React.FC<{ active: Section; onSelect: (s: Section) => void; reset
 // Home Page Section
 // ============================================================
 const HomePageSection: React.FC = () => {
-  const { homePageContent, updateHomePageContent } = useData();
+  const { homePageContent, updateHomePageContent, promotions, news } = useData();
   const [content, setContent] = useState<HomePageContent>(homePageContent);
   const [saved, setSaved] = useState(true);
 
@@ -318,12 +318,37 @@ const HomePageSection: React.FC = () => {
                     placeholder="Описание"
                     className="w-full p-2 border rounded-lg text-sm"
                   />
-                  <input
-                    value={promo.link || ''}
-                    onChange={e => updatePromo(promo.id, 'link' as any, e.target.value)}
-                    placeholder="Ссылка при клике (например /news/zk-brooklin или /akcii). Оставьте пустым, если кликабельность не нужна."
-                    className="w-full p-2 border rounded-lg text-sm"
-                  />
+                  <div className="space-y-1">
+                    <label className="block text-xs text-gray-500">Куда вести при клике (опционально)</label>
+                    <select
+                      value={promo.link || ''}
+                      onChange={e => updatePromo(promo.id, 'link' as any, e.target.value)}
+                      className="w-full p-2 border rounded-lg text-sm bg-white"
+                    >
+                      <option value="">— Не кликабельно —</option>
+                      <option value="/akcii">📌 Страница «Все акции»</option>
+                      {promotions && promotions.length > 0 && (
+                        <optgroup label="Акции (открыть как popup)">
+                          {promotions.filter(p => p.active).map(p => (
+                            <option key={p.id} value={`/akcii?promo=${p.id}`}>{p.title}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {news && news.length > 0 && (
+                        <optgroup label="Новости">
+                          {news.map(n => (
+                            <option key={n.id} value={`/news/${n.slug}`}>{n.title}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                    <input
+                      value={promo.link || ''}
+                      onChange={e => updatePromo(promo.id, 'link' as any, e.target.value)}
+                      placeholder="…или вставьте свою ссылку (например /projects/zk-brooklin)"
+                      className="w-full p-2 border rounded-lg text-xs text-gray-600"
+                    />
+                  </div>
                   <ImageUpload
                     label="Картинка акции"
                     value={promo.image}
