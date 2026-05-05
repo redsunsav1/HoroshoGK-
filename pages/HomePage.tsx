@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
-import { ArrowUpRight, ArrowRight, ArrowDown, Percent } from 'lucide-react';
-import { HomePagePromo } from '../types';
+import { ArrowUpRight, ArrowRight, ArrowDown, Percent, X, Phone } from 'lucide-react';
+import { HomePagePromo, PromoOffer } from '../types';
+import { ContactModal } from '../components/ui/ContactModal';
 
 const PROMO_INTERVAL = 6000;
 
-const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
+interface PromoWidgetProps {
+  promos: HomePagePromo[];
+  onOpenPromoPopup: (promoId: string) => void;
+}
+
+const PromoWidget: React.FC<PromoWidgetProps> = ({ promos, onOpenPromoPopup }) => {
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (promos.length === 0) return;
@@ -35,8 +42,24 @@ const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
   if (promos.length === 0) return null;
   const offer = promos[current];
 
-  // Clickable area: image + title + description. Progress + dots stay outside.
+  // Если ссылка вида /akcii?promo=ID — открываем popup прямо здесь, без навигации
+  const promoPopupMatch = offer.link?.match(/^\/akcii\?promo=([^&]+)$/);
   const isExternal = offer.link && /^https?:\/\//.test(offer.link);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (promoPopupMatch) {
+      e.preventDefault();
+      onOpenPromoPopup(decodeURIComponent(promoPopupMatch[1]));
+      return;
+    }
+    if (!offer.link) return;
+    if (isExternal) {
+      window.open(offer.link, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(offer.link);
+    }
+  };
+
   const clickableContent = (
     <>
       {/* Image area */}
@@ -71,15 +94,13 @@ const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
   return (
     <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-sand/50">
       {offer.link ? (
-        isExternal ? (
-          <a href={offer.link} target="_blank" rel="noopener noreferrer" className="block cursor-pointer hover:opacity-95 transition-opacity">
-            {clickableContent}
-          </a>
-        ) : (
-          <Link to={offer.link} className="block cursor-pointer hover:opacity-95 transition-opacity">
-            {clickableContent}
-          </Link>
-        )
+        <button
+          type="button"
+          onClick={handleClick}
+          className="block w-full text-left cursor-pointer hover:opacity-95 transition-opacity"
+        >
+          {clickableContent}
+        </button>
       ) : (
         <div>{clickableContent}</div>
       )}
@@ -111,8 +132,85 @@ const PromoWidget: React.FC<{ promos: HomePagePromo[] }> = ({ promos }) => {
   );
 };
 
+// Popup акции — открывается на главной по клику на виджет с привязкой к акции
+const PromoPopup: React.FC<{
+  promo: PromoOffer & { project?: { slug: string; name: string } | null };
+  onClose: () => void;
+  onCallback: () => void;
+}> = ({ promo, onClose, onCallback }) => (
+  <div className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="relative">
+        <img
+          src={promo.popupImage || promo.image}
+          alt={promo.title}
+          className="w-full rounded-t-2xl"
+        />
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-white/90 rounded-full p-2 hover:bg-white transition-colors shadow-lg"
+        >
+          <X className="w-5 h-5 text-primary" />
+        </button>
+        {promo.discount && (
+          <span className="absolute bottom-4 left-4 bg-accent text-white px-4 py-1 rounded-full text-sm font-bold">
+            {promo.discount}
+          </span>
+        )}
+      </div>
+      <div className="p-8">
+        <h3 className="text-2xl font-bold text-primary mb-4">{promo.title}</h3>
+        <div className="text-secondary font-light leading-relaxed mb-6 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: promo.description }} />
+        {promo.project && (
+          <Link
+            to={`/projects/${promo.project.slug}`}
+            className="text-accent font-medium hover:underline mb-4 block"
+          >
+            Смотреть {promo.project.name} →
+          </Link>
+        )}
+        <button
+          onClick={onCallback}
+          className="w-full flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-xl font-medium hover:bg-accent transition-colors"
+        >
+          <Phone className="w-5 h-5" /> Запросить обратный звонок
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 export const HomePage: React.FC = () => {
-  const { projects, homePageContent } = useData();
+  const { projects, homePageContent, promotions } = useData();
+
+  // Popup для виджета акций — открывается прямо на главной без перехода
+  const [selectedPromo, setSelectedPromo] = useState<(PromoOffer & { project?: { slug: string; name: string } | null }) | null>(null);
+  const [showCallback, setShowCallback] = useState(false);
+  const [callbackContext, setCallbackContext] = useState('');
+
+  const handleOpenPromoPopup = (promoId: string) => {
+    // Ищем во всех источниках: глобальные акции и акции внутри проектов
+    const fromGlobal = (promotions || []).find(p => p.id === promoId);
+    if (fromGlobal) {
+      setSelectedPromo({
+        id: fromGlobal.id,
+        title: fromGlobal.title,
+        description: fromGlobal.description,
+        discount: fromGlobal.discount,
+        image: fromGlobal.image,
+        popupImage: (fromGlobal as any).popupImage,
+        project: null,
+      } as any);
+      return;
+    }
+    for (const proj of projects) {
+      const found = proj.promos?.find(p => p.id === promoId);
+      if (found) {
+        setSelectedPromo({ ...found, project: { slug: proj.slug, name: proj.name } } as any);
+        return;
+      }
+    }
+  };
 
   return (
     <>
@@ -187,7 +285,7 @@ export const HomePage: React.FC = () => {
             {/* Right side - Promo Widget */}
             <div className="hidden lg:block">
               <Reveal direction="left" delay={400}>
-                <PromoWidget promos={homePageContent.promos} />
+                <PromoWidget promos={homePageContent.promos} onOpenPromoPopup={handleOpenPromoPopup} />
               </Reveal>
             </div>
           </div>
@@ -197,7 +295,7 @@ export const HomePage: React.FC = () => {
 
       {/* Mobile Promo Widget */}
       <section className="lg:hidden py-8 px-4 bg-beige/50 flex justify-center">
-        <PromoWidget promos={homePageContent.promos} />
+        <PromoWidget promos={homePageContent.promos} onOpenPromoPopup={handleOpenPromoPopup} />
       </section>
 
       {/* Projects Grid */}
@@ -372,6 +470,28 @@ export const HomePage: React.FC = () => {
           </Reveal>
         </div>
       </section>
+
+      {/* Promo Popup — открывается при клике на виджет с привязкой к акции */}
+      {selectedPromo && (
+        <PromoPopup
+          promo={selectedPromo}
+          onClose={() => setSelectedPromo(null)}
+          onCallback={() => {
+            setCallbackContext(`Акция: ${selectedPromo.title}`);
+            setSelectedPromo(null);
+            setShowCallback(true);
+          }}
+        />
+      )}
+
+      {/* Контактная форма для виджета акций */}
+      {showCallback && (
+        <ContactModal
+          onClose={() => setShowCallback(false)}
+          title="Обратный звонок"
+          context={callbackContext}
+        />
+      )}
     </>
   );
 };
