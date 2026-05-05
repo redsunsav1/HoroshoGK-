@@ -215,9 +215,11 @@ app.post('/api/upload-document', uploadDocument.single('file'), (req, res) => {
   }
 });
 
-// --- Rotate existing image in /uploads/ ---
-// POST /api/rotate-image  body: { url: "/uploads/...", angle: 90 | -90 | 180 }
-// Поворачивает картинку in-place. Используется в админке для исправления ориентации старых фото.
+// --- Rotate existing image — saves under NEW name, updates JSON refs ---
+// POST /api/rotate-image  body: { url, angle: 90 | -90 | 180 }
+// Returns { oldUrl, newUrl } — клиенту нужно заменить oldUrl → newUrl в своём state.
+// JSON-файлы данных также автоматически обновляются (ссылка везде заменяется).
+// Это полностью обходит кеш браузера, т.к. URL меняется.
 app.post('/api/rotate-image', express.json(), async (req, res) => {
   try {
     const { url, angle } = req.body || {};
@@ -227,22 +229,49 @@ app.post('/api/rotate-image', express.json(), async (req, res) => {
     if (![90, -90, 180].includes(Number(angle))) {
       return res.status(400).json({ error: 'angle must be 90, -90 or 180' });
     }
-    const filePath = path.join(UPLOADS_DIR, path.basename(url));
-    if (!fs.existsSync(filePath)) {
+    const oldName = path.basename(url);
+    const oldPath = path.join(UPLOADS_DIR, oldName);
+    if (!fs.existsSync(oldPath)) {
       return res.status(404).json({ error: 'File not found' });
     }
-    const ext = path.extname(filePath).toLowerCase();
+    const ext = path.extname(oldPath).toLowerCase();
     if (['.svg', '.ico', '.gif'].includes(ext)) {
       return res.status(400).json({ error: 'Cannot rotate this format' });
     }
-    // Sharp читает файл в буфер, поворачивает, записывает обратно с теми же параметрами WebP
-    const buffer = fs.readFileSync(filePath);
+
+    // Поворачиваем и сохраняем под новым именем
+    const buffer = fs.readFileSync(oldPath);
     const rotated = await sharp(buffer)
       .rotate(Number(angle))
       .webp({ quality: 82 })
       .toBuffer();
-    fs.writeFileSync(filePath, rotated);
-    res.json({ url, rotated: true });
+    const newName = Date.now() + '-rot-' + Math.round(Math.random() * 10000) + '.webp';
+    const newPath = path.join(UPLOADS_DIR, newName);
+    fs.writeFileSync(newPath, rotated);
+
+    const oldUrl = '/uploads/' + oldName;
+    const newUrl = '/uploads/' + newName;
+
+    // Обновляем все JSON-файлы данных: заменяем точные совпадения oldUrl на newUrl
+    try {
+      const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json'));
+      for (const f of files) {
+        const fpath = path.join(DATA_DIR, f);
+        let content;
+        try { content = fs.readFileSync(fpath, 'utf8'); } catch (e) { continue; }
+        if (!content.includes(oldUrl)) continue;
+        // Заменяем в JSON-строке как точное совпадение URL внутри кавычек/полей
+        const replaced = content.split(JSON.stringify(oldUrl)).join(JSON.stringify(newUrl));
+        if (replaced !== content) {
+          fs.writeFileSync(fpath, replaced);
+        }
+      }
+    } catch (e) {
+      console.error('Rotate: error updating JSON refs:', e);
+    }
+
+    // Старый файл оставляем на диске (для безопасности, можно потом почистить)
+    res.json({ oldUrl, newUrl, rotated: true });
   } catch (err) {
     console.error('Rotate error:', err);
     res.status(500).json({ error: 'Rotate failed' });

@@ -57,28 +57,48 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
 
   const [activeTab, setActiveTab] = useState<'general' | 'plans' | 'promos' | 'infra' | 'timeline' | 'features' | 'gallery' | 'construction'>('general');
 
-  // Cache-busting для фото после поворота — браузер увидит обновлённую картинку без F5
-  const [cacheBust, setCacheBust] = useState<Record<string, number>>({});
   const [rotating, setRotating] = useState<string | null>(null);
 
-  const cachedSrc = (url: string) => {
-    const ts = cacheBust[url];
-    if (!ts || !url) return url;
-    const sep = url.includes('?') ? '&' : '?';
-    return `${url}${sep}t=${ts}`;
-  };
-
-  const rotatePhoto = async (url: string, angle: 90 | -90) => {
-    if (!url || !url.startsWith('/uploads/')) return;
-    setRotating(url);
+  // Поворот фото: сервер сохраняет под новым именем, обновляет JSON-данные, возвращает новый URL.
+  // Клиент заменяет старый URL на новый во ВСЁМ дереве данных проекта (constructionProgress, gallery, plans и т.д.)
+  // — браузер видит изменение сразу, без проблем с кешем.
+  const rotatePhoto = async (oldUrl: string, angle: 90 | -90) => {
+    if (!oldUrl || !oldUrl.startsWith('/uploads/')) return;
+    setRotating(oldUrl);
     try {
       const res = await fetch('/api/rotate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, angle }),
+        body: JSON.stringify({ url: oldUrl, angle }),
       });
       if (!res.ok) throw new Error('rotate failed');
-      setCacheBust(prev => ({ ...prev, [url]: Date.now() }));
+      const data = await res.json();
+      const newUrl: string = data.newUrl;
+      if (!newUrl) throw new Error('no newUrl in response');
+
+      // Заменяем oldUrl на newUrl везде в state проекта
+      setProject(prev => {
+        const replace = (s: string | undefined) => (s === oldUrl ? newUrl : s);
+        return {
+          ...prev,
+          heroImage: prev.heroImage === oldUrl ? newUrl : prev.heroImage,
+          gallery: (prev.gallery || []).map(g => (g === oldUrl ? newUrl : g)),
+          galleryImages: (prev.galleryImages || []).map(img => (img.url === oldUrl ? { ...img, url: newUrl } : img)),
+          plans: (prev.plans || []).map(p => p.image === oldUrl ? { ...p, image: newUrl } : p),
+          promos: (prev.promos || []).map(pr => ({
+            ...pr,
+            image: pr.image === oldUrl ? newUrl : pr.image,
+            popupImage: pr.popupImage === oldUrl ? newUrl : pr.popupImage,
+          })),
+          constructionProgress: (prev.constructionProgress || []).map(year => ({
+            ...year,
+            months: (year.months || []).map(month => ({
+              ...month,
+              photos: (month.photos || []).map(ph => (ph === oldUrl ? newUrl : ph)),
+            })),
+          })),
+        } as typeof prev;
+      });
     } catch (e) {
       console.error(e);
       alert('Не удалось повернуть фото');
@@ -940,7 +960,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                           <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                             {monthData.photos.map((photo, pIdx) => (
                               <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
-                                <img src={cachedSrc(photo)} className="w-full h-full object-cover" />
+                                <img src={photo} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
                                   {/* Верхний ряд: повороты */}
                                   <div className="flex items-center gap-1">
