@@ -959,8 +959,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                         {monthData.photos.length > 0 && (
                           <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
                             {monthData.photos.map((photo, pIdx) => (
-                              <div key={pIdx} className="relative group rounded-lg overflow-hidden border aspect-video">
-                                <img src={photo} className="w-full h-full object-cover" />
+                              <div key={photo} className="relative group rounded-lg overflow-hidden border aspect-video bg-gray-900">
+                                <img src={photo} className="w-full h-full object-contain" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
                                   {/* Верхний ряд: повороты */}
                                   <div className="flex items-center gap-1">
