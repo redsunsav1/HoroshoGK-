@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
 import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, FileDown } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
+import { isProjectVisible } from '../../utils/projects';
 
 // ============================================================
 // Booking Modal
@@ -382,10 +383,11 @@ const FloorSelector: React.FC<{
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { projects, promotions, siteSettings } = useData();
-  const project = projects.find(p => p.slug === slug);
+  const project = projects.find(p => p.slug === slug && isProjectVisible(p));
 
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
+  const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null);
   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
   const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
   const [selectedPromo, setSelectedPromo] = useState<PromoOffer | null>(null);
@@ -413,14 +415,37 @@ export const ProjectDetailPage: React.FC = () => {
     );
   }
 
-  const availableRoomTypes = Array.from(new Set(project.plans.map(p => p.rooms))).sort((a: number, b: number) => a - b);
+  // Houses (корпуса): показываем переключатель, только если у проекта 2+ дома
+  const houses = project.houses || [];
+  const hasHouses = houses.length >= 2;
+
+  // При смене проекта/набора домов — выставляем дефолтный выбранный дом (первый)
+  useEffect(() => {
+    if (!hasHouses) {
+      if (selectedHouseId !== null) setSelectedHouseId(null);
+      return;
+    }
+    const stillExists = houses.some(h => h.id === selectedHouseId);
+    if (!stillExists) {
+      setSelectedHouseId(houses[0].id);
+      setRoomFilter(null);
+      setSelectedFloor(null);
+    }
+  }, [project.id, houses.map(h => h.id).join(','), hasHouses]);
+
+  // Планировки конкретного дома (или все, если домов нет)
+  const plansForCurrentHouse = hasHouses
+    ? project.plans.filter(p => p.house === selectedHouseId)
+    : project.plans;
+
+  const availableRoomTypes = Array.from(new Set(plansForCurrentHouse.map(p => p.rooms))).sort((a: number, b: number) => a - b);
 
   // Collect all unique floors from all plans
   const allFloors = Array.from(
-    new Set(project.plans.flatMap(p => parseFloors(p.floor || '')))
+    new Set(plansForCurrentHouse.flatMap(p => parseFloors(p.floor || '')))
   ).sort((a: number, b: number) => a - b);
 
-  const filteredPlans = project.plans.filter(p => {
+  const filteredPlans = plansForCurrentHouse.filter(p => {
     if (roomFilter !== null && p.rooms !== roomFilter) return false;
     if (selectedFloor !== null) {
       const planFloors = parseFloors(p.floor || '');
@@ -878,6 +903,43 @@ export const ProjectDetailPage: React.FC = () => {
                 </div>
               </div>
             </Reveal>
+
+            {/* House toggle — show only if project has 2+ houses */}
+            {hasHouses && (
+              <Reveal>
+                <div className="flex justify-center mb-10">
+                  <div
+                    role="tablist"
+                    aria-label="Выбор корпуса"
+                    className="inline-flex p-1.5 rounded-full bg-sand/70 border border-accent/30 shadow-inner"
+                  >
+                    {houses.map(house => {
+                      const active = house.id === selectedHouseId;
+                      return (
+                        <button
+                          key={house.id}
+                          role="tab"
+                          aria-selected={active}
+                          onClick={() => {
+                            if (house.id === selectedHouseId) return;
+                            setSelectedHouseId(house.id);
+                            setRoomFilter(null);
+                            setSelectedFloor(null);
+                          }}
+                          className={`relative px-7 md:px-10 py-2.5 text-sm md:text-base font-medium rounded-full transition-all duration-300 ${
+                            active
+                              ? 'bg-accent text-white shadow-md'
+                              : 'text-primary/70 hover:text-primary'
+                          }`}
+                        >
+                          {house.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </Reveal>
+            )}
 
             {/* Floor Selector */}
             {allFloors.length > 0 && (

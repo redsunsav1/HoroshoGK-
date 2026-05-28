@@ -16,6 +16,12 @@ export interface ApartmentPlan {
   image: string;
   floor?: string;
   number?: string;
+  house?: string; // id корпуса/дома из Project.houses (если у проекта несколько домов)
+}
+
+export interface ProjectHouse {
+  id: string;
+  name: string; // напр. "Дом 1", "Дом 2"
 }
 
 export interface ProjectFeature {
@@ -49,6 +55,7 @@ export interface Project {
   id: string;
   slug: string;
   name: string;
+  isHidden?: boolean;
   shortDescription: string;
   fullDescription: string;
   location: string;
@@ -59,6 +66,7 @@ export interface Project {
   galleryCategories?: GalleryCategory[];
   features: ProjectFeature[];
   plans: ApartmentPlan[];
+  houses?: ProjectHouse[]; // если несколько корпусов/домов, на странице появится переключатель
   promos: PromoOffer[];
   infrastructure: InfrastructureItem[];
   colorTheme: string;

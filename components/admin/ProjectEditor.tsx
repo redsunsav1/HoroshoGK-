@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, ConstructionYear, ConstructionMonth, GalleryImage, GalleryCategory } from '../../types';
+import { Project, ApartmentPlan, PromoOffer, ProjectFeature, ProjectTimelineItem, ConstructionUpdate, ConstructionYear, ConstructionMonth, GalleryImage, GalleryCategory, ProjectHouse } from '../../types';
 import { ImageUpload } from './ImageUpload';
 import { DocumentUpload } from './DocumentUpload';
 import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Image, Layout, Tag, Building, Calendar, Star, Images, Video, Map, RotateCw, RotateCcw } from 'lucide-react';
@@ -34,6 +34,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
     id: Date.now().toString(),
     slug: 'new-project',
     name: 'Новый ЖК',
+    isHidden: false,
     shortDescription: '',
     fullDescription: '',
     location: '',
@@ -221,6 +222,20 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
         {/* General Tab */}
         {activeTab === 'general' && (
           <div className="space-y-6">
+            <label className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={project.isHidden === true}
+                onChange={e => setProject({ ...project, isHidden: e.target.checked })}
+                className="mt-1 h-4 w-4"
+              />
+              <span>
+                <span className="block font-bold text-gray-800">Скрыть ЖК от посетителей сайта</span>
+                <span className="block text-sm text-gray-600 mt-1">
+                  Проект останется в админке и будет доступен администраторам после входа.
+                </span>
+              </span>
+            </label>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Название ЖК</label>
@@ -374,7 +389,73 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
           <div className="space-y-6">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-800 text-sm">
               <strong>Управление квартирами:</strong> Добавьте планировки и укажите для каждой этаж (можно диапазон: «2-5, 7») и планировку (напр. «1Б», «2Г»).
+              {' '}Если в ЖК <strong>несколько корпусов</strong> — добавьте их в блоке «Корпуса» ниже, и на каждой планировке выберите, к какому корпусу она относится. На странице ЖК появится переключатель между корпусами.
             </div>
+
+            {/* Houses (корпуса) management */}
+            <div className="border rounded-xl bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 bg-amber-50 border-b border-amber-200">
+                <div>
+                  <div className="font-bold text-primary">Корпуса (дома) проекта</div>
+                  <div className="text-xs text-gray-600 mt-0.5">
+                    Заполните, если в ЖК больше одного корпуса. Переключатель появится только при наличии 2+ домов.
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const newHouse: ProjectHouse = {
+                      id: Date.now().toString(),
+                      name: `Дом ${((project.houses || []).length + 1)}`,
+                    };
+                    setProject({ ...project, houses: [...(project.houses || []), newHouse] });
+                  }}
+                  className="flex items-center gap-2 text-sm bg-accent text-white px-3 py-1.5 rounded-lg hover:bg-primary"
+                >
+                  <Plus className="w-4 h-4" /> Добавить дом
+                </button>
+              </div>
+              {(project.houses || []).length === 0 && (
+                <div className="p-4 text-sm text-gray-500">
+                  Нет корпусов. У этого ЖК один дом — переключатель не нужен.
+                </div>
+              )}
+              {(project.houses || []).length > 0 && (
+                <div className="p-4 grid md:grid-cols-2 gap-3">
+                  {(project.houses || []).map((house) => {
+                    const plansInHouse = project.plans.filter(p => p.house === house.id).length;
+                    return (
+                      <div key={house.id} className="flex items-center gap-2 p-3 border rounded-lg bg-gray-50">
+                        <input
+                          value={house.name}
+                          onChange={e => setProject({
+                            ...project,
+                            houses: (project.houses || []).map(h => h.id === house.id ? { ...h, name: e.target.value } : h)
+                          })}
+                          className="flex-1 p-2 border rounded-lg"
+                          placeholder="напр. Дом 1"
+                        />
+                        <span className="text-xs text-gray-500 whitespace-nowrap">{plansInHouse} планир.</span>
+                        <button
+                          onClick={() => {
+                            if (plansInHouse > 0 && !confirm(`У этого дома ${plansInHouse} планир. После удаления они станут без привязки. Продолжить?`)) return;
+                            setProject({
+                              ...project,
+                              houses: (project.houses || []).filter(h => h.id !== house.id),
+                              plans: project.plans.map(p => p.house === house.id ? { ...p, house: undefined } : p),
+                            });
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded"
+                          title="Удалить дом"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-500">
                 Всего квартир: <strong>{project.plans.length}</strong>
@@ -463,6 +544,21 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
+                  {(project.houses || []).length > 0 && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Дом / корпус</label>
+                      <select
+                        value={plan.house || ''}
+                        onChange={e => updatePlan(idx, 'house', e.target.value || undefined)}
+                        className={`w-full p-2 border rounded-lg ${!plan.house ? 'border-amber-400 bg-amber-50' : ''}`}
+                      >
+                        <option value="">— не указан —</option>
+                        {(project.houses || []).map(h => (
+                          <option key={h.id} value={h.id}>{h.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="col-span-2">
                     <ImageUpload
                       label="Планировка"
