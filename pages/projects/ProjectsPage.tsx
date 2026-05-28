@@ -3,16 +3,18 @@ import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ArrowUpRight, Filter, MapPin } from 'lucide-react';
+import { getVisibleProjects } from '../../utils/projects';
 
 export const ProjectsPage: React.FC = () => {
   const { projects } = useData();
   const [filter, setFilter] = useState<string>('all');
+  const visibleProjects = getVisibleProjects(projects);
 
-  const allTags = Array.from(new Set(projects.flatMap(p => p.tags)));
+  const allTags = Array.from(new Set(visibleProjects.flatMap(p => p.tags)));
 
   const filteredProjects = filter === 'all'
-    ? projects
-    : projects.filter(p => p.tags.includes(filter));
+    ? visibleProjects
+    : visibleProjects.filter(p => p.tags.includes(filter));
 
   return (
     <>

@@ -5,6 +5,7 @@ import { Reveal } from '../components/ui/Reveal';
 import { ArrowUpRight, ArrowRight, ArrowDown, Percent, X, Phone } from 'lucide-react';
 import { HomePagePromo, PromoOffer } from '../types';
 import { ContactModal } from '../components/ui/ContactModal';
+import { getVisibleProjects } from '../utils/projects';
 
 const PROMO_INTERVAL = 6000;
 
@@ -182,6 +183,7 @@ const PromoPopup: React.FC<{
 
 export const HomePage: React.FC = () => {
   const { projects, homePageContent, promotions } = useData();
+  const visibleProjects = getVisibleProjects(projects);
 
   // Popup для виджета акций — открывается прямо на главной без перехода
   const [selectedPromo, setSelectedPromo] = useState<(PromoOffer & { project?: { slug: string; name: string } | null }) | null>(null);
@@ -203,7 +205,7 @@ export const HomePage: React.FC = () => {
       } as any);
       return;
     }
-    for (const proj of projects) {
+    for (const proj of visibleProjects) {
       const found = proj.promos?.find(p => p.id === promoId);
       if (found) {
         setSelectedPromo({ ...found, project: { slug: proj.slug, name: proj.name } } as any);
@@ -311,7 +313,7 @@ export const HomePage: React.FC = () => {
           </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {projects.map((project, index) => (
+            {visibleProjects.map((project, index) => (
               <Reveal key={project.id} delay={index * 100}>
                 <Link
                   to={`/projects/${project.slug}`}

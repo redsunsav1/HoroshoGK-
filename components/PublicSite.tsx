@@ -4,16 +4,18 @@ import { Project } from '../types';
 import { ProjectDetail } from './ProjectDetail';
 import { Reveal } from './ui/Reveal';
 import { Menu, Phone, ArrowUpRight } from 'lucide-react';
+import { getVisibleProjects } from '../utils/projects';
 
 export const PublicSite: React.FC = () => {
   const { projects } = useData(); // Fetch from "Backend"
+  const visibleProjects = useMemo(() => getVisibleProjects(projects), [projects]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Collect all promos for the hero section
   const heroPromos = useMemo(() => {
-    const allPromos = projects.flatMap(p => p.promos);
+    const allPromos = visibleProjects.flatMap(p => p.promos);
     return allPromos.slice(0, 3);
-  }, [projects]);
+  }, [visibleProjects]);
 
   return (
     <div className="min-h-screen font-sans bg-white text-primary relative">
@@ -81,7 +83,7 @@ export const PublicSite: React.FC = () => {
           <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-8">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                {heroPromos.map((promo, idx) => (
-                 <div key={idx} onClick={() => setSelectedProject(projects.find(p => p.promos.includes(promo)) || null)} className="flex items-center gap-4 group cursor-pointer animate-slide-up" style={{ animationDelay: `${600 + idx * 100}ms` }}>
+                 <div key={idx} onClick={() => setSelectedProject(visibleProjects.find(p => p.promos.includes(promo)) || null)} className="flex items-center gap-4 group cursor-pointer animate-slide-up" style={{ animationDelay: `${600 + idx * 100}ms` }}>
                     <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
                       <img src={promo.image} alt="offer" className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500" />
                     </div>
@@ -107,7 +109,7 @@ export const PublicSite: React.FC = () => {
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1600px] mx-auto">
-          {projects.map((project, index) => (
+          {visibleProjects.map((project, index) => (
             <Reveal key={project.id} delay={index * 100}>
               <div 
                 onClick={() => setSelectedProject(project)}

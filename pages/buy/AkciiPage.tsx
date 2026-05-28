@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
 import { ArrowLeft, Tag, X, Phone } from 'lucide-react';
+import { getVisibleProjects } from '../../utils/projects';
 
 export const AkciiPage: React.FC = () => {
   const { projects, promotions } = useData();
+  const visibleProjects = useMemo(() => getVisibleProjects(projects), [projects]);
   const location = useLocation();
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -18,7 +20,7 @@ export const AkciiPage: React.FC = () => {
     project: null as any,
   }));
 
-  const projectPromos = projects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
+  const projectPromos = visibleProjects.flatMap(p => p.promos.map(promo => ({ ...promo, project: p })));
 
   const allPromos = [...globalPromos, ...projectPromos];
 
@@ -30,7 +32,7 @@ export const AkciiPage: React.FC = () => {
     if (!promoId) return;
     const found = allPromos.find(p => p.id === promoId);
     if (found) setSelectedPromo(found);
-  }, [location.search, projects, promotions]);
+  }, [location.search, visibleProjects, promotions]);
 
   const openCallback = (title: string) => {
     setCallbackContext(`Акция: ${title}`);
@@ -155,7 +157,7 @@ export const AkciiPage: React.FC = () => {
               {!selectedPromo.project && selectedPromo.projectIds?.length > 0 && (
                 <div className="mb-6 flex flex-wrap gap-2">
                   {selectedPromo.projectIds.map((pid: string) => {
-                    const proj = projects.find((p: any) => p.id === pid);
+                    const proj = visibleProjects.find((p: any) => p.id === pid);
                     return proj ? (
                       <Link key={pid} to={`/projects/${proj.slug}`} className="text-accent font-medium hover:underline">
                         {proj.name} →

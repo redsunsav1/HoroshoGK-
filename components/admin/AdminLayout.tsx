@@ -9,8 +9,9 @@ import {
   Plus, Edit2, Trash2, LogOut, LayoutGrid, RotateCcw,
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
   Calendar, Image, FileText, Home, Filter, Settings,
-  Tag, TrendingUp, Building, Phone, ShoppingCart,
+  Tag, TrendingUp, Building, Phone, ShoppingCart, EyeOff,
 } from 'lucide-react';
+import { enableAdminProjectPreview } from '../../utils/projects';
 
 // ============================================================
 // Sidebar Component
@@ -769,7 +770,14 @@ const ProjectsSection: React.FC = () => {
                 <img src={project.heroImage} alt={project.name} className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="font-bold text-lg text-primary">{project.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-lg text-primary">{project.name}</h3>
+                  {project.isHidden && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                      <EyeOff className="w-3 h-3" /> Скрыт
+                    </span>
+                  )}
+                </div>
                 <div className="text-sm text-gray-500">{project.promos.length} акций &bull; {project.plans.length} планировок</div>
               </div>
             </div>
@@ -2627,6 +2635,7 @@ export const AdminLayout: React.FC = () => {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
+        enableAdminProjectPreview();
         setIsAuth(true);
       } else {
         setLoginError('Неверный пароль');
