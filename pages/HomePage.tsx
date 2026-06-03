@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
-import { ArrowUpRight, ArrowRight, ArrowDown, Percent, X, Phone } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, ArrowDown, X, Phone } from 'lucide-react';
 import { HomePagePromo, PromoOffer } from '../types';
 import { ContactModal } from '../components/ui/ContactModal';
 import { getVisibleProjects } from '../utils/projects';
@@ -77,11 +77,6 @@ const PromoWidget: React.FC<PromoWidgetProps> = ({ promos, onOpenPromoPopup }) =
     <>
       {/* Image area */}
       <div className="relative h-[260px] overflow-hidden bg-beige">
-        {/* % badge */}
-        <div className="absolute top-4 left-4 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-xl flex items-center justify-center shadow-sm">
-          <Percent className="w-5 h-5 text-accent" />
-        </div>
-
         {/* Discount badge */}
         <div className="absolute top-4 right-4 z-10 bg-primary text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
           {offer.discount}
