@@ -18,6 +18,18 @@ export const isProjectVisible = (project: Project) => {
   return !isProjectHidden(project) || canPreviewHiddenProjects();
 };
 
+export const sortProjects = (projects: Project[]) => {
+  return projects
+    .map((project, index) => ({ project, index }))
+    .sort((a, b) => {
+      const orderA = typeof a.project.sortOrder === 'number' ? a.project.sortOrder : a.index;
+      const orderB = typeof b.project.sortOrder === 'number' ? b.project.sortOrder : b.index;
+    if (orderA !== orderB) return orderA - orderB;
+      return a.index - b.index;
+    })
+    .map(({ project }) => project);
+};
+
 export const getVisibleProjects = (projects: Project[]) => {
-  return projects.filter(isProjectVisible);
+  return sortProjects(projects.filter(isProjectVisible));
 };

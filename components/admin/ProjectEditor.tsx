@@ -559,6 +559,36 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                       </select>
                     </div>
                   )}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Иконка акции</label>
+                    <select
+                      value={plan.promoIcon || 'flame'}
+                      onChange={e => updatePlan(idx, 'promoIcon', e.target.value)}
+                      className="w-full p-2 border rounded-lg"
+                    >
+                      <option value="flame">Огонек</option>
+                      <option value="percent">Процент</option>
+                      <option value="alert">Восклицательный знак</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Акция для этой квартиры</label>
+                    <input
+                      value={plan.promoTitle || ''}
+                      onChange={e => updatePlan(idx, 'promoTitle', e.target.value)}
+                      placeholder="Например: Скидка на первый взнос"
+                      className="w-full p-2 border rounded-lg"
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Описание акции</label>
+                    <textarea
+                      value={plan.promoDescription || ''}
+                      onChange={e => updatePlan(idx, 'promoDescription', e.target.value)}
+                      placeholder="Коротко опишите условия. Если заголовок акции пустой, бейдж на сайте не появится."
+                      className="w-full p-2 border rounded-lg h-20 resize-none"
+                    />
+                  </div>
                   <div className="col-span-2">
                     <ImageUpload
                       label="Планировка"

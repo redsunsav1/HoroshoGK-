@@ -10,8 +10,9 @@ import {
   Newspaper, HelpCircle, Users, Briefcase, ArrowLeft, Save,
   Calendar, Image, FileText, Home, Filter, Settings,
   Tag, TrendingUp, Building, Phone, ShoppingCart, EyeOff,
+  ChevronUp, ChevronDown,
 } from 'lucide-react';
-import { enableAdminProjectPreview } from '../../utils/projects';
+import { enableAdminProjectPreview, sortProjects } from '../../utils/projects';
 
 // ============================================================
 // Sidebar Component
@@ -76,6 +77,11 @@ const HomePageSection: React.FC = () => {
   const { homePageContent, updateHomePageContent, promotions, news } = useData();
   const [content, setContent] = useState<HomePageContent>(homePageContent);
   const [saved, setSaved] = useState(true);
+  const sortedPromos = [...(content.promos || [])].sort((a, b) => {
+    const orderA = typeof a.sortOrder === 'number' ? a.sortOrder : content.promos.indexOf(a);
+    const orderB = typeof b.sortOrder === 'number' ? b.sortOrder : content.promos.indexOf(b);
+    return orderA - orderB;
+  });
 
   const updateField = (field: keyof HomePageContent, value: string) => {
     setContent(prev => ({ ...prev, [field]: value }));
@@ -89,6 +95,7 @@ const HomePageSection: React.FC = () => {
       description: 'Описание акции',
       discount: '-10%',
       image: '/images/placeholder-card.svg',
+      sortOrder: content.promos.length,
     };
     setContent(prev => ({ ...prev, promos: [...prev.promos, newPromo] }));
     setSaved(false);
@@ -103,7 +110,25 @@ const HomePageSection: React.FC = () => {
   };
 
   const removePromo = (id: string) => {
-    setContent(prev => ({ ...prev, promos: prev.promos.filter(p => p.id !== id) }));
+    setContent(prev => ({
+      ...prev,
+      promos: prev.promos
+        .filter(p => p.id !== id)
+        .map((p, index) => ({ ...p, sortOrder: index })),
+    }));
+    setSaved(false);
+  };
+
+  const movePromo = (id: string, direction: -1 | 1) => {
+    const ordered = [...sortedPromos];
+    const index = ordered.findIndex(p => p.id === id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= ordered.length) return;
+    [ordered[index], ordered[nextIndex]] = [ordered[nextIndex], ordered[index]];
+    setContent(prev => ({
+      ...prev,
+      promos: ordered.map((p, promoIndex) => ({ ...p, sortOrder: promoIndex })),
+    }));
     setSaved(false);
   };
 
@@ -295,9 +320,28 @@ const HomePageSection: React.FC = () => {
           </button>
         </div>
         <div className="p-6 space-y-4">
-          {content.promos.map((promo, idx) => (
+          {sortedPromos.map((promo, idx) => (
             <div key={promo.id} className="border rounded-xl p-4 bg-gray-50">
               <div className="flex gap-4">
+                <div className="flex flex-col items-center gap-1 pt-1">
+                  <span className="text-xs font-bold text-gray-400">#{idx + 1}</span>
+                  <button
+                    onClick={() => movePromo(promo.id, -1)}
+                    disabled={idx === 0}
+                    className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                    title="Поднять выше"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => movePromo(promo.id, 1)}
+                    disabled={idx === sortedPromos.length - 1}
+                    className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                    title="Опустить ниже"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex gap-2">
                     <input
@@ -753,7 +797,19 @@ const PasswordChangeBlock: React.FC = () => {
 // Projects Section
 // ============================================================
 const ProjectsSection: React.FC = () => {
-  const { projects, deleteProject } = useData();
+  const { projects, updateProject, deleteProject } = useData();
+  const orderedProjects = sortProjects(projects);
+
+  const moveProject = async (id: string, direction: -1 | 1) => {
+    const ordered = [...orderedProjects];
+    const index = ordered.findIndex(p => p.id === id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= ordered.length) return;
+    [ordered[index], ordered[nextIndex]] = [ordered[nextIndex], ordered[index]];
+    const updated = ordered.map((project, projectIndex) => ({ ...project, sortOrder: projectIndex }));
+    await Promise.all(updated.map(project => updateProject(project)));
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -763,9 +819,28 @@ const ProjectsSection: React.FC = () => {
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4">
-        {projects.map(project => (
+        {orderedProjects.map((project, index) => (
           <div key={project.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
             <div className="flex items-center gap-6">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
+                <button
+                  onClick={() => moveProject(project.id, -1)}
+                  disabled={index === 0}
+                  className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                  title="Поднять выше"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => moveProject(project.id, 1)}
+                  disabled={index === orderedProjects.length - 1}
+                  className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                  title="Опустить ниже"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
               <div className="w-24 h-16 rounded-lg overflow-hidden bg-gray-100">
                 <img src={project.heroImage} alt={project.name} className="w-full h-full object-cover" />
               </div>

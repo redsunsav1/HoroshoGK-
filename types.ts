@@ -17,6 +17,9 @@ export interface ApartmentPlan {
   floor?: string;
   number?: string;
   house?: string; // id корпуса/дома из Project.houses (если у проекта несколько домов)
+  promoTitle?: string;
+  promoDescription?: string;
+  promoIcon?: 'flame' | 'percent' | 'alert';
 }
 
 export interface ProjectHouse {
@@ -56,6 +59,7 @@ export interface Project {
   slug: string;
   name: string;
   isHidden?: boolean;
+  sortOrder?: number;
   shortDescription: string;
   fullDescription: string;
   location: string;
@@ -170,6 +174,7 @@ export interface HomePagePromo {
   description: string;
   discount: string;
   image: string;
+  sortOrder?: number;
   link?: string; // Опциональная ссылка на новость/акцию (например /news/slug или /akcii)
 }
 

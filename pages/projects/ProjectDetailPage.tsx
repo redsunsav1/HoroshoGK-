@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, FileDown } from 'lucide-react';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, FileDown, Flame, Percent, CircleAlert } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
 import { isProjectVisible } from '../../utils/projects';
 
@@ -271,12 +271,70 @@ const PromoPopup: React.FC<{
 // ============================================================
 // Apartment Card
 // ============================================================
+const ApartmentPromoIcon: React.FC<{ icon?: ApartmentPlan['promoIcon']; className?: string }> = ({ icon, className = 'w-5 h-5' }) => {
+  if (icon === 'percent') return <Percent className={className} />;
+  if (icon === 'alert') return <CircleAlert className={className} />;
+  return <Flame className={className} />;
+};
+
+const ApartmentPromoModal: React.FC<{
+  plan: ApartmentPlan;
+  onClose: () => void;
+}> = ({ plan, onClose }) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="relative bg-beige px-8 pt-10 pb-8">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+        >
+          <X className="w-5 h-5 text-primary" />
+        </button>
+        <div className="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg mb-5">
+          <ApartmentPromoIcon icon={plan.promoIcon} className="w-7 h-7" />
+        </div>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent mb-2">Акция на квартиру</p>
+        <h3 className="text-2xl md:text-3xl font-bold text-primary leading-tight">
+          {plan.promoTitle}
+        </h3>
+      </div>
+      <div className="p-8">
+        {plan.promoDescription && (
+          <p className="text-secondary leading-relaxed mb-6 whitespace-pre-line">
+            {plan.promoDescription}
+          </p>
+        )}
+        <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-beige/50 border border-sand mb-6">
+          <div>
+            <div className="text-xs text-secondary uppercase tracking-wider mb-1">Площадь</div>
+            <div className="font-bold text-primary">{plan.area} м²</div>
+          </div>
+          <div>
+            <div className="text-xs text-secondary uppercase tracking-wider mb-1">Стоимость</div>
+            <div className="font-bold text-accent">{plan.price}</div>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full py-3 bg-primary text-white rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-accent transition-colors"
+        >
+          Понятно
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const ApartmentCard: React.FC<{
   plan: ApartmentPlan;
   projectName: string;
   onBook: (plan: ApartmentPlan) => void;
   onViewPlan: (plan: ApartmentPlan) => void;
-}> = ({ plan, projectName, onBook, onViewPlan }) => {
+  onOpenPromo: (plan: ApartmentPlan) => void;
+}> = ({ plan, projectName, onBook, onViewPlan, onOpenPromo }) => {
   return (
     <div className="bg-white border border-sand rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
       <div
@@ -284,14 +342,28 @@ const ApartmentCard: React.FC<{
         onClick={() => onViewPlan(plan)}
       >
         <img src={plan.image} alt="Plan" loading="lazy" className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-3 shadow-lg">
             <ZoomIn className="w-6 h-6 text-primary" />
           </div>
         </div>
-        <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-xs font-bold shadow-sm text-primary">
+        <div className="absolute top-4 right-4 z-10 bg-white px-3 py-1 rounded-full text-xs font-bold shadow-sm text-primary">
           {plan.rooms}-комн.
         </div>
+        {plan.promoTitle && (
+          <button
+            type="button"
+            onMouseDown={e => e.stopPropagation()}
+            onClick={e => {
+              e.stopPropagation();
+              onOpenPromo(plan);
+            }}
+            className="absolute top-4 left-4 z-20 inline-flex items-center gap-2 max-w-[calc(100%-7rem)] bg-accent text-white px-3 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-primary transition-colors"
+          >
+            <ApartmentPromoIcon icon={plan.promoIcon} className="w-4 h-4 shrink-0" />
+            <span className="truncate">{plan.promoTitle}</span>
+          </button>
+        )}
       </div>
       <div className="p-6">
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -390,6 +462,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null);
   const [bookingApartment, setBookingApartment] = useState<ApartmentPlan | null>(null);
   const [viewPlanImage, setViewPlanImage] = useState<ApartmentPlan | null>(null);
+  const [selectedApartmentPromo, setSelectedApartmentPromo] = useState<ApartmentPlan | null>(null);
   const [selectedPromo, setSelectedPromo] = useState<PromoOffer | null>(null);
   const [showPromoCallback, setShowPromoCallback] = useState(false);
   const [promoCallbackContext, setPromoCallbackContext] = useState('');
@@ -962,6 +1035,7 @@ export const ProjectDetailPage: React.FC = () => {
                       projectName={project.name}
                       onBook={setBookingApartment}
                       onViewPlan={setViewPlanImage}
+                      onOpenPromo={setSelectedApartmentPromo}
                     />
                   </Reveal>
                 ))}
@@ -1083,6 +1157,13 @@ export const ProjectDetailPage: React.FC = () => {
           onClose={() => setShowPromoCallback(false)}
           title="Обратный звонок"
           context={promoCallbackContext}
+        />
+      )}
+
+      {selectedApartmentPromo && (
+        <ApartmentPromoModal
+          plan={selectedApartmentPromo}
+          onClose={() => setSelectedApartmentPromo(null)}
         />
       )}
 

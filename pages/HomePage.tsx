@@ -9,6 +9,18 @@ import { getVisibleProjects } from '../utils/projects';
 
 const PROMO_INTERVAL = 6000;
 
+const sortHomePromos = (promos: HomePagePromo[]) => {
+  return promos
+    .map((promo, index) => ({ promo, index }))
+    .sort((a, b) => {
+      const orderA = typeof a.promo.sortOrder === 'number' ? a.promo.sortOrder : a.index;
+      const orderB = typeof b.promo.sortOrder === 'number' ? b.promo.sortOrder : b.index;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.index - b.index;
+    })
+    .map(({ promo }) => promo);
+};
+
 interface PromoWidgetProps {
   promos: HomePagePromo[];
   onOpenPromoPopup: (promoId: string) => void;
@@ -184,6 +196,7 @@ const PromoPopup: React.FC<{
 export const HomePage: React.FC = () => {
   const { projects, homePageContent, promotions } = useData();
   const visibleProjects = getVisibleProjects(projects);
+  const homePromos = sortHomePromos(homePageContent.promos || []);
 
   // Popup для виджета акций — открывается прямо на главной без перехода
   const [selectedPromo, setSelectedPromo] = useState<(PromoOffer & { project?: { slug: string; name: string } | null }) | null>(null);
@@ -287,7 +300,7 @@ export const HomePage: React.FC = () => {
             {/* Right side - Promo Widget */}
             <div className="hidden lg:block">
               <Reveal direction="left" delay={400}>
-                <PromoWidget promos={homePageContent.promos} onOpenPromoPopup={handleOpenPromoPopup} />
+                <PromoWidget promos={homePromos} onOpenPromoPopup={handleOpenPromoPopup} />
               </Reveal>
             </div>
           </div>
@@ -297,7 +310,7 @@ export const HomePage: React.FC = () => {
 
       {/* Mobile Promo Widget */}
       <section className="lg:hidden py-8 px-4 bg-beige/50 flex justify-center">
-        <PromoWidget promos={homePageContent.promos} onOpenPromoPopup={handleOpenPromoPopup} />
+        <PromoWidget promos={homePromos} onOpenPromoPopup={handleOpenPromoPopup} />
       </section>
 
       {/* Projects Grid */}
