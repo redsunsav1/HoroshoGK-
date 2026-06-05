@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Layout } from './components/layout';
 import { AnalyticsScripts } from './components/AnalyticsScripts';
 import { AdminLayout } from './components/admin/AdminLayout';
@@ -26,6 +27,7 @@ import { FaqPage } from './pages/FaqPage';
 import { InvestorsPage } from './pages/InvestorsPage';
 export default function App() {
   return (
+    <ErrorBoundary>
     <DataProvider>
       <BrowserRouter>
         <Routes>
@@ -65,5 +67,6 @@ export default function App() {
         <AnalyticsScripts />
       </BrowserRouter>
     </DataProvider>
+    </ErrorBoundary>
   );
 }

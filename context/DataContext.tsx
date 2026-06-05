@@ -99,6 +99,18 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const fetchJson = async (url: string, timeoutMs = 8000) => {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) return null;
+    return await response.json();
+  } finally {
+    window.clearTimeout(timeout);
+  }
+};
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
@@ -121,6 +133,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Fetch all data from API
   const fetchAllData = useCallback(async () => {
+    const migrateGallery = (projects: Project[]): Project[] =>
+      projects.map(p => {
+        if (p.gallery?.length > 0 && (!p.galleryImages || p.galleryImages.length === 0)) {
+          return {
+            ...p,
+            galleryImages: p.gallery.map((url: string, i: number) => ({
+              id: `migrated-${i}-${Date.now()}`,
+              url,
+              category: 'all',
+            })),
+          };
+        }
+        return p;
+      });
+
+    const applyData = (url: string, data: any, setter: (data: any) => void) => {
+      if (!data || (Array.isArray(data) ? data.length === 0 : Object.keys(data).length === 0)) return;
+      setter(url.endsWith('/projects') && Array.isArray(data) ? migrateGallery(data) : data);
+    };
+
     try {
       setLoading(true);
       setError(null);
@@ -142,42 +174,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         { url: `${API_URL}/buy-methods`, setter: setBuyMethods, initial: INITIAL_BUY_METHODS },
       ];
 
-      // Migrate old gallery[] to galleryImages[] for projects
-      const migrateGallery = (projects: Project[]): Project[] =>
-        projects.map(p => {
-          if (p.gallery?.length > 0 && (!p.galleryImages || p.galleryImages.length === 0)) {
-            return {
-              ...p,
-              galleryImages: p.gallery.map((url: string, i: number) => ({
-                id: `migrated-${i}-${Date.now()}`,
-                url,
-                category: 'all',
-              })),
-            };
-          }
-          return p;
-        });
+      const criticalEndpoints = endpoints.filter(({ url }) => url.endsWith('/site-settings'));
+      const backgroundEndpoints = endpoints.filter(endpoint => !criticalEndpoints.includes(endpoint));
 
-      await Promise.all(endpoints.map(async ({ url, setter, initial }) => {
+      await Promise.all(criticalEndpoints.map(async ({ url, setter }) => {
         try {
-          const response = await fetch(url);
-          if (response.ok) {
-            const data = await response.json();
-            // Only use API data if it's not empty/null
-            if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
-              // Auto-migrate gallery format for projects
-              if (url.endsWith('/projects') && Array.isArray(data)) {
-                setter(migrateGallery(data));
-              } else {
-                setter(data);
-              }
-            }
-          }
+          const data = await fetchJson(url, 3000);
+          applyData(url, data, setter);
         } catch (err) {
           console.warn(`Failed to fetch ${url}, using defaults`);
         }
       }));
 
+      Promise.allSettled(backgroundEndpoints.map(async ({ url, setter }) => {
+        const data = await fetchJson(url, 6000);
+        applyData(url, data, setter);
+      }));
     } catch (err) {
       console.error('API Error:', err);
       setError('API not available, using local data');
@@ -471,7 +483,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchAllData();
   };
 
-  // Show loading screen while fetching data from API
   if (loading) {
     return (
       <div style={{
@@ -479,19 +490,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FAF8F5',
-        flexDirection: 'column',
-        gap: '16px'
+        backgroundColor: '#ffffff',
+        color: '#4a4036',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '18px',
+        fontWeight: 600
       }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          border: '4px solid #e5e7eb',
-          borderTopColor: '#1a1a2e',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        Загружаем проект...
       </div>
     );
   }
