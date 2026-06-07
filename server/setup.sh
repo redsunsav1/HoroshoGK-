@@ -33,12 +33,18 @@ server {
     root /var/www/horoshogk;
     index index.html;
 
+    # Alias for external links while the live project slug remains new-project.
+    location = /projects/kharizma {
+        return 301 /projects/new-project$is_args$args;
+    }
+
     # API -> Node.js
     location /api/ {
         proxy_pass http://127.0.0.1:3001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         client_max_body_size 10m;
+        add_header Cache-Control "no-store" always;
     }
 
     # Uploaded images
@@ -61,6 +67,7 @@ server {
 
     # SPA routing
     location / {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate" always;
         try_files $uri $uri/ /index.html;
     }
 

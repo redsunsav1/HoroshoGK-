@@ -24,6 +24,63 @@ import {
 // API URL - will be same origin in production
 const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
+const EMPTY_HOME_CONTENT: HomePageContent = {
+  heroTitle1: '',
+  heroTitle2: '',
+  heroSubtitle: '',
+  heroImage: '',
+  heroButtonText: '',
+  promos: [],
+};
+
+const EMPTY_SITE_SETTINGS: SiteSettings = {
+  logoUrl: '',
+  faviconUrl: '',
+  companyName: '',
+  companySubtitle: '',
+  phone: '',
+  email: '',
+  address: '',
+};
+
+const EMPTY_INVESTORS_CONTENT: InvestorsContent = {
+  heroTitle: '',
+  heroSubtitle: '',
+  stats: [],
+  aboutTitle: '',
+  aboutText1: '',
+  aboutText2: '',
+  aboutImage: '',
+  documents: [],
+  ctaTitle: '',
+  ctaText: '',
+  ctaEmail: '',
+};
+
+const EMPTY_ABOUT_CONTENT: AboutContent = {
+  heroTitle: '',
+  heroSubtitle: '',
+  heroImage: '',
+  stats: [],
+  missionTitle: '',
+  missionText1: '',
+  missionText2: '',
+  missionText3: '',
+  missionImage: '',
+  values: [],
+  ctaTitle: '',
+  ctaText: '',
+};
+
+const EMPTY_CONTACTS_CONTENT: ContactsContent = {
+  heroTitle: '',
+  heroSubtitle: '',
+  offices: [],
+  hotlinePhone: '',
+  hotlineText: '',
+  messengers: {},
+};
+
 interface DataContextType {
   // Projects
   projects: Project[];
@@ -113,23 +170,24 @@ const fetchJson = async (url: string, timeoutMs = 8000) => {
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State
-  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
-  const [news, setNews] = useState<NewsItem[]>(INITIAL_NEWS);
-  const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(INITIAL_FAQ);
-  const [team, setTeam] = useState<TeamMember[]>(INITIAL_TEAM);
-  const [vacancies, setVacancies] = useState<Vacancy[]>(INITIAL_VACANCIES);
-  const [pageSettings, setPageSettings] = useState<PageSettings[]>(INITIAL_PAGE_SETTINGS);
-  const [homePageContent, setHomePageContent] = useState<HomePageContent>(INITIAL_HOME_CONTENT);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SITE_SETTINGS);
-  const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>(INITIAL_PROJECT_FILTERS);
-  const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
-  const [investorsContent, setInvestorsContent] = useState<InvestorsContent>(INITIAL_INVESTORS_CONTENT);
-  const [aboutContent, setAboutContent] = useState<AboutContent>(INITIAL_ABOUT_CONTENT);
-  const [contactsContent, setContactsContent] = useState<ContactsContent>(INITIAL_CONTACTS_CONTENT);
-  const [buyMethods, setBuyMethods] = useState<BuyMethodContent[]>(INITIAL_BUY_METHODS);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [faqCategories, setFaqCategories] = useState<FaqCategory[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [pageSettings, setPageSettings] = useState<PageSettings[]>([]);
+  const [homePageContent, setHomePageContent] = useState<HomePageContent>(EMPTY_HOME_CONTENT);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(EMPTY_SITE_SETTINGS);
+  const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [investorsContent, setInvestorsContent] = useState<InvestorsContent>(EMPTY_INVESTORS_CONTENT);
+  const [aboutContent, setAboutContent] = useState<AboutContent>(EMPTY_ABOUT_CONTENT);
+  const [contactsContent, setContactsContent] = useState<ContactsContent>(EMPTY_CONTACTS_CONTENT);
+  const [buyMethods, setBuyMethods] = useState<BuyMethodContent[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [publicDataReady, setPublicDataReady] = useState(false);
 
   // Fetch all data from API
   const fetchAllData = useCallback(async () => {
@@ -149,50 +207,60 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
     const applyData = (url: string, data: any, setter: (data: any) => void) => {
-      if (!data || (Array.isArray(data) ? data.length === 0 : Object.keys(data).length === 0)) return;
+      if (data == null) return;
       setter(url.endsWith('/projects') && Array.isArray(data) ? migrateGallery(data) : data);
     };
 
     try {
       setLoading(true);
       setError(null);
+      setPublicDataReady(false);
 
       const endpoints = [
-        { url: `${API_URL}/projects`, setter: setProjects, initial: INITIAL_PROJECTS },
-        { url: `${API_URL}/news`, setter: setNews, initial: INITIAL_NEWS },
-        { url: `${API_URL}/faq`, setter: setFaqCategories, initial: INITIAL_FAQ },
-        { url: `${API_URL}/team`, setter: setTeam, initial: INITIAL_TEAM },
-        { url: `${API_URL}/vacancies`, setter: setVacancies, initial: INITIAL_VACANCIES },
-        { url: `${API_URL}/page-settings`, setter: setPageSettings, initial: INITIAL_PAGE_SETTINGS },
-        { url: `${API_URL}/home-content`, setter: setHomePageContent, initial: INITIAL_HOME_CONTENT },
-        { url: `${API_URL}/site-settings`, setter: setSiteSettings, initial: INITIAL_SITE_SETTINGS },
-        { url: `${API_URL}/project-filters`, setter: setProjectFilters, initial: INITIAL_PROJECT_FILTERS },
-        { url: `${API_URL}/promotions`, setter: setPromotions, initial: INITIAL_PROMOTIONS },
-        { url: `${API_URL}/investors-content`, setter: setInvestorsContent, initial: INITIAL_INVESTORS_CONTENT },
-        { url: `${API_URL}/about-content`, setter: setAboutContent, initial: INITIAL_ABOUT_CONTENT },
-        { url: `${API_URL}/contacts-content`, setter: setContactsContent, initial: INITIAL_CONTACTS_CONTENT },
-        { url: `${API_URL}/buy-methods`, setter: setBuyMethods, initial: INITIAL_BUY_METHODS },
+        { url: `${API_URL}/projects`, setter: setProjects },
+        { url: `${API_URL}/news`, setter: setNews },
+        { url: `${API_URL}/faq`, setter: setFaqCategories },
+        { url: `${API_URL}/team`, setter: setTeam },
+        { url: `${API_URL}/vacancies`, setter: setVacancies },
+        { url: `${API_URL}/page-settings`, setter: setPageSettings },
+        { url: `${API_URL}/home-content`, setter: setHomePageContent, required: true },
+        { url: `${API_URL}/site-settings`, setter: setSiteSettings, required: true },
+        { url: `${API_URL}/project-filters`, setter: setProjectFilters },
+        { url: `${API_URL}/promotions`, setter: setPromotions },
+        { url: `${API_URL}/investors-content`, setter: setInvestorsContent },
+        { url: `${API_URL}/about-content`, setter: setAboutContent },
+        { url: `${API_URL}/contacts-content`, setter: setContactsContent },
+        { url: `${API_URL}/buy-methods`, setter: setBuyMethods },
       ];
 
-      const criticalEndpoints = endpoints.filter(({ url }) => url.endsWith('/site-settings'));
-      const backgroundEndpoints = endpoints.filter(endpoint => !criticalEndpoints.includes(endpoint));
-
-      await Promise.all(criticalEndpoints.map(async ({ url, setter }) => {
-        try {
-          const data = await fetchJson(url, 3000);
-          applyData(url, data, setter);
-        } catch (err) {
-          console.warn(`Failed to fetch ${url}, using defaults`);
+      const results = await Promise.allSettled(endpoints.map(async ({ url, setter, required }) => {
+        const data = await fetchJson(url, required ? 5000 : 6000);
+        if (data == null) {
+          if (required) throw new Error(`Required endpoint returned no data: ${url}`);
+          return { url, loaded: false };
         }
+        applyData(url, data, setter);
+        return { url, loaded: true };
       }));
 
-      Promise.allSettled(backgroundEndpoints.map(async ({ url, setter }) => {
-        const data = await fetchJson(url, 6000);
-        applyData(url, data, setter);
-      }));
+      const requiredEndpoints = endpoints.filter(endpoint => endpoint.required).map(endpoint => endpoint.url);
+      const loadedRequiredEndpoints = new Set(
+        results
+          .filter((result): result is PromiseFulfilledResult<{ url: string; loaded: boolean }> => result.status === 'fulfilled')
+          .filter(result => result.value.loaded)
+          .map(result => result.value.url)
+      );
+      const hasRequiredData = requiredEndpoints.every(url => loadedRequiredEndpoints.has(url));
+
+      if (!hasRequiredData) {
+        console.error('Required public data unavailable:', results);
+        setError('Required public data unavailable');
+      }
+      setPublicDataReady(hasRequiredData);
     } catch (err) {
       console.error('API Error:', err);
-      setError('API not available, using local data');
+      setError('Required public data unavailable');
+      setPublicDataReady(false);
     } finally {
       setLoading(false);
     }
@@ -483,23 +551,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchAllData();
   };
 
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#ffffff',
-        color: '#4a4036',
-        fontFamily: 'Arial, sans-serif',
-        fontSize: '18px',
-        fontWeight: 600
-      }}>
-        Загружаем проект...
-      </div>
-    );
-  }
+  if (loading || !publicDataReady) return null;
 
   return (
     <DataContext.Provider value={{

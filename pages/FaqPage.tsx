@@ -129,7 +129,7 @@ export const FaqPage: React.FC = () => {
                   href="tel:88000000000"
                   className="bg-white text-primary px-8 py-4 rounded-xl font-medium hover:bg-accent hover:text-white transition-colors"
                 >
-                  8 800 000-00-00
+                  8 8512 43 22 22
                 </a>
                 <Link
                   to="/contacts"

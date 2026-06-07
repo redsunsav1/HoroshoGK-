@@ -109,15 +109,7 @@ function writeJsonFile(filePath, data) {
 
 // Site Settings
 function readSiteSettings() {
-  return readJsonFile(SITE_SETTINGS_FILE, {
-    logoUrl: '',
-    faviconUrl: '',
-    companyName: 'ХОРОШО',
-    companySubtitle: 'ГРУППА КОМПАНИЙ',
-    phone: '8 800 000-00-00',
-    email: 'info@horoshogk.ru',
-    address: 'г. Астрахань, ул. Теплая, д. 10, офис 305',
-  });
+  return readJsonFile(SITE_SETTINGS_FILE, null);
 }
 
 // News

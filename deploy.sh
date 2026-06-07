@@ -85,6 +85,11 @@ server {
     gzip_types text/plain text/css application/json application/javascript text/xml image/svg+xml;
     gzip_min_length 1000;
 
+    # Alias for external links while the live project slug remains new-project.
+    location = /projects/kharizma {
+        return 301 /projects/new-project$is_args$args;
+    }
+
     # API — проксируем на Node.js
     location /api/ {
         proxy_pass http://127.0.0.1:3001;
@@ -94,6 +99,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         client_max_body_size 50m;
+        add_header Cache-Control "no-store" always;
     }
 
     # Загруженные изображения
@@ -117,6 +123,7 @@ server {
 
     # SPA fallback — все остальные URL на index.html
     location / {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate" always;
         try_files $uri $uri/ /index.html;
     }
 }

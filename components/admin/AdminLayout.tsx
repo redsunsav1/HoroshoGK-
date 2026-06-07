@@ -164,7 +164,7 @@ const HomePageSection: React.FC = () => {
                 value={content.heroTitle1}
                 onChange={e => updateField('heroTitle1', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="Строим"
+                placeholder="Хорошо - это чувство,"
               />
             </div>
             <div>
@@ -173,7 +173,7 @@ const HomePageSection: React.FC = () => {
                 value={content.heroTitle2}
                 onChange={e => updateField('heroTitle2', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="счастье"
+                placeholder="которое мы дарим"
               />
             </div>
           </div>
@@ -601,7 +601,7 @@ const SiteSettingsSection: React.FC = () => {
                 value={settings.phone}
                 onChange={e => updateField('phone', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="8 800 000-00-00"
+                placeholder="8 8512 43 22 22"
               />
             </div>
             <div>
@@ -610,7 +610,7 @@ const SiteSettingsSection: React.FC = () => {
                 value={settings.email}
                 onChange={e => updateField('email', e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg"
-                placeholder="info@horoshogk.ru"
+                placeholder="office@brooklyn30.ru"
               />
             </div>
           </div>
@@ -620,7 +620,7 @@ const SiteSettingsSection: React.FC = () => {
               value={settings.address}
               onChange={e => updateField('address', e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg"
-              placeholder="г. Астрахань, ул. Теплая, д. 10, офис 305"
+              placeholder="г. Астрахань, ул. Брестская 28/1"
             />
           </div>
         </div>
@@ -2016,7 +2016,7 @@ const ContactsSection: React.FC = () => {
               value={content.hotlinePhone}
               onChange={e => updateField('hotlinePhone', e.target.value)}
               className="p-3 border border-gray-300 rounded-lg font-bold"
-              placeholder="8 800 000-00-00"
+              placeholder="8 8512 43 22 22"
             />
             <input
               value={content.hotlineText}

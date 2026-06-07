@@ -105,7 +105,7 @@ export const BuyPage: React.FC = () => {
                 href="tel:+78000000000"
                 className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors text-center"
               >
-                8 800 000-00-00
+                8 8512 43 22 22
               </a>
               <Link
                 to="/contacts"
