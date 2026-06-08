@@ -1,16 +1,29 @@
 import React, { useEffect } from 'react';
 import { useData } from '../context/DataContext';
 
+const extractNumericId = (value?: string): string => {
+  const match = String(value || '').match(/\d{5,}/);
+  return match ? match[0] : '';
+};
+
+const normalizeToken = (value?: string): string => String(value || '').trim();
+
+const hasScriptWithAttribute = (attributeName: string, attributeValue: string): boolean =>
+  Array.from(document.querySelectorAll(`script[${attributeName}]`)).some(
+    script => script.getAttribute(attributeName) === attributeValue
+  );
+
 export const AnalyticsScripts: React.FC = () => {
   const { siteSettings } = useData();
+  const yandexMetrikaId = extractNumericId(siteSettings.yandexMetrikaId);
 
   // Favicon обновляется в Layout.tsx (единая точка истины), здесь дубликат удалён
 
   useEffect(() => {
     // Яндекс.Метрика + Вебвизор
-    if (siteSettings.yandexMetrikaId) {
-      const id = siteSettings.yandexMetrikaId;
-      if (!document.querySelector(`script[data-ym-id="${id}"]`)) {
+    if (yandexMetrikaId) {
+      const id = yandexMetrikaId;
+      if (!hasScriptWithAttribute('data-ym-id', id)) {
         const script = document.createElement('script');
         script.setAttribute('data-ym-id', id);
         script.textContent = `
@@ -26,9 +39,10 @@ export const AnalyticsScripts: React.FC = () => {
     }
 
     // Яндекс.Директ
-    if (siteSettings.yandexDirectId) {
-      const id = siteSettings.yandexDirectId;
-      if (!document.querySelector(`script[data-yd-id="${id}"]`)) {
+    const yandexDirectId = normalizeToken(siteSettings.yandexDirectId);
+    if (yandexDirectId) {
+      const id = yandexDirectId;
+      if (!hasScriptWithAttribute('data-yd-id', id)) {
         const script = document.createElement('script');
         script.setAttribute('data-yd-id', id);
         script.src = `https://yandex.ru/ads/system/context.js`;
@@ -38,9 +52,10 @@ export const AnalyticsScripts: React.FC = () => {
     }
 
     // Calltouch
-    if (siteSettings.calltouchModId && siteSettings.calltouchRoutKey) {
-      const modId = siteSettings.calltouchModId;
-      if (!document.querySelector(`script[data-ct-mod="${modId}"]`)) {
+    const calltouchModId = normalizeToken(siteSettings.calltouchModId);
+    if (calltouchModId && siteSettings.calltouchRoutKey) {
+      const modId = calltouchModId;
+      if (!hasScriptWithAttribute('data-ct-mod', modId)) {
         const script = document.createElement('script');
         script.setAttribute('data-ct-mod', modId);
         script.textContent = `
@@ -52,19 +67,19 @@ export const AnalyticsScripts: React.FC = () => {
           s.type="text/javascript";s.async=true;s.id=n;
           s.src="https://mod.calltouch.ru/init.js?id="+c[0];
           s.onerror=function(){w[n]["hierarch498498498"]=1};f.parentNode.insertBefore(s,f);
-          })(window,document,"ct","${modId}");
+          })(window,document,"ct",${JSON.stringify(modId)});
         `;
         document.head.appendChild(script);
       }
     }
-  }, [siteSettings.yandexMetrikaId, siteSettings.yandexDirectId, siteSettings.calltouchModId, siteSettings.calltouchRoutKey]);
+  }, [yandexMetrikaId, siteSettings.yandexDirectId, siteSettings.calltouchModId, siteSettings.calltouchRoutKey]);
 
   // Render noscript pixel for Yandex Metrika
-  if (siteSettings.yandexMetrikaId) {
+  if (yandexMetrikaId) {
     return (
       <noscript>
         <div>
-          <img src={`https://mc.yandex.ru/watch/${siteSettings.yandexMetrikaId}`} style={{position:'absolute',left:'-9999px'}} alt="" />
+          <img src={`https://mc.yandex.ru/watch/${yandexMetrikaId}`} style={{position:'absolute',left:'-9999px'}} alt="" />
         </div>
       </noscript>
     );
