@@ -5,6 +5,8 @@ import { Reveal } from '../../components/ui/Reveal';
 import { ArrowUpRight, Filter, MapPin } from 'lucide-react';
 import { getVisibleProjects } from '../../utils/projects';
 
+const FALLBACK_PROJECT_IMAGE = '/images/placeholder-card.svg';
+
 export const ProjectsPage: React.FC = () => {
   const { projects } = useData();
   const [filter, setFilter] = useState<string>('all');
@@ -76,9 +78,14 @@ export const ProjectsPage: React.FC = () => {
                   className="group block bg-white rounded-2xl overflow-hidden border border-sand hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative h-[250px] overflow-hidden">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                      style={{ backgroundImage: `url(${project.heroImage})` }}
+                    <img
+                      src={project.heroImage || FALLBACK_PROJECT_IMAGE}
+                      alt={project.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={e => {
+                        e.currentTarget.src = FALLBACK_PROJECT_IMAGE;
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 

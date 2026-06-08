@@ -5,6 +5,8 @@ export default {
     './*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
     './context/**/*.{js,ts,jsx,tsx}',
+    './pages/**/*.{js,ts,jsx,tsx}',
+    './utils/**/*.{js,ts,jsx,tsx}',
   ],
   // Динамические классы из данных (маркеры инфраструктуры -400, способы покупки -500,
   // кнопки админки -600). Берутся из server/data, поэтому держим их в safelist,
@@ -35,6 +37,7 @@ export default {
         'scale-in': 'scaleIn 0.8s ease-out forwards',
         'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'fade-in': 'fadeIn 0.5s ease-out forwards',
+        'promo-marquee': 'promoMarquee 28s linear infinite',
       },
       keyframes: {
         fadeInUp: {
@@ -52,6 +55,10 @@ export default {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        promoMarquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         },
       },
     },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Reveal } from '../components/ui/Reveal';
@@ -8,6 +8,7 @@ import { ContactModal } from '../components/ui/ContactModal';
 import { getVisibleProjects } from '../utils/projects';
 
 const PROMO_INTERVAL = 6000;
+const FALLBACK_PROJECT_IMAGE = '/images/placeholder-card.svg';
 
 const sortHomePromos = (promos: HomePagePromo[]) => {
   return promos
@@ -140,6 +141,50 @@ const PromoWidget: React.FC<PromoWidgetProps> = ({ promos, onOpenPromoPopup }) =
   );
 };
 
+const PromoTicker: React.FC<PromoWidgetProps> = ({ promos, onOpenPromoPopup }) => {
+  const navigate = useNavigate();
+  if (promos.length === 0) return null;
+
+  const handlePromoClick = (offer: HomePagePromo) => {
+    const promoPopupMatch = offer.link?.match(/^\/akcii\?promo=([^&]+)$/);
+    if (promoPopupMatch) {
+      onOpenPromoPopup(decodeURIComponent(promoPopupMatch[1]));
+      return;
+    }
+    if (!offer.link) return;
+    if (/^https?:\/\//.test(offer.link)) {
+      window.open(offer.link, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(offer.link);
+    }
+  };
+
+  const marqueePromos = [...promos, ...promos];
+
+  return (
+    <section className="relative z-20 overflow-hidden bg-primary text-white border-y border-white/10">
+      <div className="flex w-max animate-promo-marquee hover:[animation-play-state:paused]">
+        {marqueePromos.map((promo, index) => (
+          <button
+            key={`${promo.id}-${index}`}
+            type="button"
+            onClick={() => handlePromoClick(promo)}
+            className="group flex items-center gap-4 px-8 py-4 text-left whitespace-nowrap hover:bg-white/10 transition-colors"
+          >
+            {promo.discount && (
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-white shadow-sm">
+                {promo.discount}
+              </span>
+            )}
+            <span className="text-sm md:text-base font-medium">{promo.title}</span>
+            <ArrowRight className="w-4 h-4 text-accent transition-transform group-hover:translate-x-1" />
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 // Popup акции — открывается на главной по клику на виджет с привязкой к акции
 const PromoPopup: React.FC<{
   promo: PromoOffer & { project?: { slug: string; name: string } | null };
@@ -191,7 +236,22 @@ const PromoPopup: React.FC<{
 export const HomePage: React.FC = () => {
   const { projects, homePageContent, promotions } = useData();
   const visibleProjects = getVisibleProjects(projects);
-  const homePromos = sortHomePromos(homePageContent.promos || []);
+  const homePromos = useMemo(() => {
+    const configuredPromos = sortHomePromos(homePageContent.promos || []);
+    if (configuredPromos.length > 0) return configuredPromos;
+
+    return (promotions || [])
+      .filter(promo => promo.active && promo.showOnMain)
+      .map((promo, index) => ({
+        id: promo.id,
+        title: promo.title,
+        description: promo.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+        discount: promo.discount || '',
+        image: promo.image || promo.popupImage || FALLBACK_PROJECT_IMAGE,
+        link: `/akcii?promo=${encodeURIComponent(promo.id)}`,
+        sortOrder: index,
+      }));
+  }, [homePageContent.promos, promotions]);
 
   // Popup для виджета акций — открывается прямо на главной без перехода
   const [selectedPromo, setSelectedPromo] = useState<(PromoOffer & { project?: { slug: string; name: string } | null }) | null>(null);
@@ -232,16 +292,21 @@ export const HomePage: React.FC = () => {
             src={homePageContent.heroImage}
             className="w-full h-full object-cover"
             alt="Background"
+            onError={e => {
+              e.currentTarget.src = FALLBACK_PROJECT_IMAGE;
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-white/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/35" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/15 to-white/65" />
         </div>
 
         {/* Content grid */}
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 md:px-8 py-12">
           <div className="grid lg:grid-cols-[1fr_auto] gap-8 items-center">
             {/* Left side - Text */}
-            <div className="max-w-2xl">
+            <div className="relative max-w-2xl">
+              <div className="absolute -inset-x-10 -inset-y-8 bg-white/70 blur-3xl rounded-full pointer-events-none" />
+              <div className="relative">
               <Reveal delay={100}>
                 <div className="inline-block border border-primary/20 rounded-full px-6 py-2 mb-8">
                   <span className="text-sm uppercase tracking-widest text-primary/70 font-medium">
@@ -290,6 +355,7 @@ export const HomePage: React.FC = () => {
                   </span>
                 </Link>
               </Reveal>
+              </div>
             </div>
 
             {/* Right side - Promo Widget */}
@@ -302,6 +368,8 @@ export const HomePage: React.FC = () => {
         </div>
 
       </section>
+
+      <PromoTicker promos={homePromos} onOpenPromoPopup={handleOpenPromoPopup} />
 
       {/* Mobile Promo Widget */}
       <section className="lg:hidden py-8 px-4 bg-beige/50 flex justify-center">
@@ -327,9 +395,14 @@ export const HomePage: React.FC = () => {
                   to={`/projects/${project.slug}`}
                   className="group cursor-pointer relative block overflow-hidden rounded-xl h-[300px]"
                 >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105 ease-out"
-                    style={{ backgroundImage: `url(${project.heroImage})` }}
+                  <img
+                    src={project.heroImage || FALLBACK_PROJECT_IMAGE}
+                    alt={project.name}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 ease-out"
+                    onError={e => {
+                      e.currentTarget.src = FALLBACK_PROJECT_IMAGE;
+                    }}
                   />
                   <div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />

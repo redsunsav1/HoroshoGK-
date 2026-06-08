@@ -7,6 +7,8 @@ import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, Chevro
 import { ApartmentPlan, PromoOffer } from '../../types';
 import { isProjectVisible } from '../../utils/projects';
 
+const FALLBACK_PROJECT_IMAGE = '/images/placeholder-card.svg';
+
 // ============================================================
 // Booking Modal
 // ============================================================
@@ -336,12 +338,20 @@ const ApartmentCard: React.FC<{
   onOpenPromo: (plan: ApartmentPlan) => void;
 }> = ({ plan, projectName, onBook, onViewPlan, onOpenPromo }) => {
   return (
-    <div className="bg-white border border-sand rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
+    <div className="bg-white border border-sand rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
       <div
-        className="p-8 bg-beige/30 flex items-center justify-center h-56 relative cursor-pointer group"
+        className="p-5 bg-beige/30 flex items-center justify-center h-44 md:h-48 relative cursor-pointer group"
         onClick={() => onViewPlan(plan)}
       >
-        <img src={plan.image} alt="Plan" loading="lazy" className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+        <img
+          src={plan.image || FALLBACK_PROJECT_IMAGE}
+          alt="Plan"
+          loading="lazy"
+          className="max-h-full max-w-full mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity"
+          onError={e => {
+            e.currentTarget.src = FALLBACK_PROJECT_IMAGE;
+          }}
+        />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-full p-3 shadow-lg">
             <ZoomIn className="w-6 h-6 text-primary" />
@@ -365,18 +375,18 @@ const ApartmentCard: React.FC<{
           </button>
         )}
       </div>
-      <div className="p-6">
-        <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="p-5">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <div className="text-secondary text-sm mb-1 font-light">Площадь</div>
-            <div className="text-xl font-bold text-primary">{plan.area} м²</div>
+            <div className="text-lg font-bold text-primary">{plan.area} м²</div>
           </div>
           <div className="text-right">
             <div className="text-secondary text-sm mb-1 font-light">Стоимость</div>
-            <div className="text-lg font-bold text-accent">{plan.price}</div>
+            <div className="text-base font-bold text-accent">{plan.price}</div>
           </div>
         </div>
-        <div className="flex justify-between text-sm text-secondary mb-4">
+        <div className="flex justify-between gap-3 text-xs text-secondary mb-4">
           {plan.floor && <span>Этаж: <strong className="text-primary">{plan.floor}</strong></span>}
           {plan.number && <span>Планировка: <strong className="text-primary">{plan.number}</strong></span>}
         </div>
@@ -544,12 +554,16 @@ export const ProjectDetailPage: React.FC = () => {
 
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${project.heroImage})` }}
+        <img
+          src={project.heroImage || FALLBACK_PROJECT_IMAGE}
+          alt={project.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={e => {
+            e.currentTarget.src = FALLBACK_PROJECT_IMAGE;
+          }}
         />
-        <div className="absolute inset-0 bg-white/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-white/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
 
         <div className="absolute bottom-0 left-0 p-6 md:p-16 w-full max-w-5xl">
           <Reveal delay={200}>
@@ -984,7 +998,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <div
                     role="tablist"
                     aria-label="Выбор корпуса"
-                    className="inline-flex p-1.5 rounded-full bg-sand/70 border border-accent/30 shadow-inner"
+                    className="inline-flex w-full max-w-md p-1 rounded-lg bg-white border border-sand shadow-sm"
                   >
                     {houses.map(house => {
                       const active = house.id === selectedHouseId;
@@ -999,10 +1013,10 @@ export const ProjectDetailPage: React.FC = () => {
                             setRoomFilter(null);
                             setSelectedFloor(null);
                           }}
-                          className={`relative px-7 md:px-10 py-2.5 text-sm md:text-base font-medium rounded-full transition-all duration-300 ${
+                          className={`relative flex-1 px-4 py-3 text-sm md:text-base font-medium rounded-md transition-all duration-300 ${
                             active
-                              ? 'bg-accent text-white shadow-md'
-                              : 'text-primary/70 hover:text-primary'
+                              ? 'bg-primary text-white shadow-md'
+                              : 'text-primary/70 hover:bg-beige hover:text-primary'
                           }`}
                         >
                           {house.name}
@@ -1027,7 +1041,7 @@ export const ProjectDetailPage: React.FC = () => {
 
             {/* Apartment Cards */}
             {filteredPlans.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 {filteredPlans.map((plan) => (
                   <Reveal key={plan.id}>
                     <ApartmentCard
