@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { ContactModal } from '../../components/ui/ContactModal';
-import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, FileDown, Flame, Percent, CircleAlert } from 'lucide-react';
+import { MapPin, CheckCircle, ArrowLeft, Phone, X, Shield, ZoomIn, Video, ChevronLeft, ChevronRight, ChevronDown, Camera, Flame, Percent, CircleAlert } from 'lucide-react';
 import { ApartmentPlan, PromoOffer } from '../../types';
 import { isProjectVisible } from '../../utils/projects';
 
@@ -596,15 +596,13 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-lg text-secondary leading-relaxed mb-8 font-light">
               {project.fullDescription}
             </p>
-            {project.presentationFile && (
-              <button
-                onClick={() => setShowPresentationForm(true)}
-                className="inline-flex items-center gap-3 bg-primary text-white px-6 py-4 rounded-xl font-medium hover:bg-accent hover:shadow-lg transition-all duration-300 mb-6 group"
-              >
-                <FileDown className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                {project.presentationButtonText || 'Ознакомиться с проектом'}
-              </button>
-            )}
+            <button
+              onClick={() => setShowPresentationForm(true)}
+              className="inline-flex items-center gap-3 bg-red-500 text-white px-6 py-4 rounded-xl font-medium hover:bg-red-600 hover:shadow-lg transition-all duration-300 mb-6 group"
+            >
+              <Phone className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Оставьте заявку
+            </button>
             <div className="flex items-center text-primary font-medium p-4 bg-beige rounded-xl w-fit">
               <MapPin className="w-5 h-5 mr-3 text-accent" />
               {project.location}
@@ -1181,18 +1179,22 @@ export const ProjectDetailPage: React.FC = () => {
         />
       )}
 
-      {/* Presentation download form */}
-      {showPresentationForm && project.presentationFile && (
+      {/* Project request form */}
+      {showPresentationForm && (
         <ContactModal
           onClose={() => setShowPresentationForm(false)}
-          title={`Скачать презентацию — ${project.name}`}
-          context={`Запрос презентации: ${project.name}`}
-          successText="Спасибо!"
-          successDescription="Скачивание начнётся автоматически. Мы свяжемся с вами в ближайшее время."
+          title={`Оставить заявку — ${project.name}`}
+          context={`Заявка со страницы проекта: ${project.name}`}
+          successText="Заявка отправлена!"
+          successDescription={
+            project.presentationFile
+              ? 'Скачивание начнётся автоматически. Мы свяжемся с вами в ближайшее время.'
+              : 'Мы свяжемся с вами в ближайшее время.'
+          }
           onSuccess={() => {
-            // Trigger download of the presentation file
+            if (!project.presentationFile) return;
             const link = document.createElement('a');
-            link.href = project.presentationFile!;
+            link.href = project.presentationFile;
             link.download = `Презентация-${project.name}.pdf`;
             link.target = '_blank';
             document.body.appendChild(link);
