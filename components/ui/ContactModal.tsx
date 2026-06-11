@@ -5,8 +5,6 @@ interface ContactModalProps {
   onClose: () => void;
   title?: string;
   context?: string;
-  formName?: string;
-  consentPurpose?: string;
   onSuccess?: () => void;
   successText?: string;
   successDescription?: string;
@@ -16,8 +14,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   onClose,
   title = 'Оставить заявку',
   context,
-  formName,
-  consentPurpose,
   onSuccess,
   successText = 'Заявка отправлена!',
   successDescription = 'Мы свяжемся с вами в ближайшее время.',
@@ -42,7 +38,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({
     }
     setError('');
     setSending(true);
-    const consentText = `Я даю согласие на обработку персональных данных для ${consentPurpose || 'обработки заявки и связи со мной'} в соответствии с Федеральным законом № 152-ФЗ «О персональных данных».`;
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -51,10 +46,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({
           name: name.trim(),
           phone: phone.trim(),
           context: context || title,
-          formName: formName || title,
-          sourceUrl: window.location.href,
-          consentAccepted: true,
-          consentText,
         }),
       });
       if (res.ok) {
@@ -168,7 +159,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 className="mt-1 w-4 h-4 accent-accent"
               />
               <span className="text-sm text-secondary leading-snug">
-                Я даю согласие на{' '}
+                Я согласен(а) на{' '}
                 <button
                   type="button"
                   onClick={() => setShowPolicy(true)}
@@ -176,7 +167,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 >
                   обработку персональных данных
                 </button>
-                {' '}для {consentPurpose || 'обработки заявки и связи со мной'} в соответствии с ФЗ-152
+                {' '}в соответствии с ФЗ-152
               </span>
             </label>
 

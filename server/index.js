@@ -107,15 +107,6 @@ function writeJsonFile(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 // Site Settings
 function readSiteSettings() {
   return readJsonFile(SITE_SETTINGS_FILE, null);
@@ -666,7 +657,7 @@ app.get('/api/bookings', (req, res) => {
 
 app.post('/api/contact', async (req, res) => {
   try {
-    const { name, phone, message, context, formName, sourceUrl, consentAccepted, consentText } = req.body;
+    const { name, phone, message, context } = req.body;
 
     if (!name || !phone) {
       return res.status(400).json({ error: 'Name and phone are required' });
@@ -678,10 +669,6 @@ app.post('/api/contact', async (req, res) => {
       phone,
       message: message || '',
       context: context || '',
-      formName: formName || '',
-      sourceUrl: sourceUrl || '',
-      consentAccepted: consentAccepted === true,
-      consentText: consentText || '',
       date: new Date().toISOString(),
     };
 
@@ -693,18 +680,14 @@ app.post('/api/contact', async (req, res) => {
     // Send email notification
     if (mailTransporter && BOOKING_EMAIL) {
       const contextStr = context || message || 'Обратный звонок';
-      const subject = `📞 Заявка с сайта: ${formName || contextStr}`;
+      const subject = `📞 Заявка с сайта: ${contextStr}`;
       const htmlBody = `
         <h2>Новая заявка с сайта</h2>
         <table style="border-collapse: collapse; font-size: 16px;">
-          ${formName ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Форма:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(formName)}</td></tr>` : ''}
-          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>ФИО:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(name)}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Телефон:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="tel:${escapeHtml(phone)}">${escapeHtml(phone)}</a></td></tr>
-          ${message ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Вопрос:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(message)}</td></tr>` : ''}
-          ${context ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Раздел:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(context)}</td></tr>` : ''}
-          ${sourceUrl ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Страница:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(sourceUrl)}</td></tr>` : ''}
-          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Согласие на обработку ПД:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${consentAccepted === true ? 'Получено' : 'Не передано'}</td></tr>
-          ${consentText ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Текст согласия:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(consentText)}</td></tr>` : ''}
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>ФИО:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${name}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Телефон:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="tel:${phone}">${phone}</a></td></tr>
+          ${message ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Вопрос:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${message}</td></tr>` : ''}
+          ${context ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Раздел:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${context}</td></tr>` : ''}
           <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Дата:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}</td></tr>
         </table>
         <p style="color: #666; margin-top: 20px;">Заявка сохранена в системе. ID: ${contact.id}</p>
