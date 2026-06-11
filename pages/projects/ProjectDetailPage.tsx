@@ -9,6 +9,11 @@ import { isProjectVisible } from '../../utils/projects';
 
 const FALLBACK_PROJECT_IMAGE = '/images/placeholder-card.svg';
 
+const formatProjectConsultationName = (projectName: string): string => {
+  const match = projectName.match(/^ЖК\s+(.+)$/i);
+  return match ? `ЖК «${match[1]}»` : `«${projectName}»`;
+};
+
 // ============================================================
 // Booking Modal
 // ============================================================
@@ -484,6 +489,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [openConstructionMonth, setOpenConstructionMonth] = useState<string | null>(null);
   const [showStream, setShowStream] = useState(false);
   const [showPresentationForm, setShowPresentationForm] = useState(false);
+  const [showProjectConsultationForm, setShowProjectConsultationForm] = useState(false);
   const galleryScrollRef = useRef<HTMLDivElement>(null);
 
   if (!project) {
@@ -497,6 +503,8 @@ export const ProjectDetailPage: React.FC = () => {
       </section>
     );
   }
+
+  const consultationProjectName = formatProjectConsultationName(project.name);
 
   // Houses (корпуса): показываем переключатель, только если у проекта 2+ дома
   const houses = project.houses || [];
@@ -605,6 +613,13 @@ export const ProjectDetailPage: React.FC = () => {
                 {project.presentationButtonText || 'Ознакомиться с проектом'}
               </button>
             )}
+            <button
+              onClick={() => setShowProjectConsultationForm(true)}
+              className="inline-flex items-center gap-3 bg-accent text-white px-6 py-4 rounded-xl font-medium hover:bg-primary hover:shadow-lg transition-all duration-300 mb-6 ml-0 md:ml-3 group"
+            >
+              <Phone className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Получить консультацию по {consultationProjectName}
+            </button>
             <div className="flex items-center text-primary font-medium p-4 bg-beige rounded-xl w-fit">
               <MapPin className="w-5 h-5 mr-3 text-accent" />
               {project.location}
@@ -1120,8 +1135,14 @@ export const ProjectDetailPage: React.FC = () => {
               <p className="text-secondary mb-8 max-w-xl mx-auto font-light text-lg">
                 Оставьте заявку, и мы свяжемся с вами в течение 15 минут для проведения персональной презентации.
               </p>
-              <div className="flex items-center justify-center gap-3">
-                <Phone className="w-5 h-5 text-accent" />
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button
+                  onClick={() => setShowProjectConsultationForm(true)}
+                  className="inline-flex items-center justify-center gap-3 bg-primary text-white px-8 py-4 rounded-xl font-medium hover:bg-accent hover:shadow-lg transition-all duration-300"
+                >
+                  <Phone className="w-5 h-5" />
+                  Получить консультацию по {consultationProjectName}
+                </button>
                 <a href={`tel:${(siteSettings.phone || '+7 8512 43 22 22').replace(/[^\d+]/g, '')}`} className="text-xl font-bold text-primary hover:text-accent transition-colors">
                   {siteSettings.phone || '+7 8512 43 22 22'}
                 </a>
@@ -1171,6 +1192,18 @@ export const ProjectDetailPage: React.FC = () => {
           onClose={() => setShowPromoCallback(false)}
           title="Обратный звонок"
           context={promoCallbackContext}
+        />
+      )}
+
+      {showProjectConsultationForm && (
+        <ContactModal
+          onClose={() => setShowProjectConsultationForm(false)}
+          title={`Получить консультацию по ${consultationProjectName}`}
+          formName={`Консультация по ${consultationProjectName}`}
+          context={`Консультация по ${consultationProjectName} — страница проекта /projects/${project.slug}`}
+          consentPurpose={`консультации по ${consultationProjectName} и связи со мной`}
+          successText="Заявка отправлена!"
+          successDescription={`Мы свяжемся с вами и проконсультируем по ${consultationProjectName}.`}
         />
       )}
 
