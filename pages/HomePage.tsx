@@ -345,15 +345,23 @@ export const HomePage: React.FC = () => {
               </Reveal>
 
               <Reveal delay={600}>
-                <Link
-                  to="/projects"
-                  className="inline-flex items-center gap-3 bg-primary text-white pl-8 pr-6 py-4 rounded-full font-medium text-lg hover:bg-accent hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
-                >
-                  {homePageContent.heroButtonText}
-                  <span className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                    <ArrowDown className="w-5 h-5" />
-                  </span>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    to="/projects"
+                    className="inline-flex items-center justify-center gap-3 bg-primary text-white pl-8 pr-6 py-4 rounded-full font-medium text-lg hover:bg-accent hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+                  >
+                    {homePageContent.heroButtonText}
+                    <span className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                      <ArrowDown className="w-5 h-5" />
+                    </span>
+                  </Link>
+                  <Link
+                    to="/about"
+                    className="inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-lg text-primary bg-white/85 border border-primary/15 hover:bg-white hover:border-accent hover:text-accent hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    О компании
+                  </Link>
+                </div>
               </Reveal>
               </div>
             </div>

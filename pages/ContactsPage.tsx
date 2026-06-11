@@ -68,6 +68,32 @@ export const ContactsPage: React.FC = () => {
                     </div>
                   </Reveal>
                 ))}
+                <Reveal delay={contactsContent.offices.length * 100}>
+                  <div className="bg-white rounded-2xl p-6 border border-sand shadow-sm">
+                    <h3 className="text-xl font-bold text-primary mb-4">Управляющая компания</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                        <span className="text-secondary">Автомобильная, 8</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <span className="inline-flex items-center gap-3">
+                          <Phone className="w-5 h-5 text-accent shrink-0" />
+                          <a href="tel:422700" className="text-primary hover:text-accent transition-colors">
+                            422-700
+                          </a>
+                        </span>
+                        <a href="tel:+79881722700" className="text-primary hover:text-accent transition-colors">
+                          8 988 172-27-00
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-5 h-5 text-accent shrink-0" />
+                        <span className="text-secondary">Пн-Пт с 9:00 до 17:00</span>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
               </div>
 
               {/* Quick Contacts */}

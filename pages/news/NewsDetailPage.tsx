@@ -4,6 +4,8 @@ import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { Calendar, ArrowLeft, Share2 } from 'lucide-react';
 
+const FALLBACK_NEWS_IMAGE = '/images/placeholder-card.svg';
+
 export const NewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { news } = useData();
@@ -35,58 +37,63 @@ export const NewsDetailPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Hero Image */}
-      <section className="relative h-[40vh] md:h-[50vh]">
-        <img
-          src={article.image}
-          alt={article.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
-      </section>
-
       {/* Article */}
-      <section className="py-12 px-4 md:px-8 bg-white -mt-24 relative z-10">
+      <section className="py-12 px-4 md:px-8 bg-beige/40">
         <div className="max-w-[1100px] mx-auto">
           <Reveal>
-            <div className="bg-white rounded-2xl p-6 md:p-10 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <span className="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
-                    {article.category}
-                  </span>
-                  <span className="flex items-center text-secondary text-sm">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {new Date(article.date).toLocaleDateString('ru-RU', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </span>
+            <article className="bg-white rounded-3xl overflow-hidden shadow-xl">
+              <div className="relative aspect-[16/9] min-h-[280px]">
+                <img
+                  src={article.image || FALLBACK_NEWS_IMAGE}
+                  alt={article.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={e => {
+                    e.currentTarget.src = FALLBACK_NEWS_IMAGE;
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
+                  <div className="flex flex-wrap items-center gap-4 mb-5">
+                    <span className="bg-white/90 text-primary px-4 py-2 rounded-full text-sm font-medium">
+                      {article.category}
+                    </span>
+                    <span className="flex items-center text-white/80 text-sm">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      {new Date(article.date).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <h1 className="text-3xl md:text-5xl font-bold text-white max-w-4xl">
+                    {article.title}
+                  </h1>
                 </div>
-                <button className="p-2 hover:bg-beige rounded-full transition-colors">
-                  <Share2 className="w-5 h-5 text-secondary" />
-                </button>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-8">
-                {article.title}
-              </h1>
+              <div className="p-6 md:p-10">
+                <div className="flex justify-end mb-6">
+                  <button className="p-2 hover:bg-beige rounded-full transition-colors">
+                    <Share2 className="w-5 h-5 text-secondary" />
+                  </button>
+                </div>
 
-              <div
-                className="news-content prose prose-lg max-w-none text-secondary"
-                dangerouslySetInnerHTML={{ __html: article.content }}
-              />
-              <style>{`
-                .news-content img {
-                  width: 100%;
-                  height: auto;
-                  border-radius: 12px;
-                  margin: 24px 0;
-                  display: block;
-                }
-              `}</style>
-            </div>
+                <div
+                  className="news-content prose prose-lg max-w-none text-secondary"
+                  dangerouslySetInnerHTML={{ __html: article.content }}
+                />
+                <style>{`
+                  .news-content img {
+                    width: 100%;
+                    height: auto;
+                    border-radius: 24px;
+                    margin: 24px 0;
+                    display: block;
+                  }
+                `}</style>
+              </div>
+            </article>
           </Reveal>
         </div>
       </section>

@@ -27,29 +27,50 @@ export const TradeInPage: React.FC = () => {
 
       {/* Hero */}
       <section className="py-12 px-4 md:px-8 bg-beige">
-        <div className="max-w-[1600px] mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-stretch">
           <Reveal>
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-primary mb-4">
-              {method?.heroTitle || 'Trade-in'}
-            </h1>
-            <p className="text-xl text-secondary font-light mb-8">
-              {method?.heroSubtitle || ''}
-            </p>
-            <div className="flex gap-4">
+            <div className="h-full flex flex-col justify-center rounded-2xl bg-white p-6 md:p-10 border border-sand shadow-sm">
+              <span className="text-sm uppercase tracking-widest text-accent font-medium mb-4">
+                Trade-in
+              </span>
+              <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-primary mb-4">
+                {method?.heroTitle || 'Trade-in'}
+              </h1>
+              <p className="text-xl text-secondary font-light mb-8 max-w-2xl">
+                {method?.heroSubtitle || ''}
+              </p>
               <button
                 onClick={() => setShowContactModal(true)}
-                className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
+                className="self-start bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
               >
                 Оценить квартиру
               </button>
             </div>
           </Reveal>
           <Reveal direction="left">
-            <img
-              src="/images/placeholder-card.svg"
-              alt="Trade-in"
-              className="rounded-2xl shadow-xl"
-            />
+            <div className="h-full rounded-2xl bg-primary text-white p-6 md:p-8 shadow-xl">
+              <h2 className="text-2xl font-medium mb-6">Как проходит обмен</h2>
+              <div className="space-y-5">
+                {[
+                  { icon: Home, title: 'Оценим вашу квартиру', text: 'Поможем понять реальную рыночную стоимость и подготовить объект к продаже.' },
+                  { icon: Clock, title: 'Забронируем новую', text: 'Закрепим выбранную квартиру в проекте, пока идет сделка по текущему жилью.' },
+                  { icon: Shield, title: 'Сопроводим сделку', text: 'Проведем по этапам и подскажем, какие документы понадобятся.' },
+                ].map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.title} className="flex gap-4">
+                      <span className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5" />
+                      </span>
+                      <span>
+                        <span className="block font-bold mb-1">{item.title}</span>
+                        <span className="block text-white/75 text-sm leading-relaxed">{item.text}</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </Reveal>
         </div>
       </section>

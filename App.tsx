@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Layout } from './components/layout';
@@ -24,7 +24,6 @@ import { NewsPage } from './pages/news/NewsPage';
 import { NewsDetailPage } from './pages/news/NewsDetailPage';
 import { ContactsPage } from './pages/ContactsPage';
 import { FaqPage } from './pages/FaqPage';
-import { InvestorsPage } from './pages/InvestorsPage';
 export default function App() {
   return (
     <ErrorBoundary>
@@ -62,7 +61,7 @@ export default function App() {
           <Route path="/faq" element={<Layout><FaqPage /></Layout>} />
 
           {/* Investors */}
-          <Route path="/investors" element={<Layout><InvestorsPage /></Layout>} />
+          <Route path="/investors" element={<Navigate to="/about" replace />} />
         </Routes>
         <AnalyticsScripts />
       </BrowserRouter>

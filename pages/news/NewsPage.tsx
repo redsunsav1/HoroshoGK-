@@ -4,6 +4,8 @@ import { useData } from '../../context/DataContext';
 import { Reveal } from '../../components/ui/Reveal';
 import { Calendar, ArrowRight } from 'lucide-react';
 
+const FALLBACK_NEWS_IMAGE = '/images/placeholder-card.svg';
+
 export const NewsPage: React.FC = () => {
   const { news } = useData();
   return (
@@ -30,20 +32,22 @@ export const NewsPage: React.FC = () => {
               <Reveal key={item.id} delay={idx * 100}>
                 <Link
                   to={`/news/${item.slug}`}
-                  className="group block bg-beige rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
+                  className="group block relative aspect-[16/9] min-h-[320px] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
-                  <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-medium text-primary">
-                      {item.category}
-                    </div>
+                  <img
+                    src={item.image || FALLBACK_NEWS_IMAGE}
+                    alt={item.title}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    onError={e => {
+                      e.currentTarget.src = FALLBACK_NEWS_IMAGE;
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
+                  <div className="absolute top-5 left-5 bg-white/90 backdrop-blur px-4 py-2 rounded-full text-xs font-medium text-primary">
+                    {item.category}
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-center text-secondary text-sm mb-3">
+                  <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                    <div className="flex items-center text-white/75 text-sm mb-3">
                       <Calendar className="w-4 h-4 mr-2" />
                       {new Date(item.date).toLocaleDateString('ru-RU', {
                         day: 'numeric',
@@ -51,11 +55,11 @@ export const NewsPage: React.FC = () => {
                         year: 'numeric',
                       })}
                     </div>
-                    <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-accent transition-colors">
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-accent transition-colors">
                       {item.title}
                     </h3>
-                    <p className="text-secondary mb-4">{item.excerpt}</p>
-                    <span className="inline-flex items-center text-accent font-medium">
+                    <p className="text-white/80 mb-5 line-clamp-2">{item.excerpt}</p>
+                    <span className="inline-flex items-center text-white font-medium">
                       Читать далее <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
