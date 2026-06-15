@@ -344,8 +344,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
             <div className="border-t pt-6 mt-6">
               <h3 className="text-lg font-bold text-gray-700 mb-4">Презентация проекта (скачивание после заявки)</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Если файл загружен, на странице проекта над адресом появится кнопка. По клику посетитель оставит контакты — после отправки автоматически скачается презентация.
-                Если файл не загружен, кнопка не отображается.
+                На странице проекта кнопка открывает форму заявки. До отправки файл закрыт замком; после успешной отправки посетитель сможет скачать презентацию в этом же окне.
               </p>
               <div className="space-y-4">
                 <div>
@@ -354,14 +353,14 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({ initialProject }) 
                     value={project.presentationButtonText || ''}
                     onChange={e => setProject({...project, presentationButtonText: e.target.value})}
                     className="w-full p-3 border border-gray-300 rounded-lg"
-                    placeholder="Ознакомиться с проектом"
+                    placeholder="Получить предложение"
                   />
                 </div>
                 <DocumentUpload
                   label="Файл презентации (PDF)"
                   value={project.presentationFile || ''}
                   onChange={(url) => setProject({...project, presentationFile: url})}
-                  hint="Скачается после отправки контактов посетителем"
+                  hint="Станет доступен после отправки контактов посетителем"
                 />
               </div>
             </div>

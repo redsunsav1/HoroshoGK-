@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Lock, Unlock, Download } from 'lucide-react';
 
 interface ContactModalProps {
   onClose: () => void;
@@ -8,6 +8,11 @@ interface ContactModalProps {
   onSuccess?: () => void;
   successText?: string;
   successDescription?: string;
+  downloadUrl?: string;
+  downloadLabel?: string;
+  downloadFilename?: string;
+  downloadLockedText?: string;
+  downloadUnlockedText?: string;
 }
 
 export const ContactModal: React.FC<ContactModalProps> = ({
@@ -17,6 +22,11 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   onSuccess,
   successText = 'Заявка отправлена!',
   successDescription = 'Мы свяжемся с вами в ближайшее время.',
+  downloadUrl,
+  downloadLabel = 'Скачать презентацию проекта',
+  downloadFilename,
+  downloadLockedText = 'Скачивание откроется после отправки заявки',
+  downloadUnlockedText = 'Доступ открыт. Теперь можно скачать материал.',
 }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -63,6 +73,46 @@ export const ContactModal: React.FC<ContactModalProps> = ({
       setSending(false);
     }
   };
+
+  const DownloadGate = ({ unlocked }: { unlocked: boolean }) => (
+    <div className={`rounded-2xl border p-5 text-center transition-all ${
+      unlocked ? 'border-green-200 bg-green-50' : 'border-sand bg-beige/70'
+    }`}>
+      <div className={`w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center ${
+        unlocked ? 'bg-green-100 text-green-700' : 'bg-white text-primary'
+      }`}>
+        {unlocked ? (
+          <Unlock className="w-7 h-7" />
+        ) : (
+          <Lock className="w-7 h-7 animate-bounce" />
+        )}
+      </div>
+      <p className={`text-sm mb-4 ${unlocked ? 'text-green-700' : 'text-secondary'}`}>
+        {unlocked ? downloadUnlockedText : downloadLockedText}
+      </p>
+      {unlocked && downloadUrl ? (
+        <a
+          href={downloadUrl}
+          download={downloadFilename}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-accent hover:shadow-lg transition-all duration-300"
+        >
+          <Download className="w-5 h-5" />
+          {downloadLabel}
+        </a>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="inline-flex items-center justify-center gap-2 w-full bg-primary/30 text-primary/50 font-bold py-3 rounded-xl cursor-not-allowed"
+        >
+          <Download className="w-5 h-5" />
+          {downloadLabel}
+        </button>
+      )}
+    </div>
+  );
 
   if (showPolicy) {
     return (
@@ -124,6 +174,11 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </div>
             <h4 className="text-lg font-bold text-primary mb-2">{successText}</h4>
             <p className="text-secondary text-sm mb-6">{successDescription}</p>
+            {downloadUrl && (
+              <div className="mb-6">
+                <DownloadGate unlocked />
+              </div>
+            )}
             <button onClick={onClose} className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors">
               Закрыть
             </button>
@@ -172,6 +227,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </label>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            {downloadUrl && <DownloadGate unlocked={false} />}
 
             <button
               type="submit"

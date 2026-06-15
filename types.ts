@@ -84,7 +84,7 @@ export interface Project {
   cardPrice?: string;      // e.g. "от 3.9 млн ₽"
   cardPromo?: string;      // e.g. "Материнский капитал"
   // Presentation download (с формой контактов перед скачиванием)
-  presentationButtonText?: string; // Текст кнопки, по умолчанию "Ознакомиться с проектом"
+  presentationButtonText?: string; // Текст кнопки, по умолчанию "Получить предложение"
   presentationFile?: string;       // URL файла презентации (например /uploads/...pdf)
 }
 

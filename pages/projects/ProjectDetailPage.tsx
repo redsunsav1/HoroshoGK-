@@ -601,7 +601,7 @@ export const ProjectDetailPage: React.FC = () => {
               className="inline-flex items-center gap-3 bg-red-500 text-white px-6 py-4 rounded-xl font-medium hover:bg-red-600 hover:shadow-lg transition-all duration-300 mb-6 group"
             >
               <Phone className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              Оставьте заявку
+              Получить предложение
             </button>
             <div className="flex items-center text-primary font-medium p-4 bg-beige rounded-xl w-fit">
               <MapPin className="w-5 h-5 mr-3 text-accent" />
@@ -1186,24 +1186,17 @@ export const ProjectDetailPage: React.FC = () => {
       {showPresentationForm && (
         <ContactModal
           onClose={() => setShowPresentationForm(false)}
-          title={`Оставить заявку — ${project.name}`}
-          context={`Заявка со страницы проекта: ${project.name}`}
+          title={`Получить предложение — ${project.name}`}
+          context={`Получить предложение со страницы проекта: ${project.name}`}
           successText="Заявка отправлена!"
           successDescription={
             project.presentationFile
-              ? 'Скачивание начнётся автоматически. Мы свяжемся с вами в ближайшее время.'
+              ? 'Мы получили ваши контакты. Доступ к презентации открыт.'
               : 'Мы свяжемся с вами в ближайшее время.'
           }
-          onSuccess={() => {
-            if (!project.presentationFile) return;
-            const link = document.createElement('a');
-            link.href = project.presentationFile;
-            link.download = `Презентация-${project.name}.pdf`;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
+          downloadUrl={project.presentationFile}
+          downloadLabel="Скачать презентацию проекта"
+          downloadFilename={`Презентация-${project.name}.pdf`}
         />
       )}
 
