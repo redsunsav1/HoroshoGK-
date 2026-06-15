@@ -15,37 +15,50 @@ export const AboutPage: React.FC = () => {
     <>
       {/* Hero */}
       <section className="py-16 md:py-24 px-4 md:px-8 bg-beige">
-        <div className="max-w-[1600px] mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-8 items-stretch">
           <Reveal>
-            <h1 className="text-4xl md:text-6xl font-medium tracking-tight text-primary mb-6">
-              {aboutContent.heroTitle}
-            </h1>
-            <p className="text-xl text-secondary font-light mb-8">
-              {aboutContent.heroSubtitle}
-            </p>
-            <div className="flex gap-4">
-              <Link
-                to="/projects"
-                className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
-              >
-                Наши проекты
-              </Link>
-              <Link
-                to="/contacts"
-                className="border border-primary text-primary px-6 py-3 rounded-xl font-medium hover:bg-primary hover:text-white transition-colors"
-              >
-                Контакты
-              </Link>
+            <div className="h-full rounded-3xl bg-white p-8 md:p-12 border border-sand shadow-sm">
+              <span className="inline-block text-sm uppercase tracking-widest text-accent font-medium mb-6">
+                Группа компаний Хорошо
+              </span>
+              <h1 className="text-4xl md:text-6xl font-medium tracking-tight text-primary mb-6">
+                {aboutContent.heroTitle}
+              </h1>
+              <p className="text-xl text-secondary font-light mb-8 max-w-3xl">
+                {aboutContent.heroSubtitle}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/projects"
+                  className="inline-flex justify-center bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
+                >
+                  Наши проекты
+                </Link>
+                <Link
+                  to="/contacts"
+                  className="inline-flex justify-center border border-primary text-primary px-6 py-3 rounded-xl font-medium hover:bg-primary hover:text-white transition-colors"
+                >
+                  Контакты
+                </Link>
+              </div>
             </div>
           </Reveal>
           <Reveal direction="left">
-            <div className="relative">
-              <div className="absolute inset-0 bg-accent/20 rounded-3xl blur-3xl transform rotate-6" />
-              <img
-                src={aboutContent.heroImage || '/images/placeholder-card.svg'}
-                alt="Офис компании"
-                className="relative rounded-2xl shadow-xl"
-              />
+            <div className="h-full rounded-3xl bg-primary text-white p-8 md:p-10 flex flex-col justify-between">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-medium mb-5">Строим дома, в которые хочется возвращаться</h2>
+                <p className="text-white/70 font-light leading-relaxed">
+                  Соединяем архитектуру, благоустройство и продуманную среду, чтобы каждый проект был понятным, живым и удобным для людей.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-10">
+                {aboutContent.stats.slice(0, 4).map((stat, idx) => (
+                  <div key={idx} className="rounded-2xl bg-white/10 p-4">
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-sm text-white/65">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </Reveal>
         </div>
@@ -74,23 +87,26 @@ export const AboutPage: React.FC = () => {
       {/* Mission */}
       <section className="py-20 px-4 md:px-8 bg-beige">
         <div className="max-w-[1600px] mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
             <Reveal>
-              <h2 className="text-3xl md:text-5xl font-medium text-primary mb-8">
-                {aboutContent.missionTitle}
-              </h2>
-              <div className="space-y-6 text-primary/70 text-lg leading-relaxed font-light">
-                <p>{aboutContent.missionText1}</p>
-                <p>{aboutContent.missionText2}</p>
-                <p>{aboutContent.missionText3}</p>
+              <div className="h-full rounded-3xl bg-primary text-white p-8 md:p-10">
+                <Target className="w-10 h-10 text-accent mb-6" />
+                <h2 className="text-3xl md:text-5xl font-medium mb-6">
+                  {aboutContent.missionTitle}
+                </h2>
+                <p className="text-white/70 text-lg leading-relaxed font-light">
+                  Мы делаем проекты, где эстетика не спорит с практичностью, а дом начинается не с двери квартиры, а с ощущения заботы во дворе, подъезде и районе.
+                </p>
               </div>
             </Reveal>
             <Reveal direction="left" delay={200}>
-              <img
-                src={aboutContent.missionImage || '/images/placeholder-card.svg'}
-                alt="Миссия"
-                className="rounded-2xl shadow-xl"
-              />
+              <div className="h-full rounded-3xl bg-white border border-sand p-8 md:p-10 shadow-sm">
+                <div className="space-y-6 text-primary/70 text-lg leading-relaxed font-light">
+                  <p>{aboutContent.missionText1}</p>
+                  <p>{aboutContent.missionText2}</p>
+                  <p>{aboutContent.missionText3}</p>
+                </div>
+              </div>
             </Reveal>
           </div>
         </div>

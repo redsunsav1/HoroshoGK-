@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, ChevronDown, FileText } from 'lucide-react';
 import { useData } from '../../context/DataContext';
@@ -33,6 +33,7 @@ const MaxIcon = ({ className }: { className?: string }) => (
 
 export const Footer: React.FC = () => {
   const { siteSettings } = useData();
+  const [openLegalEntity, setOpenLegalEntity] = useState<string | null>(null);
 
   return (
     <footer className="bg-primary text-sand">
@@ -73,7 +74,6 @@ export const Footer: React.FC = () => {
             <nav className="space-y-3">
               <Link to="/about" className="block text-white/80 hover:text-accent transition-colors">О компании</Link>
               <Link to="/news" className="block text-white/80 hover:text-accent transition-colors">Новости</Link>
-              <Link to="/investors" className="block text-white/80 hover:text-accent transition-colors">Инвесторам</Link>
             </nav>
           </div>
 
@@ -112,12 +112,20 @@ export const Footer: React.FC = () => {
         <div className="border-t border-white/10 pt-8 mb-8">
           <h4 className="text-white/40 uppercase tracking-wider mb-4 text-xs font-bold">Юридические документы</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {LEGAL_ENTITIES.map(entity => (
-              <details key={entity.folder} className="group bg-white/5 rounded-xl overflow-hidden">
-                <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-colors text-sm font-medium text-white/90">
+            {LEGAL_ENTITIES.map(entity => {
+              const isOpen = openLegalEntity === entity.folder;
+              return (
+              <div key={entity.folder} className="bg-white/5 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setOpenLegalEntity(current => (current === entity.folder ? null : entity.folder))}
+                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/10 transition-colors text-sm font-medium text-white/90 text-left"
+                  aria-expanded={isOpen}
+                >
                   <span>{entity.name}</span>
-                  <ChevronDown className="w-4 h-4 text-white/50 transition-transform group-open:rotate-180" />
-                </summary>
+                  <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isOpen && (
                 <div className="px-4 pb-4 pt-1 space-y-2 border-t border-white/5">
                   {ENTITY_DOCS.map(doc => (
                     <a
@@ -132,8 +140,10 @@ export const Footer: React.FC = () => {
                     </a>
                   ))}
                 </div>
-              </details>
-            ))}
+                )}
+              </div>
+              );
+            })}
           </div>
         </div>
 

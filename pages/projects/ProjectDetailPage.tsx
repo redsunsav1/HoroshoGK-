@@ -704,9 +704,8 @@ export const ProjectDetailPage: React.FC = () => {
                         </button>
 
                         {/* Year content — months */}
-                        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                          isYearOpen ? 'max-h-[5000px] opacity-100 mt-3' : 'max-h-0 opacity-0'
-                        }`}>
+                        {isYearOpen && (
+                        <div className="overflow-hidden mt-3">
                           <div className="space-y-2 pl-2">
                             {sortedMonths.map((monthData) => {
                               const isMonthOpen = openConstructionMonth === monthData.id;
@@ -714,7 +713,10 @@ export const ProjectDetailPage: React.FC = () => {
                                 <div key={monthData.id}>
                                   {/* Month header */}
                                   <button
-                                    onClick={() => setOpenConstructionMonth(isMonthOpen ? null : monthData.id)}
+                                    onClick={() => {
+                                      setOpenConstructionYear(yearData.id);
+                                      setOpenConstructionMonth(isMonthOpen ? null : monthData.id);
+                                    }}
                                     className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-300 flex items-center justify-between gap-3 ${
                                       isMonthOpen
                                         ? 'bg-white border-accent/30 shadow-sm'
@@ -781,6 +783,7 @@ export const ProjectDetailPage: React.FC = () => {
                             })}
                           </div>
                         </div>
+                        )}
                       </div>
                     </Reveal>
                   );

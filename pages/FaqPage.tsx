@@ -6,17 +6,11 @@ import { ChevronDown, Search, HelpCircle } from 'lucide-react';
 
 export const FaqPage: React.FC = () => {
   const { faqCategories } = useData();
-  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [openItem, setOpenItem] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const toggleItem = (id: string) => {
-    const newOpen = new Set(openItems);
-    if (newOpen.has(id)) {
-      newOpen.delete(id);
-    } else {
-      newOpen.add(id);
-    }
-    setOpenItems(newOpen);
+    setOpenItem(current => (current === id ? null : id));
   };
 
   const filteredCategories = faqCategories.map(cat => ({
@@ -70,7 +64,7 @@ export const FaqPage: React.FC = () => {
                     <div className="space-y-3">
                       {category.questions.map((item, idx) => {
                         const id = `${catIdx}-${idx}`;
-                        const isOpen = openItems.has(id);
+                        const isOpen = openItem === id;
 
                         return (
                           <div
