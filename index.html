@@ -31,25 +31,16 @@
          без внешних CDN и Google Fonts — чтобы сайт не зависел от внешней инфраструктуры,
          нестабильной в РФ. -->
 </head>
-  <body class="bg-white text-primary selection:bg-accent selection:text-white" style="opacity:0">
-    <div id="root"></div>
+  <body class="bg-white text-primary selection:bg-accent selection:text-white">
+    <div id="root">
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#fff;color:#1f2937;font-family:Arial,sans-serif;text-align:center">
+        <div>
+          <strong style="display:block;font-size:22px;margin-bottom:10px">ГК «Хорошо»</strong>
+          <span style="font-size:14px;color:#6b7280">Загружаем сайт…</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
-    <script>
-      // Show body smoothly once app renders
-      function showBody() {
-        document.body.style.transition = 'opacity .2s ease-in';
-        document.body.style.opacity = '1';
-      }
-      // Wait for both DOM and a paint frame so no flash
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { requestAnimationFrame(showBody); });
-      } else {
-        requestAnimationFrame(showBody);
-      }
-      // Страховка: никогда не оставляем страницу невидимой, даже если что-то пошло не так
-      window.addEventListener('load', showBody);
-      setTimeout(showBody, 1500);
-    </script>
 
     <!-- Top.Mail.Ru / VK Pixel -->
     <script type="text/javascript">

@@ -73,7 +73,7 @@ function readProjects() {
 }
 
 function writeProjects(projects) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+  writeJsonFile(DATA_FILE, projects);
 }
 
 function readBookings() {
@@ -88,7 +88,7 @@ function readBookings() {
 }
 
 function writeBookings(bookings) {
-  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf-8');
+  writeJsonFile(BOOKINGS_FILE, bookings);
 }
 
 // Generic read/write helpers
@@ -104,7 +104,26 @@ function readJsonFile(filePath, defaultValue = null) {
 }
 
 function writeJsonFile(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  const tempPath = path.join(
+    path.dirname(filePath),
+    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`,
+  );
+  let fileDescriptor;
+
+  try {
+    fileDescriptor = fs.openSync(tempPath, 'w');
+    fs.writeFileSync(fileDescriptor, JSON.stringify(data, null, 2), 'utf-8');
+    fs.fsyncSync(fileDescriptor);
+    fs.closeSync(fileDescriptor);
+    fileDescriptor = undefined;
+    fs.renameSync(tempPath, filePath);
+  } catch (error) {
+    if (fileDescriptor !== undefined) {
+      try { fs.closeSync(fileDescriptor); } catch { /* ignore cleanup errors */ }
+    }
+    try { fs.unlinkSync(tempPath); } catch { /* temp file may not exist */ }
+    throw error;
+  }
 }
 
 // Site Settings
@@ -145,6 +164,26 @@ function readHomeContent() {
 // Project Filters
 function readProjectFilters() {
   return readJsonFile(PROJECT_FILTERS_FILE, []);
+}
+
+function readPublicBootstrap() {
+  return {
+    projects: readProjects(),
+    news: readNews(),
+    faq: readFaq(),
+    team: readTeam(),
+    vacancies: readVacancies(),
+    pageSettings: readPageSettings(),
+    homeContent: readHomeContent(),
+    siteSettings: readSiteSettings(),
+    projectFilters: readProjectFilters(),
+    promotions: readJsonFile(PROMOTIONS_FILE, []),
+    investorsContent: readJsonFile(INVESTORS_CONTENT_FILE, {}),
+    aboutContent: readJsonFile(ABOUT_CONTENT_FILE, {}),
+    contactsContent: readJsonFile(CONTACTS_CONTENT_FILE, {}),
+    buyMethods: readJsonFile(BUY_METHODS_FILE, []),
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 // --- Middleware ---
@@ -303,6 +342,22 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     fs.writeFileSync(path.join(UPLOADS_DIR, filename), req.file.buffer);
     res.json({ url: '/uploads/' + filename });
   }
+});
+
+// --- Public bootstrap API ---
+
+app.get('/api/bootstrap', (req, res) => {
+  const data = readPublicBootstrap();
+
+  if (!data.homeContent || !data.siteSettings) {
+    return res.status(503).json({
+      error: 'Required public data is unavailable',
+      generatedAt: data.generatedAt,
+    });
+  }
+
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(data);
 });
 
 // --- Projects API (for DataContext.tsx) ---

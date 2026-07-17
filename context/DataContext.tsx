@@ -81,6 +81,90 @@ const EMPTY_CONTACTS_CONTENT: ContactsContent = {
   messengers: {},
 };
 
+interface PublicBootstrap {
+  projects: Project[];
+  news: NewsItem[];
+  faq: FaqCategory[];
+  team: TeamMember[];
+  vacancies: Vacancy[];
+  pageSettings: PageSettings[];
+  homeContent: HomePageContent;
+  siteSettings: SiteSettings;
+  projectFilters: ProjectFilter[];
+  promotions: Promotion[];
+  investorsContent: InvestorsContent;
+  aboutContent: AboutContent;
+  contactsContent: ContactsContent;
+  buyMethods: BuyMethodContent[];
+  generatedAt?: string;
+}
+
+const BOOTSTRAP_CACHE_KEY = 'horoshogk-public-bootstrap-v1';
+
+const isUsableBootstrap = (data: unknown): data is PublicBootstrap => {
+  if (!data || typeof data !== 'object') return false;
+  const value = data as Partial<PublicBootstrap>;
+  return Boolean(value.homeContent && value.siteSettings);
+};
+
+const readBootstrapCache = (): PublicBootstrap | null => {
+  try {
+    const raw = window.localStorage.getItem(BOOTSTRAP_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return isUsableBootstrap(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeBootstrapCache = (data: PublicBootstrap) => {
+  try {
+    window.localStorage.setItem(BOOTSTRAP_CACHE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Public data cache is unavailable:', error);
+  }
+};
+
+const wait = (delayMs: number) => new Promise(resolve => window.setTimeout(resolve, delayMs));
+
+const PublicDataStatusScreen: React.FC<{
+  loading: boolean;
+  onRetry: () => void;
+}> = ({ loading, onRetry }) => (
+  <main className="min-h-screen bg-white px-6 text-primary flex items-center justify-center">
+    <section className="w-full max-w-md text-center" aria-live="polite">
+      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+        {loading ? (
+          <span
+            className="h-8 w-8 animate-spin rounded-full border-2 border-accent/25 border-t-accent"
+            aria-hidden="true"
+          />
+        ) : (
+          <span className="text-2xl font-semibold text-accent" aria-hidden="true">!</span>
+        )}
+      </div>
+      <h1 className="text-2xl font-semibold">
+        {loading ? 'Загружаем сайт' : 'Не удалось загрузить сайт'}
+      </h1>
+      <p className="mt-3 text-sm leading-6 text-primary/65">
+        {loading
+          ? 'Это может занять несколько секунд при нестабильном соединении.'
+          : 'Проверьте соединение и попробуйте ещё раз. Если сеть кратковременно недоступна, сайт восстановится после повторной попытки.'}
+      </p>
+      {!loading && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-7 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Попробовать снова
+        </button>
+      )}
+    </section>
+  </main>
+);
+
 interface DataContextType {
   // Projects
   projects: Project[];
@@ -156,38 +240,55 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const fetchJson = async (url: string, timeoutMs = 8000) => {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) return null;
-    return await response.json();
-  } finally {
-    window.clearTimeout(timeout);
+const fetchJson = async (url: string, timeoutMs = 8000, attempts = 3) => {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}: ${url}`);
+      }
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) await wait(400 * attempt);
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
+
+  throw lastError instanceof Error ? lastError : new Error(`Request failed: ${url}`);
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [faqCategories, setFaqCategories] = useState<FaqCategory[]>([]);
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
-  const [pageSettings, setPageSettings] = useState<PageSettings[]>([]);
-  const [homePageContent, setHomePageContent] = useState<HomePageContent>(EMPTY_HOME_CONTENT);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(EMPTY_SITE_SETTINGS);
-  const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>([]);
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
-  const [investorsContent, setInvestorsContent] = useState<InvestorsContent>(EMPTY_INVESTORS_CONTENT);
-  const [aboutContent, setAboutContent] = useState<AboutContent>(EMPTY_ABOUT_CONTENT);
-  const [contactsContent, setContactsContent] = useState<ContactsContent>(EMPTY_CONTACTS_CONTENT);
-  const [buyMethods, setBuyMethods] = useState<BuyMethodContent[]>([]);
+  const [cachedBootstrap] = useState<PublicBootstrap | null>(() => readBootstrapCache());
+  const [projects, setProjects] = useState<Project[]>(cachedBootstrap?.projects ?? []);
+  const [news, setNews] = useState<NewsItem[]>(cachedBootstrap?.news ?? []);
+  const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(cachedBootstrap?.faq ?? []);
+  const [team, setTeam] = useState<TeamMember[]>(cachedBootstrap?.team ?? []);
+  const [vacancies, setVacancies] = useState<Vacancy[]>(cachedBootstrap?.vacancies ?? []);
+  const [pageSettings, setPageSettings] = useState<PageSettings[]>(cachedBootstrap?.pageSettings ?? []);
+  const [homePageContent, setHomePageContent] = useState<HomePageContent>(cachedBootstrap?.homeContent ?? EMPTY_HOME_CONTENT);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(cachedBootstrap?.siteSettings ?? EMPTY_SITE_SETTINGS);
+  const [projectFilters, setProjectFilters] = useState<ProjectFilter[]>(cachedBootstrap?.projectFilters ?? []);
+  const [promotions, setPromotions] = useState<Promotion[]>(cachedBootstrap?.promotions ?? []);
+  const [investorsContent, setInvestorsContent] = useState<InvestorsContent>(cachedBootstrap?.investorsContent ?? EMPTY_INVESTORS_CONTENT);
+  const [aboutContent, setAboutContent] = useState<AboutContent>(cachedBootstrap?.aboutContent ?? EMPTY_ABOUT_CONTENT);
+  const [contactsContent, setContactsContent] = useState<ContactsContent>(cachedBootstrap?.contactsContent ?? EMPTY_CONTACTS_CONTENT);
+  const [buyMethods, setBuyMethods] = useState<BuyMethodContent[]>(cachedBootstrap?.buyMethods ?? []);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [publicDataReady, setPublicDataReady] = useState(false);
+  const [publicDataReady, setPublicDataReady] = useState(Boolean(cachedBootstrap));
 
   // Fetch all data from API
   const fetchAllData = useCallback(async () => {
@@ -211,42 +312,93 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setter(url.endsWith('/projects') && Array.isArray(data) ? migrateGallery(data) : data);
     };
 
+    const applyBootstrap = (data: PublicBootstrap) => {
+      const normalized: PublicBootstrap = {
+        projects: migrateGallery(Array.isArray(data.projects) ? data.projects : []),
+        news: Array.isArray(data.news) ? data.news : [],
+        faq: Array.isArray(data.faq) ? data.faq : [],
+        team: Array.isArray(data.team) ? data.team : [],
+        vacancies: Array.isArray(data.vacancies) ? data.vacancies : [],
+        pageSettings: Array.isArray(data.pageSettings) ? data.pageSettings : [],
+        homeContent: data.homeContent,
+        siteSettings: data.siteSettings,
+        projectFilters: Array.isArray(data.projectFilters) ? data.projectFilters : [],
+        promotions: Array.isArray(data.promotions) ? data.promotions : [],
+        investorsContent: data.investorsContent ?? EMPTY_INVESTORS_CONTENT,
+        aboutContent: data.aboutContent ?? EMPTY_ABOUT_CONTENT,
+        contactsContent: data.contactsContent ?? EMPTY_CONTACTS_CONTENT,
+        buyMethods: Array.isArray(data.buyMethods) ? data.buyMethods : [],
+        generatedAt: data.generatedAt,
+      };
+
+      setProjects(normalized.projects);
+      setNews(normalized.news);
+      setFaqCategories(normalized.faq);
+      setTeam(normalized.team);
+      setVacancies(normalized.vacancies);
+      setPageSettings(normalized.pageSettings);
+      setHomePageContent(normalized.homeContent);
+      setSiteSettings(normalized.siteSettings);
+      setProjectFilters(normalized.projectFilters);
+      setPromotions(normalized.promotions);
+      setInvestorsContent(normalized.investorsContent);
+      setAboutContent(normalized.aboutContent);
+      setContactsContent(normalized.contactsContent);
+      setBuyMethods(normalized.buyMethods);
+      writeBootstrapCache(normalized);
+    };
+
     try {
       setLoading(true);
       setError(null);
-      setPublicDataReady(false);
+
+      try {
+        const bootstrap = await fetchJson(`${API_URL}/bootstrap`, 6000, 2);
+        if (!isUsableBootstrap(bootstrap)) {
+          throw new Error('Public bootstrap returned incomplete data');
+        }
+
+        applyBootstrap(bootstrap);
+        setPublicDataReady(true);
+        return;
+      } catch (bootstrapError) {
+        // Compatibility path for a staggered deployment where the new endpoint
+        // is not available yet. It also gives individual requests a chance to
+        // succeed if an intermediary interrupted the combined response.
+        console.warn('Public bootstrap unavailable, using legacy endpoints:', bootstrapError);
+      }
 
       const endpoints = [
-        { url: `${API_URL}/projects`, setter: setProjects },
-        { url: `${API_URL}/news`, setter: setNews },
-        { url: `${API_URL}/faq`, setter: setFaqCategories },
-        { url: `${API_URL}/team`, setter: setTeam },
-        { url: `${API_URL}/vacancies`, setter: setVacancies },
-        { url: `${API_URL}/page-settings`, setter: setPageSettings },
-        { url: `${API_URL}/home-content`, setter: setHomePageContent, required: true },
-        { url: `${API_URL}/site-settings`, setter: setSiteSettings, required: true },
-        { url: `${API_URL}/project-filters`, setter: setProjectFilters },
-        { url: `${API_URL}/promotions`, setter: setPromotions },
-        { url: `${API_URL}/investors-content`, setter: setInvestorsContent },
-        { url: `${API_URL}/about-content`, setter: setAboutContent },
-        { url: `${API_URL}/contacts-content`, setter: setContactsContent },
-        { url: `${API_URL}/buy-methods`, setter: setBuyMethods },
+        { key: 'projects', url: `${API_URL}/projects`, setter: setProjects },
+        { key: 'news', url: `${API_URL}/news`, setter: setNews },
+        { key: 'faq', url: `${API_URL}/faq`, setter: setFaqCategories },
+        { key: 'team', url: `${API_URL}/team`, setter: setTeam },
+        { key: 'vacancies', url: `${API_URL}/vacancies`, setter: setVacancies },
+        { key: 'pageSettings', url: `${API_URL}/page-settings`, setter: setPageSettings },
+        { key: 'homeContent', url: `${API_URL}/home-content`, setter: setHomePageContent, required: true },
+        { key: 'siteSettings', url: `${API_URL}/site-settings`, setter: setSiteSettings, required: true },
+        { key: 'projectFilters', url: `${API_URL}/project-filters`, setter: setProjectFilters },
+        { key: 'promotions', url: `${API_URL}/promotions`, setter: setPromotions },
+        { key: 'investorsContent', url: `${API_URL}/investors-content`, setter: setInvestorsContent },
+        { key: 'aboutContent', url: `${API_URL}/about-content`, setter: setAboutContent },
+        { key: 'contactsContent', url: `${API_URL}/contacts-content`, setter: setContactsContent },
+        { key: 'buyMethods', url: `${API_URL}/buy-methods`, setter: setBuyMethods },
       ];
 
-      const results = await Promise.allSettled(endpoints.map(async ({ url, setter, required }) => {
-        const data = await fetchJson(url, required ? 5000 : 6000);
+      const results = await Promise.allSettled(endpoints.map(async ({ key, url, setter, required }) => {
+        const data = await fetchJson(url, required ? 6000 : 5000, required ? 2 : 1);
         if (data == null) {
           if (required) throw new Error(`Required endpoint returned no data: ${url}`);
-          return { url, loaded: false };
+          return { key, url, loaded: false, data: null };
         }
         applyData(url, data, setter);
-        return { url, loaded: true };
+        return { key, url, loaded: true, data };
       }));
 
       const requiredEndpoints = endpoints.filter(endpoint => endpoint.required).map(endpoint => endpoint.url);
       const loadedRequiredEndpoints = new Set(
         results
-          .filter((result): result is PromiseFulfilledResult<{ url: string; loaded: boolean }> => result.status === 'fulfilled')
+          .filter((result): result is PromiseFulfilledResult<{ key: string; url: string; loaded: boolean; data: any }> => result.status === 'fulfilled')
           .filter(result => result.value.loaded)
           .map(result => result.value.url)
       );
@@ -255,12 +407,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!hasRequiredData) {
         console.error('Required public data unavailable:', results);
         setError('Required public data unavailable');
+        setPublicDataReady(current => current);
+        return;
       }
-      setPublicDataReady(hasRequiredData);
+
+      const fulfilledResults = results.filter(
+        (result): result is PromiseFulfilledResult<{ key: string; url: string; loaded: boolean; data: any }> =>
+          result.status === 'fulfilled' && result.value.loaded,
+      );
+
+      if (fulfilledResults.length === endpoints.length) {
+        const legacyData = Object.fromEntries(
+          fulfilledResults.map(result => [result.value.key, result.value.data]),
+        ) as unknown as PublicBootstrap;
+        applyBootstrap(legacyData);
+      }
+
+      setPublicDataReady(true);
     } catch (err) {
       console.error('API Error:', err);
       setError('Required public data unavailable');
-      setPublicDataReady(false);
+      setPublicDataReady(current => current);
     } finally {
       setLoading(false);
     }
@@ -551,7 +718,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchAllData();
   };
 
-  if (loading || !publicDataReady) return null;
+  if (!publicDataReady) {
+    return <PublicDataStatusScreen loading={loading} onRetry={fetchAllData} />;
+  }
 
   return (
     <DataContext.Provider value={{
