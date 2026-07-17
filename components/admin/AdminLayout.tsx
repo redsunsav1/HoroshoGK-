@@ -13,6 +13,7 @@ import {
   ChevronUp, ChevronDown,
 } from 'lucide-react';
 import { enableAdminProjectPreview, sortProjects } from '../../utils/projects';
+import { hasManualNewsOrder, sortNewsItems } from '../../utils/news';
 
 // ============================================================
 // Sidebar Component
@@ -875,20 +876,85 @@ const ProjectsSection: React.FC = () => {
 // News Section
 // ============================================================
 const NewsSection: React.FC = () => {
-  const { news, deleteNews } = useData();
+  const { news, deleteNews, updateNewsOrder, resetNewsOrder } = useData();
   const navigate = useNavigate();
+  const [savingOrder, setSavingOrder] = useState(false);
+  const orderedNews = sortNewsItems(news);
+  const manualOrderEnabled = hasManualNewsOrder(news);
+
+  const moveNews = async (id: string, direction: -1 | 1) => {
+    const updated = [...orderedNews];
+    const index = updated.findIndex(item => item.id === id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= updated.length) return;
+
+    [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
+    setSavingOrder(true);
+    try {
+      await updateNewsOrder(updated);
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  const restoreDateOrder = async () => {
+    setSavingOrder(true);
+    try {
+      await resetNewsOrder();
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Новости</h1>
-        <button onClick={() => navigate('/admin/news/new')} className="bg-accent text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg">
-          <Plus className="w-4 h-4" /> Добавить новость
-        </button>
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Новости</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {manualOrderEnabled
+              ? 'Используется ручной порядок. Новая запись появится первой.'
+              : 'Автоматически отсортированы по дате: сначала самые новые.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={restoreDateOrder}
+            disabled={!manualOrderEnabled || savingOrder}
+            className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+          >
+            Вернуть порядок по дате
+          </button>
+          <button onClick={() => navigate('/admin/news/new')} className="bg-accent text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg">
+            <Plus className="w-4 h-4" /> Добавить новость
+          </button>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-4">
-        {news.map(item => (
+        {orderedNews.map((item, index) => (
           <div key={item.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
             <div className="flex items-center gap-6">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
+                <button
+                  onClick={() => moveNews(item.id, -1)}
+                  disabled={index === 0 || savingOrder}
+                  className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                  title="Поднять выше"
+                  aria-label={`Поднять новость «${item.title}» выше`}
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => moveNews(item.id, 1)}
+                  disabled={index === orderedNews.length - 1 || savingOrder}
+                  className="p-1.5 rounded-lg border bg-white text-gray-500 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-500"
+                  title="Опустить ниже"
+                  aria-label={`Опустить новость «${item.title}» ниже`}
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
               <div className="w-24 h-16 rounded-lg overflow-hidden bg-gray-100">
                 <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
               </div>
@@ -907,7 +973,7 @@ const NewsSection: React.FC = () => {
             </div>
           </div>
         ))}
-        {news.length === 0 && <p className="text-gray-400 py-8 text-center">Нет новостей</p>}
+        {orderedNews.length === 0 && <p className="text-gray-400 py-8 text-center">Нет новостей</p>}
       </div>
     </div>
   );

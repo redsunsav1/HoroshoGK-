@@ -20,6 +20,7 @@ import {
   CONTACTS_CONTENT as INITIAL_CONTACTS_CONTENT,
   BUY_METHODS as INITIAL_BUY_METHODS
 } from '../constants';
+import { hasManualNewsOrder, removeManualNewsOrder, sortNewsItems } from '../utils/news';
 
 // API URL - will be same origin in production
 const API_URL = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
@@ -179,6 +180,8 @@ interface DataContextType {
   addNews: (item: NewsItem) => Promise<void>;
   updateNews: (item: NewsItem) => Promise<void>;
   deleteNews: (id: string) => Promise<void>;
+  updateNewsOrder: (items: NewsItem[]) => Promise<void>;
+  resetNewsOrder: () => Promise<void>;
 
   // FAQ
   faqCategories: FaqCategory[];
@@ -272,7 +275,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // State
   const [cachedBootstrap] = useState<PublicBootstrap | null>(() => readBootstrapCache());
   const [projects, setProjects] = useState<Project[]>(cachedBootstrap?.projects ?? []);
-  const [news, setNews] = useState<NewsItem[]>(cachedBootstrap?.news ?? []);
+  const [news, setNews] = useState<NewsItem[]>(sortNewsItems(cachedBootstrap?.news ?? []));
   const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(cachedBootstrap?.faq ?? []);
   const [team, setTeam] = useState<TeamMember[]>(cachedBootstrap?.team ?? []);
   const [vacancies, setVacancies] = useState<Vacancy[]>(cachedBootstrap?.vacancies ?? []);
@@ -309,13 +312,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const applyData = (url: string, data: any, setter: (data: any) => void) => {
       if (data == null) return;
-      setter(url.endsWith('/projects') && Array.isArray(data) ? migrateGallery(data) : data);
+      if (url.endsWith('/projects') && Array.isArray(data)) {
+        setter(migrateGallery(data));
+        return;
+      }
+      setter(url.endsWith('/news') && Array.isArray(data) ? sortNewsItems(data) : data);
     };
 
     const applyBootstrap = (data: PublicBootstrap) => {
       const normalized: PublicBootstrap = {
         projects: migrateGallery(Array.isArray(data.projects) ? data.projects : []),
-        news: Array.isArray(data.news) ? data.news : [],
+        news: sortNewsItems(Array.isArray(data.news) ? data.news : []),
         faq: Array.isArray(data.faq) ? data.faq : [],
         team: Array.isArray(data.team) ? data.team : [],
         vacancies: Array.isArray(data.vacancies) ? data.vacancies : [],
@@ -467,13 +474,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // --- News ---
   const addNews = async (item: NewsItem) => {
+    const savedItem = hasManualNewsOrder(news) ? { ...item, sortOrder: -1 } : item;
     const response = await fetch(`${API_URL}/news`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
+      body: JSON.stringify(savedItem),
     });
     if (!response.ok) throw new Error('Failed to add news');
-    setNews(prev => [...prev, item]);
+    setNews(prev => sortNewsItems([...prev, savedItem]));
   };
 
   const updateNews = async (item: NewsItem) => {
@@ -484,13 +492,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(updated),
     });
     if (!response.ok) throw new Error('Failed to update news');
-    setNews(updated);
+    setNews(sortNewsItems(updated));
   };
 
   const deleteNews = async (id: string) => {
     const response = await fetch(`${API_URL}/news/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Failed to delete news');
-    setNews(prev => prev.filter(n => n.id !== id));
+    setNews(prev => sortNewsItems(prev.filter(n => n.id !== id)));
+  };
+
+  const updateNewsOrder = async (items: NewsItem[]) => {
+    const ordered = items.map((item, index) => ({ ...item, sortOrder: index }));
+    const response = await fetch(`${API_URL}/news`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ordered),
+    });
+    if (!response.ok) throw new Error('Failed to update news order');
+    setNews(sortNewsItems(ordered));
+  };
+
+  const resetNewsOrder = async () => {
+    const orderedByDate = removeManualNewsOrder(news);
+    const response = await fetch(`${API_URL}/news`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderedByDate),
+    });
+    if (!response.ok) throw new Error('Failed to reset news order');
+    setNews(orderedByDate);
   };
 
   // --- FAQ ---
@@ -698,7 +728,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Reset local state
       setProjects(INITIAL_PROJECTS);
-      setNews(INITIAL_NEWS);
+      setNews(sortNewsItems(INITIAL_NEWS));
       setFaqCategories(INITIAL_FAQ);
       setTeam(INITIAL_TEAM);
       setVacancies(INITIAL_VACANCIES);
@@ -737,6 +767,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addNews,
       updateNews,
       deleteNews,
+      updateNewsOrder,
+      resetNewsOrder,
 
       // FAQ
       faqCategories,

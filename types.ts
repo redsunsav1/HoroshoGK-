@@ -126,6 +126,7 @@ export interface NewsItem {
   date: string;
   image: string;
   category: string;
+  sortOrder?: number;
 }
 
 // FAQ

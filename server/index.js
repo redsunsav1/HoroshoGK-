@@ -132,8 +132,36 @@ function readSiteSettings() {
 }
 
 // News
+function getNewsTimestamp(item) {
+  const timestamp = Date.parse(item?.date);
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function hasManualNewsOrder(news) {
+  return news.some(item => typeof item?.sortOrder === 'number');
+}
+
+function sortNewsItems(news) {
+  const useManualOrder = hasManualNewsOrder(news);
+
+  return news
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      if (useManualOrder) {
+        const orderA = typeof a.item?.sortOrder === 'number' ? a.item.sortOrder : Number.MAX_SAFE_INTEGER;
+        const orderB = typeof b.item?.sortOrder === 'number' ? b.item.sortOrder : Number.MAX_SAFE_INTEGER;
+        if (orderA !== orderB) return orderA - orderB;
+      }
+
+      const dateDifference = getNewsTimestamp(b.item) - getNewsTimestamp(a.item);
+      return dateDifference !== 0 ? dateDifference : a.index - b.index;
+    })
+    .map(({ item }) => item);
+}
+
 function readNews() {
-  return readJsonFile(NEWS_FILE, []);
+  const news = readJsonFile(NEWS_FILE, []);
+  return Array.isArray(news) ? sortNewsItems(news) : [];
 }
 
 // Team
@@ -470,20 +498,34 @@ app.get('/api/news', (req, res) => {
 });
 
 app.put('/api/news', (req, res) => {
-  writeJsonFile(NEWS_FILE, req.body);
-  res.json(req.body);
+  if (!Array.isArray(req.body)) {
+    return res.status(400).json({ error: 'News payload must be an array' });
+  }
+  const news = sortNewsItems(req.body);
+  writeJsonFile(NEWS_FILE, news);
+  res.json(news);
 });
 
 app.post('/api/news', (req, res) => {
-  const news = readNews();
-  news.push(req.body);
-  writeJsonFile(NEWS_FILE, news);
-  res.status(201).json(req.body);
+  let news = readNews();
+  let item = req.body;
+
+  if (hasManualNewsOrder(news)) {
+    news = news.map((existingItem, index) => ({ ...existingItem, sortOrder: index + 1 }));
+    item = { ...item, sortOrder: 0 };
+  }
+
+  const updated = sortNewsItems([...news, item]);
+  writeJsonFile(NEWS_FILE, updated);
+  res.status(201).json(item);
 });
 
 app.delete('/api/news/:id', (req, res) => {
   const news = readNews();
-  const filtered = news.filter(n => n.id !== req.params.id);
+  let filtered = news.filter(n => n.id !== req.params.id);
+  if (hasManualNewsOrder(filtered)) {
+    filtered = filtered.map((item, index) => ({ ...item, sortOrder: index }));
+  }
   writeJsonFile(NEWS_FILE, filtered);
   res.json({ success: true });
 });
