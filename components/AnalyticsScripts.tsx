@@ -38,7 +38,12 @@ export const AnalyticsScripts: React.FC = () => {
     }
 
     // Calltouch
-    if (siteSettings.calltouchModId && siteSettings.calltouchRoutKey) {
+    // Основной сниппет вставлен статикой в index.html: проверка интеграции
+    // Calltouch читает исходный HTML и не исполняет JS, поэтому вставки из
+    // React ей не видно. Этот блок остаётся запасным путём для Mod ID из
+    // админки и не должен поднимать второй экземпляр поверх статического.
+    // routKey к виджету отношения не имеет и больше не блокирует вставку.
+    if (siteSettings.calltouchModId && !(window as any).CalltouchDataObject) {
       const modId = siteSettings.calltouchModId;
       if (!document.querySelector(`script[data-ct-mod="${modId}"]`)) {
         const script = document.createElement('script');
