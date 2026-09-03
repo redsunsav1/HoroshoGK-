@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
   Project, NewsItem, FaqCategory, TeamMember, Vacancy,
   PageSettings, HomePageContent, SiteSettings, ProjectFilter,
@@ -551,6 +551,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchAllData();
   };
 
+  // Новости отдаём отсортированными по дате, свежие сверху. В JSON они лежат
+  // в порядке добавления, поэтому без сортировки новая запись падала в конец
+  // списка независимо от своей даты. Записи с пустой или битой датой уходят вниз.
+  const sortedNews = useMemo(() => {
+    const time = (value: string) => {
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+    };
+    return [...news].sort((a, b) => time(b.date) - time(a.date));
+  }, [news]);
+
   if (loading || !publicDataReady) return null;
 
   return (
@@ -564,7 +575,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       deleteProject,
 
       // News
-      news,
+      news: sortedNews,
       addNews,
       updateNews,
       deleteNews,
