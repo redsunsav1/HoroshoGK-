@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, ChevronDown } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 
+const MAIN_OFFICE_PHONE = '8 8512 48 08 48';
+
 interface NavItem {
   label: string;
   href: string;
@@ -64,7 +66,7 @@ export const Header: React.FC = () => {
               >
                 <Link
                   to={item.href}
-                  className={`flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
+                  className={`flex items-center gap-1 px-2.5 xl:px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
                     isActive(item.href)
                       ? 'text-accent bg-accent/5'
                       : 'text-primary hover:text-accent hover:bg-accent/5'
@@ -100,13 +102,24 @@ export const Header: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center gap-4">
-            <a
-              href={`tel:${siteSettings.phone.replace(/[^\d+]/g, '')}`}
-              className="hidden md:flex items-center font-bold text-primary hover:text-accent transition-colors"
-            >
-              <Phone className="w-4 h-4 mr-2 text-accent" />
-              {siteSettings.phone}
-            </a>
+            <div className="hidden md:grid grid-cols-[auto_auto] items-center gap-x-3 gap-y-1">
+              <span className="text-xs text-secondary text-right whitespace-nowrap">Отдел продаж</span>
+              <a
+                href={`tel:${siteSettings.phone.replace(/[^\d+]/g, '')}`}
+                className="flex items-center whitespace-nowrap font-bold text-primary hover:text-accent transition-colors"
+              >
+                <Phone className="w-4 h-4 mr-2 text-accent" />
+                {siteSettings.phone}
+              </a>
+              <span className="text-xs text-secondary text-right whitespace-nowrap">Главный офис</span>
+              <a
+                href={`tel:${MAIN_OFFICE_PHONE.replace(/[^\d+]/g, '')}`}
+                className="flex items-center whitespace-nowrap font-bold text-primary hover:text-accent transition-colors"
+              >
+                <Phone className="w-4 h-4 mr-2 text-accent" />
+                {MAIN_OFFICE_PHONE}
+              </a>
+            </div>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-primary"
